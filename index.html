@@ -766,51 +766,97 @@ function recuperarApuestaLocal() {
 }
 // 2. RELLENAR Y BLOQUEAR (Actualizada para mostrar Nombre y Tel)
 function rellenarYBloquear(datos) {
-    // 1. Mostramos los datos personales pero bloqueados
-    document.getElementById('identificacion-section').style.display = 'block';
-    document.getElementById('nombre_usuario').value = datos.nombre || "";
-    document.getElementById('telefono_usuario').value = datos.telefono || "";
+
+    // 1. OCULTAMOS la sección de identificación para que no se vea el botón "Siguiente" ni campos vacíos
+
+    document.getElementById('identificacion-section').style.display = 'none';
+
+ 
+
+    // 2. RELLENAMOS Y BLOQUEAMOS los extras (Goleador y Campeón)
+
     document.getElementById('goleador').value = datos.goleador || "";
+
+    document.getElementById('goleador').disabled = true;
+
     document.getElementById('campeon_mundial').value = datos.campeon || "";
 
-    // Bloqueo total de inputs
-    const campos = ['nombre_usuario', 'telefono_usuario', 'goleador', 'campeon_mundial'];
-    campos.forEach(id => document.getElementById(id).disabled = true);
+    document.getElementById('campeon_mundial').disabled = true;
 
-    // 2. Ocultamos el botón de "Siguiente" que está en identificación
-    const btnSiguiente = document.querySelector('#identificacion-section .menu-btn');
-    if(btnSiguiente) btnSiguiente.classList.add('hidden');
+ 
 
-    // 3. Rellenar y bloquear los 72 partidos
+    // 3. RELLENAR Y BLOQUEAR los 72 partidos
+
     for (let i = 1; i <= partidosData.length; i++) {
+
         const h = document.getElementById(`h${i}`);
+
         const a = document.getElementById(`a${i}`);
+
         if (h && a && datos.resultados && datos.resultados[i]) {
+
             h.value = datos.resultados[i].h;
+
             a.value = datos.resultados[i].a;
+
             h.disabled = true;
+
             a.disabled = true;
+
         }
+
     }
 
-    // 4. EL CANDADO: Ocultar botón de enviar y mostrar el de volver
-    const btnEnviar = document.getElementById('btn-final');
-    if (btnEnviar) {
-        // En lugar de ocultarlo, lo transformamos en el botón de VOLVER
-        btnEnviar.innerText = "VOLVER AL INICIO";
-        btnEnviar.style.backgroundColor = "#FFFFFF"; // Gris navegación
-        btnEnviar.onclick = function() { location.reload(); };
-        btnEnviar.disabled = false; // Este botón sí debe estar activo para salir
+ 
+
+    // 4. TRANSFORMAMOS el botón final de "Enviar" a "Volver" con el diseño limpio
+
+    const btnFinal = document.getElementById('btn-final');
+
+    if (btnFinal) {
+
+        btnFinal.innerText = "VOLVER AL MENÚ";
+
+        btnFinal.style.display = 'block';
+
+        btnFinal.style.width = '100%';
+
+        btnFinal.style.padding = '20px';
+
+        btnFinal.style.marginTop = '30px';
+
+        btnFinal.style.borderRadius = '200px';
+
+        btnFinal.style.border = '2px solid black';
+
+        btnFinal.style.backgroundColor = '#ffffff';
+
+        btnFinal.style.color = 'black';
+
+        btnFinal.style.fontWeight = 'bold';
+
+        btnFinal.onclick = () => location.reload();
+
     }
+
+ 
 
     // 5. Mostramos el botón de PDF si existe
+
     if(document.getElementById('btn-pdf')) {
+
         document.getElementById('btn-pdf').style.display = 'block';
+
     }
 
+ 
+
     // 6. Recalcular las tablas de grupos para que se vean los puntos guardados
+
     const gruposUnicos = [...new Set(partidosData.map(p => p.g))];
+
     gruposUnicos.forEach(g => actualizarPuntosGrupo(g));
+
 }
 // 1. FUNCIÓN PARA BUSCAR EN GOOGLE SHEETS (Si no hay nada local)
 async function consultarBBDD() {
