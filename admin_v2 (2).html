@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Mundial 2026 - V2.5</title>
+    <style>
+        :root { --primary: #1a237e; --accent: #2e7d32; --bg: #f0f2f5; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 20px; }
+        .container { max-width: 1300px; margin: auto; display: grid; grid-template-columns: 1fr 500px; gap: 20px; }
+        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .header-flex { display: flex; justify-content: space-between; align-items: center; background: var(--primary); color: white; padding: 15px 25px; border-radius: 12px; margin-bottom: 20px; }
+        .btn { border: none; padding: 10px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; color: white; margin-right: 5px; transition: 0.3s; }
+        .btn-green { background: var(--accent); }
+        .btn-blue { background: #1976d2; }
+        .btn-backup { background: #6a1b9a; }
+        .btn-mail { background: #d32f2f; }
+        .admin-list { height: 650px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; border-radius: 8px; background: #fafafa; }
+        .match-edit { display: grid; grid-template-columns: 40px 1.2fr 110px 1.2fr 100px; align-items: center; padding: 10px; border-bottom: 1px solid #eee; font-size: 0.85em; }
+        .scores-admin { display: flex; gap: 5px; justify-content: center; }
+        .scores-admin input { width: 40px; height: 30px; text-align: center; font-weight: bold; border-radius: 4px; border: 1px solid #ccc; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.9em; }
+        th { background: #f5f5f5; padding: 12px; border-bottom: 2px solid #ddd; }
+        td { padding: 12px; border-bottom: 1px solid #eee; text-align: center; }
+        .exacto-highlight { background: #e8f5e9; font-weight: bold; color: #2e7d32; }
+        
+        #print-header { display: none; }
+        @media print {
+            .header-flex, .toolbar, .admin-matches-card, .btn, input, .no-print { display: none !important; }
+            #print-header { display: block !important; text-align: center; margin-bottom: 30px; border-bottom: 2px solid #1a237e; padding-bottom: 10px; }
+            .container { display: block !important; }
+            .card { box-shadow: none !important; border: none !important; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="print-header">
+    <h1>Ranking Oficial Mundial 2026</h1>
+    <p id="print-date"></p>
+</div>
+
+<div class="header-flex no-print">
+    <h1>⚙️ Admin Mundial 2026</h1>
+    <div class="toolbar">
+        <input type="file" id="csvFileInput" accept=".csv" style="display:none">
+        <button class="btn btn-blue" onclick="document.getElementById('csvFileInput').click()">📂 Cargar CSV</button>
+        <button class="btn btn-backup" onclick="exportarBackup()">💾 Guardar Backup</button>
+        <input type="file" id="importBackup" accept=".json" style="display:none">
+        <button class="btn btn-backup" onclick="document.getElementById('importBackup').click()">🔄 Cargar Backup</button>
+        <button class="btn btn-blue" onclick="window.print()">🖨️ Imprimir</button>
+        <button class="btn btn-mail" onclick="enviarRankingEmail()">📧 Email Ranking</button>
+        <button class="btn" style="background: #f44336;" onclick="resetearAdmin()">🗑️ Reset</button>
+    </div>
+</div>
+
+<div class="container">
+    <!-- SECCIÓN IZQUIERDA: RESULTADOS REALES -->
+    <div class="card admin-matches-card no-print">
+        <h2>⚽ Resultados Reales de la FIFA</h2>
+        <div id="admin-matches-container" class="admin-list"></div>
+        <button class="btn btn-green" style="width:100%; margin-top:20px; padding:18px; font-size:1.2em;" onclick="ejecutarCalculo()">🚀 ACTUALIZAR Y SINCRONIZAR RANKING</button>
+    </div>
+
+    <!-- SECCIÓN DERECHA: RANKING Y PREMIOS -->
+    <div class="card-column">
+        <div class="card">
+            <h2>📊 Clasificación</h2>
+            <span id="count-label" style="font-weight:bold; color:var(--primary);">Participantes: 0</span>
+            <table id="tabla-ranking">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th style="text-align:left">Jugador</th>
+                        <th>🎯 Exactos</th>
+                        <th>✅ G/E</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <div class="card" style="background: #fff9c4; border: 1px solid #fbc02d;">
+            <h3>💰 Calculadora de Premios</h3>
+            <label>Recaudación Total (€):</label>
+            <input type="number" id="total_recaudacion" oninput="calcularReparto()" placeholder="Ej: 500">
+            <div id="reparto-vivos" style="margin-top: 15px; font-size: 0.9em; line-height: 2;">
+                <div>🥇 Fase Grupos (45%): <b id="p-grupos">0€</b></div>
+                <div>🏆 Fase Eliminatoria (40%): <b id="p-elimin">0€</b></div>
+                <div>🌍 Campeón (10%): <b id="p-camp">0€</b></div>
+                <div>⚽ Pichichi (5%): <b id="p-pich">0€</b></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 1. CONFIGURACIÓN INICIAL
+    const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbwhp9NMKSI-ZPMJkPrb8i-lOx0fw4OtOeN4LYUL89uu5Mjb5GJJ7S9W1XfNYaxQbrkH/exec"; 
+    
+    const partidosData = [
+        { t1: "México 🇲🇽", t2: "Sudáfrica 🇿🇦", f: "11 Jun 15:00" },
+        { t1: "R. de Corea 🇰🇷", t2: "R. Checa 🇨🇿", f: "11 Jun 22:00" },
+        { t1: "Canadá 🇨🇦", t2: "Bosnia y Herz. 🇧🇦", f: "12 Jun 15:00" },
+        { t1: "EE. UU. 🇺🇸", t2: "Paraguay 🇵🇾", f: "12 Jun 21:00" },
+        { t1: "Catar 🇶🇦", t2: "Suiza 🇨🇭", f: "13 Jun 15:00" },
+        { t1: "Brasil 🇧🇷", t2: "Marruecos 🇲🇦", f: "13 Jun 18:00" },
+        { t1: "Haití 🇭🇹", t2: "Escocia 🏴󠁧󠁢󠁳󠁣󠁴󠁿", f: "13 Jun 21:00" },
+        { t1: "Australia 🇦🇺", t2: "Turquía 🇹🇷", f: "14 Jun 00:00" },
+        { t1: "Alemania 🇩🇪", t2: "Curazao 🇨🇼", f: "14 Jun 13:00" },
+        { t1: "Países Bajos 🇳🇱", t2: "Japón 🇯🇵", f: "14 Jun 16:00" },
+        { t1: "Costa de Marfil 🇨🇮", t2: "Ecuador 🇪🇨", f: "14 Jun 19:00" },
+        { t1: "Suecia 🇸🇪", t2: "Túnez 🇹🇳", f: "14 Jun 22:00" },
+        { t1: "España 🇪🇸", t2: "Cabo Verde 🇨🇻", f: "15 Jun 12:00" },
+        { t1: "Bélgica 🇧🇪", t2: "Egipto 🇪🇬", f: "15 Jun 15:00" },
+        { t1: "Arabia Saudí 🇸🇦", t2: "Uruguay 🇺🇾", f: "15 Jun 18:00" },
+        { t1: "Irán 🇮🇷", t2: "Nueva Zelanda 🇳🇿", f: "15 Jun 21:00" },
+        { t1: "Francia 🇫🇷", t2: "Senegal 🇸🇳", f: "16 Jun 15:00" },
+        { t1: "Irak 🇮🇶", t2: "Noruega 🇳🇴", f: "16 Jun 18:00" },
+        { t1: "Argentina 🇦🇷", t2: "Argelia 🇩🇿", f: "16 Jun 21:00" },
+        { t1: "Austria 🇦🇹", t2: "Jordania 🇯🇴", f: "17 Jun 00:00" },
+        { t1: "Portugal 🇵🇹", t2: "RD Congo 🇨🇩", f: "17 Jun 13:00" },
+        { t1: "Inglaterra 🏴󠁧󠁢󠁥󠁮󠁧󠁿", t2: "Croacia 🇭🇷", f: "17 Jun 16:00" },
+        { t1: "Ghana 🇬🇭", t2: "Panamá 🇵🇦", f: "17 Jun 19:00" },
+        { t1: "Uzbekistán 🇺🇿", t2: "Colombia 🇨🇴", f: "17 Jun 22:00" },
+        { t1: "R. Checa 🇨🇿", t2: "Sudáfrica 🇿🇦", f: "18 Jun 12:00" },
+        { t1: "Suiza 🇨🇭", t2: "Bosnia y Herz. 🇧🇦", f: "18 Jun 15:00" },
+        { t1: "Canadá 🇨🇦", t2: "Catar 🇶🇦", f: "18 Jun 18:00" },
+        { t1: "México 🇲🇽", t2: "R. de Corea 🇰🇷", f: "18 Jun 21:00" },
+        { t1: "EE. UU. 🇺🇸", t2: "Australia 🇦🇺", f: "19 Jun 15:00" },
+        { t1: "Escocia 🏴󠁧󠁢󠁳󠁣󠁴󠁿", t2: "Marruecos 🇲🇦", f: "19 Jun 18:00" },
+        { t1: "Brasil 🇧🇷", t2: "Haití 🇭🇹", f: "19 Jun 21:00" },
+        { t1: "Turquía 🇹🇷", t2: "Paraguay 🇵🇾", f: "20 Jun 00:00" },
+        { t1: "P. Bajos 🇳🇱", t2: "Suecia 🇸🇪", f: "20 Jun 13:00" },
+        { t1: "Alemania 🇩🇪", t2: "C. de Marfil 🇨🇮", f: "20 Jun 16:00" },
+        { t1: "Ecuador 🇪🇨", t2: "Curazao 🇨🇼", f: "20 Jun 22:00" },
+        { t1: "Túnez 🇹🇳", t2: "Japón 🇯🇵", f: "21 Jun 00:00" },
+        { t1: "España 🇪🇸", t2: "Arabia Saudí 🇸🇦", f: "21 Jun 12:00" },
+        { t1: "Bélgica 🇧🇪", t2: "Irán 🇮🇷", f: "21 Jun 15:00" },
+        { t1: "Uruguay 🇺🇾", t2: "Cabo Verde 🇨🇻", f: "21 Jun 18:00" },
+        { t1: "N. Zelanda 🇳🇿", t2: "Egipto 🇪🇬", f: "21 Jun 21:00" },
+        { t1: "Argentina 🇦🇷", t2: "Austria 🇦🇹", f: "22 Jun 13:00" },
+        { t1: "Francia 🇫🇷", t2: "Irak 🇮🇶", f: "22 Jun 17:00" },
+        { t1: "Noruega 🇳🇴", t2: "Senegal 🇸🇳", f: "22 Jun 20:00" },
+        { t1: "Jordania 🇯🇴", t2: "Argelia 🇩🇿", f: "22 Jun 23:00" },
+        { t1: "Portugal 🇵🇹", t2: "Uzbekistán 🇺🇿", f: "23 Jun 13:00" },
+        { t1: "Inglaterra 🏴󠁧󠁢󠁥󠁮󠁧󠁿", t2: "Ghana 🇬🇭", f: "23 Jun 16:00" },
+        { t1: "Panamá 🇵🇦", t2: "Croacia 🇭🇷", f: "23 Jun 19:00" },
+        { t1: "Colombia 🇨🇴", t2: "RD Congo 🇨🇩", f: "23 Jun 22:00" },
+        { t1: "Suiza 🇨🇭", t2: "Canadá 🇨🇦", f: "24 Jun 15:00" },
+        { t1: "Bosnia y Herz. 🇧🇦", t2: "Catar 🇶🇦", f: "24 Jun 15:00" },
+        { t1: "Escocia 🏴󠁧󠁢󠁳󠁣󠁴󠁿", t2: "Brasil 🇧🇷", f: "24 Jun 18:00" },
+        { t1: "Marruecos 🇲🇦", t2: "Haití 🇭🇹", f: "24 Jun 18:00" },
+        { t1: "R. Checa 🇨🇿", t2: "México 🇲🇽", f: "24 Jun 21:00" },
+        { t1: "Sudáfrica 🇿🇦", t2: "R. de Corea 🇰🇷", f: "24 Jun 21:00" },
+        { t1: "Curazao 🇨🇼", t2: "C. de Marfil 🇨🇮", f: "25 Jun 16:00" },
+        { t1: "Ecuador 🇪🇨", t2: "Alemania 🇩🇪", f: "25 Jun 16:00" },
+        { t1: "Japón 🇯🇵", t2: "Suecia 🇸🇪", f: "25 Jun 19:00" },
+        { t1: "Túnez 🇹🇳", t2: "P. Bajos 🇳🇱", f: "25 Jun 19:00" },
+        { t1: "Turquía 🇹🇷", t2: "EE. UU. 🇺🇸", f: "25 Jun 22:00" },
+        { t1: "Paraguay 🇵🇾", t2: "Australia 🇦🇺", f: "25 Jun 22:00" },
+        { t1: "Noruega 🇳🇴", t2: "Francia 🇫🇷", f: "26 Jun 15:00" },
+        { t1: "Senegal 🇸🇳", t2: "Irak 🇮🇶", f: "26 Jun 15:00" },
+        { t1: "Cabo Verde 🇨🇻", t2: "Arabia Saudí 🇸🇦", f: "26 Jun 20:00" },
+        { t1: "Uruguay 🇺🇾", t2: "España 🇪🇸", f: "26 Jun 20:00" },
+        { t1: "Egipto 🇪🇬", t2: "Irán 🇮🇷", f: "26 Jun 23:00" },
+        { t1: "N. Zelanda 🇳🇿", t2: "Bélgica 🇧🇪", f: "26 Jun 23:00" },
+        { t1: "Panamá 🇵🇦", t2: "Inglaterra 🏴󠁧󠁢󠁥󠁮󠁧󠁿", f: "27 Jun 17:00" },
+        { t1: "Croacia 🇭🇷", t2: "Ghana 🇬🇭", f: "27 Jun 17:00" },
+        { t1: "Colombia 🇨🇴", t2: "Portugal 🇵🇹", f: "27 Jun 19:30" },
+        { t1: "RD Congo 🇨🇩", t2: "Uzbekistán 🇺🇿", f: "27 Jun 19:30" },
+        { t1: "Argelia 🇩🇿", t2: "Austria 🇦🇹", f: "27 Jun 22:00" },
+        { t1: "Jordania 🇯🇴", t2: "Argentina 🇦🇷", f: "27 Jun 22:00" }
+    ];
+
+    let participantes = [];
+    const listContainer = document.getElementById('admin-matches-container');
+
+    // 2. INICIALIZACIÓN
+    function init() {
+        partidosData.forEach((p, i) => {
+            const id = i + 1;
+            listContainer.innerHTML += `
+                <div class="match-row match-edit">
+                    <span style="font-weight:bold; color:#1a237e">P${id}</span>
+                    <span style="text-align:right">${p.t1}</span>
+                    <div class="scores-admin">
+                        <input type="number" id="real_h${id}" min="0" oninput="ejecutarCalculo(false)">
+                        <input type="number" id="real_a${id}" min="0" oninput="ejecutarCalculo(false)">
+                    </div>
+                    <span>${p.t2}</span>
+                    <span style="font-size:0.7em; color:#999">${p.f}</span>
+                </div>`;
+        });
+        document.getElementById('print-date').innerText = "Actualizado: " + new Date().toLocaleDateString();
+        
+        // Auto-recuperar datos del navegador
+        const saved = localStorage.getItem('porra_2026_data');
+        if(saved) {
+            const data = JSON.parse(saved);
+            participantes = data.participantes || [];
+            for(let i=1; i<=72; i++) {
+                if(data.reales && data.reales[i]) {
+                    document.getElementById(`real_h${i}`).value = data.reales[i].h;
+                    document.getElementById(`real_a${i}`).value = data.reales[i].a;
+                }
+            }
+            document.getElementById('count-label').innerText = "Participantes: " + participantes.length;
+            ejecutarCalculo(false);
+        }
+    }
+
+    // 3. LECTOR CSV (Google Sheets)
+    document.getElementById('csvFileInput').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            const filas = event.target.result.split(/\r?\n/).slice(1);
+            participantes = filas.filter(f => f.trim() !== "").map(f => {
+                const col = f.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+                return { 
+                    nombre: col[1] ? col[1].replace(/"/g,"").trim() : "Anónimo", 
+                    prono: col[5] || "" // Columna F (Resultados)
+                };
+            });
+            document.getElementById('count-label').innerText = "Participantes: " + participantes.length;
+            ejecutarCalculo();
+        };
+        reader.readAsText(file);
+    });
+
+    // 4. MOTOR DE CÁLCULO (5 pts Exacto / 2 pts Tendencia)
+    function ejecutarCalculo(notificar = true) {
+        if (participantes.length === 0) return;
+
+        let ranking = participantes.map(p => {
+            let pts = 0, ex = 0, ge = 0;
+            for (let i = 1; i <= 72; i++) {
+                const rhV = document.getElementById(`real_h${i}`).value;
+                const raV = document.getElementById(`real_a${i}`).value;
+                if (rhV !== "" && raV !== "") {
+                    const rh = parseInt(rhV); const ra = parseInt(raV);
+                    const regex = new RegExp("P" + i + ":\\s*\\[(\\d+)-(\\d+)\\]");
+                    const m = p.prono.match(regex);
+                    if (m) {
+                        const ph = parseInt(m[1]); const pa = parseInt(m[2]);
+                        if (rh === ph && ra === pa) { pts += 5; ex++; }
+                        else if ((rh > ra && ph > pa) || (rh < ra && ph < pa) || (rh === ra && ph === pa)) { pts += 2; ge++; }
+                    }
+                }
+            }
+            return { nombre: p.nombre, pts, ex, ge };
+        });
+
+        ranking.sort((a, b) => b.pts - a.pts || b.ex - a.ex);
+        window.ultimoRanking = ranking;
+
+        const tbody = document.querySelector("#tabla-ranking tbody");
+        tbody.innerHTML = ranking.map((p, i) => `
+            <tr class="${p.ex > 0 ? 'exacto-highlight' : ''}">
+                <td>${i + 1}</td><td style="text-align:left">${p.nombre}</td>
+                <td>${p.ex}</td><td>${p.ge}</td><td><b>${p.pts}</b></td>
+            </tr>`).join('');
+
+        // Autoguardado Local
+        const reales = {};
+        for(let i=1; i<=72; i++) {
+            reales[i] = { h: document.getElementById(`real_h${i}`).value, a: document.getElementById(`real_a${i}`).value };
+        }
+        localStorage.setItem('porra_2026_data', JSON.stringify({ participantes, reales }));
+        
+        if(notificar) subirRankingAGoogle(ranking);
+    }
+
+    // 5. SINCRONIZACIÓN CON GOOGLE SHEETS
+function subirRankingAGoogle(ranking) {
+    if (!ranking || ranking.length === 0) return;
+    const inputsRellenos = [...document.querySelectorAll('.scores-admin input')].filter(i => i.value !== "").length;
+    const partidosContados = Math.floor(inputsRellenos / 2); // 2 inputs por partido
+    const partidosJugados = [...document.querySelectorAll('.scores-admin input')].filter(i => i.value !== "").length / 2;
+    const dataParaSubir = {
+        ranking: ranking.map((p, i) => ({
+            pos: i + 1,
+            nombre: p.nombre,
+            pts: p.pts,
+            ex: p.ex,
+            ge: p.ge // <--- Enviamos los aciertos de tendencia
+        })),
+                infoExtra: {
+            jornadas: partidosContados,
+            ultimaActualizacion: new Date().toLocaleString('es-ES', { hour: '2-digit', minute: '2-digit' }) + "h"
+        }
+    };
+
+    fetch(GOOGLE_URL, {
+        method: 'POST',
+        mode: 'no-cors', // Google requiere esto desde navegadores
+        headers: {
+            'Content-Type': 'text/plain' // Evita errores de pre-flight CORS
+        },
+        body: JSON.stringify(dataParaSubir)
+    }).then(() => {
+        console.log("🚀 Sincronización enviada a Google Sheets");
+    }).catch(err => {
+        console.error("❌ Error en la sincronización:", err);
+    });
+}
+    // 6. UTILIDADES (Backup, Premios, Email)
+    function exportarBackup() {
+        const reales = {};
+        for(let i=1; i<=72; i++) reales[i] = { h: document.getElementById(`real_h${i}`).value, a: document.getElementById(`real_a${i}`).value };
+        const blob = new Blob([JSON.stringify({ participantes, reales })], { type: "application/json" });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = "backup_porra_2026.json";
+        link.click();
+    }
+
+    document.getElementById('importBackup').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            const data = JSON.parse(event.target.result);
+            participantes = data.participantes;
+            for(let i=1; i<=72; i++) {
+                document.getElementById(`real_h${i}`).value = data.reales[i].h;
+                document.getElementById(`real_a${i}`).value = data.reales[i].a;
+            }
+            ejecutarCalculo(false);
+        };
+        reader.readAsText(file);
+    });
+
+    function calcularReparto() {
+        const total = document.getElementById('total_recaudacion').value || 0;
+        document.getElementById('p-grupos').innerText = (total * 0.45).toFixed(2) + "€";
+        document.getElementById('p-elimin').innerText = (total * 0.40).toFixed(2) + "€";
+        document.getElementById('p-camp').innerText = (total * 0.10).toFixed(2) + "€";
+        document.getElementById('p-pich').innerText = (total * 0.05).toFixed(2) + "€";
+    }
+
+    function enviarRankingEmail() {
+        let txt = "🏆 RANKING ACTUALIZADO\n\n";
+        window.ultimoRanking.forEach((p, i) => txt += `${i+1}. ${p.nombre} - ${p.pts} pts (${p.ex} exactos)\n`);
+        window.location.href = `mailto:?subject=Ranking Mundial&body=${encodeURIComponent(txt)}`;
+    }
+
+    function resetearAdmin() {
+        if(confirm("¿Borrar todo?")) { localStorage.clear(); location.reload(); }
+    }
+
+    init();
+</script>
+</body>
+</html>

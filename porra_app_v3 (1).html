@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <script src="https://cloudflare.com"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiniela Mundial 2026</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #004d40; --blue-axa: #0b3aa9; --bg: #f4f7f6; }
+
+
+
+        body { font-family: Montserrat, sans-serif;  margin: 0; padding-bottom: 200px;background-image: linear-gradient(rgba(255,255,255,0.5), rgba(0,114,255,0.05)), url('https://us.123rf.com/450wm/foxaon/foxaon1403/foxaon140300130/26395407-background-blue-abstract-website-pattern.jpg');background-repeat: no-repeat;    background-size: cover;    background-position: top; }
+        
+        .header { background-image: linear-gradient(rgba(255,255,255,0), rgba(0,114,255,0.05)), url('https://www.axa.es/documents/d/axa/imagen2');
+                  background-size: cover; background-position: center; color: white; text-align: center; padding: 40px 10px; }
+        
+        .container { max-width: 950px; margin: 20px auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);width:80% }
+        
+        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
+        .menu-btn { background: var(--blue-axa); color: white; padding: 20px; border-radius: 10px; cursor: pointer; font-weight: bold; border: none; font-size: 1em; }
+
+        .user-box { background: #e0f2f1; padding: 15px; border-radius: 8px; border: 2px solid var(--primary); margin-bottom: 20px; }
+        input, select { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; margin-top: 5px; font-size: 1em; }
+        
+        .group-card { margin-top: 25px; border: 1px solid #ddd; border-radius: 10px; overflow: hidden; background: #fff; display: none; }
+        .group-header { background: var(--blue-axa); color: white; padding: 12px; font-weight: bold; text-align: center; text-transform: uppercase; }
+        
+        /* DISEÑO DE FILA LIMPIO - SIN PUNTOS */
+        .match-row { display: grid; grid-template-columns: 1fr 120px 1fr 90px; align-items: center; padding: 15px 10px; border-bottom: 1px solid #eee; gap: 10px; }
+        .team { font-weight: 600; font-size: 0.95em; color: #333; }
+        .team-left { text-align: right; }
+        .team-right { text-align: left; }
+        
+        .scores { display: flex; justify-content: center; gap: 5px; align-items: center; }
+        .scores input { width: 60px; height: 40px; text-align: center; font-weight: bold; border: 2px solid #ddd; border-radius: 8px; font-size: 1.1em; }
+        
+        .info-col { text-align: center; font-size: 0.75em; color: #555; }
+        .tv-tag { color: #d32f2f; font-weight: bold; display: block; margin-top: 3px; }
+
+        .tabla-posiciones { width: 100%; border-collapse: collapse; font-size: 0.8em; margin-top: 15px; }
+        .tabla-posiciones th { background: #f8f9fa; padding: 10px; border-bottom: 2px solid #ddd; color: #555; }
+        .tabla-posiciones td { border-bottom: 1px solid #eee; padding: 10px; text-align: center; }
+        .pts-col { font-weight: bold; color: var(--blue-axa); background: #f0f4ff; }
+
+        .extras-section { background: #fff9c4; padding: 25px; margin-top: 30px; border-radius: 10px; border: 1px solid #fbc02d; display: none; }
+        .btn-pdf {    
+    padding: 12px 28px;
+    font-size: 16px;
+    color: #000000;
+    background-color: #ffffff;
+    border: 2px solid black;
+    border-radius: 200px;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: 600;
+    text-align: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+    height: 80px; 
+    display: none; }
+/* Estilos para el Modal */
+.modal { display: none; position: fixed; z-index: 3000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); overflow-y: auto; }
+.modal-content { background-color: white; margin: 10% auto; padding: 25px; border-radius: 15px; width: 85%; max-width: 500px; line-height: 1.6; position: relative; }
+.close-modal { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
+.close-modal:hover { color: black; }
+.modal-body h3 { color: #0b3aa9; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+.modal-body ul { padding-left: 20px; }
+.modal-body li { margin-bottom: 10px; }
+
+.btn-send { 
+    background: #d32f2f; 
+    color: white; 
+    border: none; 
+    padding: 20px; 
+    width: 100%; 
+    font-size: 1.3em; 
+    font-weight: bold; 
+    border-radius: 8px; 
+    cursor: pointer; 
+    margin-top: 30px; 
+}
+.hidden { display: none !important; }
+
+/* Área especial para el ticket de impresión (oculta en la web) */
+#ticket-impresion { display: none; }
+
+@media print {
+    /* Escondemos TODO lo que hay en la web */
+    body * { visibility: hidden; }
+    
+    /* Mostramos SOLO el ticket y forzamos su visibilidad */
+    #ticket-impresion, #ticket-impresion * { 
+        visibility: visible; 
+    }
+    
+    #ticket-impresion {
+        display: block !important;
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        color: black !important;
+    }
+
+    /* Forzar que se impriman los colores azul y rojo */
+    .print-header { background-color: #0b3aa9 !important; color: white !important; -webkit-print-color-adjust: exact; padding: 10px; }
+    .print-group { background-color: #eee !important; -webkit-print-color-adjust: exact; font-weight: bold; padding: 5px; margin-top: 10px; }
+}
+.btn-optikit-custom {
+    display: inline-block;
+    padding: 12px 28px;
+    font-size: 16px;
+    color: #000000;
+    background-color: #ffffff;
+    border: 2px solid black;
+    border-radius: 200px;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: 600;
+    text-align: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+    height: 80px;
+}
+
+.btn-optikit-custom:hover {
+    background-color: #ffffff;
+    transform: translateY(-4px);
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.15);
+}
+.btn-optikit-custom2 {
+    display: inline-block;
+    padding: 12px 28px;
+    font-size: 16px;
+    color: #000000;
+    background-color: #ffffff;
+    border: 2px solid black;
+    border-radius: 200px;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: 600;
+    text-align: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+    height: 80px;
+}
+.btn-optikit-custom2:hover {
+    background-color: #ffffff;
+    transform: translateY(-4px);
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.15);
+}
+.btn-optikit-custom3 {
+    display: inline-block;
+    padding: 12px 28px;
+    font-size: 16px;
+    color: #000000;
+    background-color: #ffffff;
+    border: 2px solid black;
+    border-radius: 200px;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: 600;
+    text-align: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+    height: 80px;
+}
+.btn-optikit-custom3:hover {
+    background-color: #ffffff;
+    transform: translateY(-4px);
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.15);
+}
+.btn-optikit-custom4 {
+    display: inline-block;
+    padding: 12px 28px;
+    font-size: 16px;
+    color: #000000;
+    background-color: #ffffff;
+    border: 2px solid black;
+    border-radius: 200px;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: 600;
+    text-align: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+    height: 80px;
+}
+.btn-optikit-custom4:hover {
+    background-color: #ffffff;
+    transform: translateY(-4px);
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.15);
+}
+/* Estilo del Botón Flotante */
+.btn-flotante {
+    position: fixed;
+    bottom: 20px;       /* Distancia del borde inferior */
+    right: 20px;        /* Lado derecho */
+    width: 60px;
+    height: 60px;
+    background-color: #474a4a; 
+    color: white;
+    border-radius: 50%; /* Redondo */
+    border: none;
+    box-shadow: 0px 4px 10px rgba(0,0,0,0.3);
+    font-size: 24px;
+    cursor: pointer;
+    z-index: 5000;      /* Por encima de todo */
+    display: none;      /* Oculto por defecto */
+    transition: transform 0.2s, background-color 0.3s;
+}
+
+.btn-flotante:hover {
+    background-color: #d32f2f; /* Cambia a rojo al pasar el ratón */
+    transform: scale(1.1);
+}
+
+.btn-flotante:active {
+    transform: scale(0.9);
+}
+
+/* Para que en el PDF no salga el botón flotante */
+@media print {
+    .btn-flotante { display: none !important; }
+}
+    </style>
+</head>
+<body>
+
+<div id="pdf-area">
+  <div id="area-impresion">
+    <div class="header">
+        <p>Fase de Grupos</p>
+        <h1>MUNDIAL<br/>2026</h1>
+    </div>
+
+    <div class="container">
+        <div id="welcome-section" class="welcome-panel" style="display:block;">
+          <div style="width: 100%; overflow: hidden; background-color: white; text-align: center;">
+            <img src="https://i.etsystatic.com/60577639/r/il/b0ebd3/7842682356/il_794xN.7842682356_ggns.jpg" alt="Ranking 2026" style=" height: auto;width: 80%;">
+        </div>
+    <h2 style="text-align:center; font-size:xx-large;">Mundial 2026 - Fase de Grupos</h2>
+    <div class="menu-grid">
+        <button class="btn-optikit-custom" id="btn-enviar-menu" onclick="mostrarSeccion('jugar')">ENVIAR RESULTADOS</button>
+        <button class="btn-optikit-custom2" id="btn-menu-consultar"  onclick="recuperarApuestaLocal()">MI APUESTA GUARDADA</button>
+        <button class="btn-optikit-custom3"  onclick="mostrarSeccion('ranking')">CLASIFICACIÓN</button>
+        <button class="btn-optikit-custom4"  onclick="abrirModal()">VER REGLAS</button>
+        <button class="btn-pdf" id="btn-pdf" onclick="exportarAPDF()" style="display:none; ">GUARDAR O IMPRIMIR MI APUESTA</button>
+    </div>
+    
+</div>
+
+        <div id="identificacion-section" style="display:none; margin-top:20px; text-align: center;">
+            <div class="user-box">
+                <label><b>Nombre o Apodo (Obligatorio):</b></label>
+                <input type="text" id="nombre_usuario" placeholder="Ej: Juan_Goles">
+                <br><br>
+                <label><b>Teléfono (Obligatorio):</b></label>
+                <input type="tel" id="telefono_usuario" placeholder="Ej: 600123456">
+            </div>
+            <button class="btn-optikit-custom" style="width: 100%;" onclick="empezarAJugar()">PONER PRONÓSTICOS</button>
+            <button class="btn-optikit-custom4" style="margin-top:30px" onclick="location.reload()">VOLVER AL INICIO</button>
+        </div>
+
+        <div id="contenedor-partidos"></div>
+
+        <div id="extras-section" class="extras-section">
+            <h3>PREDICCIONES ESPECIALES</h3>
+            <p>⚽ <b>Máximo Goleador:</b> <input type="text" id="goleador" placeholder="Ej: Kylian Mbappé"></p>
+            <p>🏆 <b>Campeón del Mundo:</b> <select id="campeon_mundial"></select></p>
+            <button class="btn-send btn-optikit-custom2" id="btn-final" onclick="enviarDatos()">ENVIAR MI APUESTA</button>
+
+        </div>
+<!-- SECCIÓN DE CONSULTA MANUAL (RECUPERACIÓN POR TELÉFONO) -->
+<div id="consulta-section" style="display:none; text-align:center;">
+    <div class="user-box" style="background: #fdfdfd; border: 2px solid #455a64;">
+        <h3>🔎 Recuperar mi Apuesta</h3>
+        <p style="font-size: 0.9em; color: #555;">No hemos encontrado datos en este dispositivo. Introduce tu teléfono para buscarlos en el servidor:</p>
+        
+        <input type="tel" id="tel_consulta" placeholder="Ej: 600123456" style="text-align:center; font-size: 1.2em; letter-spacing: 2px;">
+        
+        <button class="btn-optikit-custom" style="width:100%; margin-top:20px; " onclick="consultarBBDD()">
+            BUSCAR EN EL SERVIDOR
+        </button>
+        
+        <div id="resultado-consulta" style="margin-top:20px; font-weight: bold; color: #d32f2f;"></div>
+        
+        <button class="btn-optikit-custom4" style="" onclick="location.reload()">
+            VOLVER AL INICIO
+        </button>
+    </div>
+
+</div>
+
+<!-- SECCIÓN RANKING PÚBLICO -->
+<div id="ranking-section" style="display:none;">
+
+    <div class="group-card" style="display:block; margin-top:0;">
+        <div style="width: 100%; overflow: hidden; border-bottom: 2px solid #0b3aa9;background-color: black; text-align: center;">
+            <img src="https://i.etsystatic.com/64651255/r/il/86a9af/7810126836/il_794xN.7810126836_cmiy.jpg" alt="Ranking 2026" style=" height: auto;width: 80%;">
+        </div>
+        <div class="group-header">TOP 20 - CLASIFICACIÓN GENERAL</div>
+                <!-- Bloque informativo de actualización -->
+        <div id="info-ranking" style="background:#f8f9fa; padding:10px; font-size:0.85em; text-align:center; border-bottom:1px solid #ddd; color:#555;">
+            <span id="rank-jornadas">...</span> | <span id="rank-update">...</span>
+        </div>
+        <table class="tabla-posiciones" id="tabla-ranking-publico">
+            <thead>
+                <tr>
+                    <th style="width:50px">Pos</th>
+                    <th class="txt-left">Jugador</th>
+                    <th>🎯 Exactos</th>
+                    <th>✅ G/E</th>
+                    <th class="pts-col" style="background:rgba(255,255,255,0.2)">Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Los datos se cargarán aquí desde Google Sheets -->
+            </tbody>
+        </table>
+    </div>
+    
+    <button class="btn-optikit-custom4" style="margin-top: 30PX;" onclick="location.reload()">
+        VOLVER AL INICIO
+    </button>
+</div>
+</div>
+
+    </div>
+
+
+</div>
+
+<script>
+    const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbwlIrXmBD9l1Lb9Sgkly5wMZ8y3lHHkoZdLmmcpoGZjFXQK1M8OxmSh0XmPipGTfQpn/exec"; 
+    const partidosData = [
+        { g: "GRUPO A", t1: "México 🇲🇽", t2: "Sudáfrica 🇿🇦", f: "11 Jun 21:00", tv: "La 1 TVE / DAZN" },
+        { g: "GRUPO A", t1: "Corea del Sur 🇰🇷", t2: "República Checa 🇨🇿", f: "12 Jun 04:00",tv: "DAZN" },
+        { g: "GRUPO B", t1: "Canadá 🇨🇦", t2: "Bosnia y Herz. 🇧🇦", f: "12 Jun 21:00", tv: "La 1 TVE/DAZN" },
+        { g: "GRUPO D", t1: "EE. UU. 🇺🇸", t2: "Paraguay 🇵🇾", f: "13 Jun 03:00", tv: "DAZN" },
+        { g: "GRUPO B", t1: "Catar 🇶🇦", t2: "Suiza 🇨🇭", f: "13 Jun 21:00", tv: "DAZN" },
+        { g: "GRUPO C", t1: "Brasil 🇧🇷", t2: "Marruecos 🇲🇦", f: "14 Jun 00:00", tv: "La 1 TVE / DAZN"  },
+        { g: "GRUPO C", t1: "Haití 🇭🇹", t2: "Escocia 🏴󠁧󠁢󠁳󠁣󠁴󠁿", f: "14 Jun 03:00", tv: "DAZN"  },
+        { g: "GRUPO D", t1: "Australia 🇦🇺", t2: "Turquía 🇹🇷", f: "14 Jun 06:00", tv: "DAZN"  },
+        { g: "GRUPO E", t1: "Alemania 🇩🇪", t2: "Curazao 🇨🇼", f: "14 Jun 19:00", tv: "La 1 TVE / DAZN"  },
+        { g: "GRUPO F", t1: "Países Bajos 🇳🇱", t2: "Japón 🇯🇵", f: "14 Jun 22:00", tv: "DAZN"  },
+        { g: "GRUPO E", t1: "Costa de Marfil 🇨🇮", t2: "Ecuador 🇪🇨", f: "15 Jun 01:00", tv: "DAZN"  },
+        { g: "GRUPO F", t1: "Suecia 🇸🇪", t2: "Túnez 🇹🇳", f: "15 Jun 04:00", tv: "DAZN"  },
+        { g: "GRUPO H", t1: "España 🇪🇸", t2: "Cabo Verde 🇨🇻", f: "15 Jun 18:00", tv: "La 1 TVE / DAZN"  },
+        { g: "GRUPO G", t1: "Bélgica 🇧🇪", t2: "Egipto 🇪🇬", f: "15 Jun 21:00", tv: "DAZN"  },
+        { g: "GRUPO H", t1: "Arabia Saudí 🇸🇦", t2: "Uruguay 🇺🇾", f: "16 Jun 01:00", tv: "DAZN"  },
+        { g: "GRUPO G", t1: "Irán 🇮🇷", t2: "Nueva Zelanda 🇳🇿", f: "16 Jun 03:00", tv: "DAZN"  },
+        { g: "GRUPO I", t1: "Francia 🇫🇷", t2: "Senegal 🇸🇳", f: "16 Jun 21:00", tv: "DAZN"  },
+        { g: "GRUPO I", t1: "Irak 🇮🇶", t2: "Noruega 🇳🇴", f: "17 Jun 00:00", tv: "DAZN"  },
+        { g: "GRUPO J", t1: "Argentina 🇦🇷", t2: "Argelia 🇩🇿", f: "17 Jun 03:00", tv: "DAZN"  },
+        { g: "GRUPO J", t1: "Austria 🇦🇹", t2: "Jordania 🇯🇴", f: "17 Jun 06:00", tv: "DAZN"  },
+        { g: "GRUPO K", t1: "Portugal 🇵🇹", t2: "RD Congo 🇨🇩", f: "17 Jun 19:00", tv: "DAZN"  },
+        { g: "GRUPO L", t1: "Inglaterra 🏴󠁧󠁢󠁥󠁮󠁧󠁿", t2: "Croacia 🇭🇷", f: "17 Jun 22:00", tv: "La 1 TVE / DAZN"  },
+        { g: "GRUPO L", t1: "Ghana 🇬🇭", t2: "Panamá 🇵🇦", f: "18 Jun 01:00", tv: "DAZN"  },
+        { g: "GRUPO K", t1: "Uzbekistán 🇺🇿", t2: "Colombia 🇨🇴", f: "18 Jun 04:00", tv: "DAZN"  },
+        { g: "GRUPO A", t1: "República Checa 🇨🇿", t2: "Sudáfrica 🇿🇦", f: "18 Jun 18:00", tv: "DAZN"  },
+        { g: "GRUPO B", t1: "Suiza 🇨🇭", t2: "Bosnia y Herz. 🇧🇦", f: "18 Jun 21:00", tv: "DAZN"  },
+        { g: "GRUPO B", t1: "Canadá 🇨🇦", t2: "Catar 🇶🇦", f: "19 Jun 00:00", tv: "DAZN"  },
+        { g: "GRUPO A", t1: "México 🇲🇽", t2: "Corea del Sur 🇰🇷", f: "19 Jun 03:00", tv: "DAZN"  },
+        { g: "GRUPO D", t1: "EE. UU. 🇺🇸", t2: "Australia 🇦🇺", f: "19 Jun 21:00", tv: "La 1 TVE / DAZN"  },
+        { g: "GRUPO C", t1: "Escocia 🏴󠁧󠁢󠁳󠁣󠁴󠁿", t2: "Marruecos 🇲🇦", f: "20 Jun 00:00", tv: "DAZN"  },
+        { g: "GRUPO C", t1: "Brasil 🇧🇷", t2: "Haití 🇭🇹", f: "20 Jun 03:00", tv: "DAZN"  },
+        { g: "GRUPO D", t1: "Turquía 🇹🇷", t2: "Paraguay 🇵🇾", f: "20 Jun 06:00", tv: "DAZN"  },
+        { g: "GRUPO F", t1: "Países Bajos 🇳🇱", t2: "Suecia 🇸🇪", f: "20 Jun 19:00", tv: "La 1 TVE / DAZN"  },
+        { g: "GRUPO E", t1: "Alemania 🇩🇪", t2: "Costa de Marfil 🇨🇮", f: "20 Jun 22:00", tv: "DAZN"  },
+        { g: "GRUPO E", t1: "Ecuador 🇪🇨", t2: "Curazao 🇨🇼", f: "21 Jun 02:00", tv: "DAZN"  },
+        { g: "GRUPO F", t1: "Túnez 🇹🇳", t2: "Japón 🇯🇵", f: "21 Jun 06:00", tv: "DAZN"  },
+        { g: "GRUPO H", t1: "España 🇪🇸", t2: "Arabia Saudí 🇸🇦", f: "21 Jun 18:00", tv: "La 1 TVE / DAZN"  },
+        { g: "GRUPO G", t1: "Bélgica 🇧🇪", t2: "Irán 🇮🇷", f: "21 Jun 21:00", tv: "DAZN"  },
+        { g: "GRUPO H", t1: "Uruguay 🇺🇾", t2: "Cabo Verde 🇨🇻", f: "22 Jun 00:00", tv: "DAZN"  },
+        { g: "GRUPO G", t1: "Nueva Zelanda 🇳🇿", t2: "Egipto 🇪🇬", f: "22 Jun 03:00", tv: "DAZN"  },
+        { g: "GRUPO J", t1: "Argentina 🇦🇷", t2: "Austria 🇦🇹", f: "22 Jun 19:00", tv: "La 1 TVE / DAZN"  },
+        { g: "GRUPO I", t1: "Francia 🇫🇷", t2: "Irak 🇮🇶", f: "22 Jun 23:00", tv: "DAZN"  },
+        { g: "GRUPO I", t1: "Noruega 🇳🇴", t2: "Senegal 🇸🇳", f: "23 Jun 02:00", tv: "DAZN"  },
+        { g: "GRUPO J", t1: "Jordania 🇯🇴", t2: "Argelia 🇩🇿", f: "23 Jun 05:00", tv: "DAZN"  },
+        { g: "GRUPO K", t1: "Portugal 🇵🇹", t2: "Uzbekistán 🇺🇿", f: "23 Jun 19:00", tv: "DAZN"  },
+        { g: "GRUPO L", t1: "Inglaterra 🏴󠁧󠁢󠁥󠁮󠁧󠁿", t2: "Ghana 🇬🇭", f: "23 Jun 22:00", tv: "La 1 TVE / DAZN"  },
+        { g: "GRUPO L", t1: "Panamá 🇵🇦", t2: "Croacia 🇭🇷", f: "24 Jun 01:00", tv: "DAZN"  },
+        { g: "GRUPO K", t1: "Colombia 🇨🇴", t2: "RD Congo 🇨🇩", f: "24 Jun 04:00", tv: "DAZN"  },
+        { g: "GRUPO B", t1: "Suiza 🇨🇭", t2: "Canadá 🇨🇦", f: "24 Jun 21:00", tv: "DAZN"  },
+        { g: "GRUPO B", t1: "Bosnia y Herz. 🇧🇦", t2: "Catar 🇶🇦", f: "24 Jun 21:00", tv: "DAZN"  },
+        { g: "GRUPO C", t1: "Escocia 🏴󠁧󠁢󠁳󠁣󠁴󠁿", t2: "Brasil 🇧🇷", f: "25 Jun 00:00", tv: "La 1 TVE / DAZN"  },
+        { g: "GRUPO C", t1: "Marruecos 🇲🇦", t2: "Haití 🇭🇹", f: "25 Jun 00:00", tv: "DAZN"  },
+        { g: "GRUPO A", t1: "República Checa 🇨🇿", t2: "México 🇲🇽", f: "25 Jun 03:00", tv: "DAZN"  },
+        { g: "GRUPO A", t1: "Sudáfrica 🇿🇦", t2: "Corea del Sur 🇰🇷", f: "25 Jun 03:00", tv: "DAZN"  },
+        { g: "GRUPO E", t1: "Curazao 🇨🇼", t2: "Costa de Marfil 🇨🇮", f: "25 Jun 22:00", tv: "DAZN"  },
+        { g: "GRUPO E", t1: "Ecuador 🇪🇨", t2: "Alemania 🇩🇪", f: "25 Jun 22:00", tv: "La 1 TVE / DAZN"  },
+        { g: "GRUPO F", t1: "Japón 🇯🇵", t2: "Suecia 🇸🇪", f: "26 Jun 01:00", tv: "DAZN"  },
+        { g: "GRUPO F", t1: "Túnez 🇹🇳", t2: "Países Bajos 🇳🇱", f: "26 Jun 01:00", tv: "DAZN"  },
+        { g: "GRUPO D", t1: "Turquía 🇹🇷", t2: "EE. UU. 🇺🇸", f: "26 Jun 04:00", tv: "DAZN"  },
+        { g: "GRUPO D", t1: "Paraguay 🇵🇾", t2: "Australia 🇦🇺", f: "26 Jun 04:00", tv: "DAZN"  },
+        { g: "GRUPO I", t1: "Noruega 🇳🇴", t2: "Francia 🇫🇷", f: "26 Jun 21:00", tv: "DAZN"  },
+        { g: "GRUPO I", t1: "Senegal 🇸🇳", t2: "Irak 🇮🇶", f: "26 Jun 21:00", tv: "DAZN"  },
+        { g: "GRUPO H", t1: "Cabo Verde 🇨🇻", t2: "Arabia Saudí 🇸🇦", f: "27 Jun 02:00", tv: "DAZN"  },
+        { g: "GRUPO H", t1: "Uruguay 🇺🇾", t2: "España 🇪🇸", f: "27 Jun 02:00", tv: "La 1 TVE / DAZN"  },
+        { g: "GRUPO G", t1: "Egipto 🇪🇬", t2: "Irán 🇮🇷", f: "27 Jun 05:00", tv: "DAZN"  },
+        { g: "GRUPO G", t1: "Nueva Zelanda 🇳🇿", t2: "Bélgica 🇧🇪", f: "27 Jun 05:00", tv: "DAZN"  },
+        { g: "GRUPO L", t1: "Panamá 🇵🇦", t2: "Inglaterra 🏴󠁧󠁢󠁥󠁮󠁧󠁿", f: "27 Jun 23:00", tv: "DAZN"  },
+        { g: "GRUPO L", t1: "Croacia 🇭🇷", t2: "Ghana 🇬🇭", f: "27 Jun 23:00", tv: "DAZN"  },
+        { g: "GRUPO K", t1: "Colombia 🇨🇴", t2: "Portugal 🇵🇹", f: "28 Jun 01:30", tv: "La 1 TVE / DAZN"  },
+        { g: "GRUPO K", t1: "RD Congo 🇨🇩", t2: "Uzbekistán 🇺🇿", f: "28 Jun 01:30", tv: "DAZN"  },
+        { g: "GRUPO J", t1: "Argelia 🇩🇿", t2: "Austria 🇦🇹", f: "28 Jun 04:00", tv: "DAZN"  },
+        { g: "GRUPO J", t1: "Jordania 🇯🇴", t2: "Argentina 🇦🇷", f: "28 Jun 04:00", tv: "DAZN"  }
+    ];
+
+// Abrir modal automáticamente al entrar si es la primera vez
+window.onload = function() {
+    // Si quieres que salga siempre al abrir, quita el condicional del localStorage
+    if (!localStorage.getItem('modalVisto')) {
+        document.getElementById('modalReglas').style.display = 'block';
+    }
+};
+
+function abrirModal() {
+    document.getElementById('modalReglas').style.display = 'block';
+}
+
+function cerrarModal() {
+    document.getElementById('modalReglas').style.display = 'none';
+    localStorage.setItem('modalVisto', 'true'); // Solo se mostrará la primera vez
+}
+
+// Cerrar si pulsa fuera del cuadro blanco
+window.onclick = function(event) {
+    let modal = document.getElementById('modalReglas');
+    if (event.target == modal) {
+        cerrarModal();
+    }
+}
+
+
+
+// 1. MODIFICACIÓN DEL MENÚ DE INICIO (Eliminamos el botón Inicio del menú)
+// En tu función window.onload o donde manejes la visibilidad inicial:
+window.onload = function() {
+    // Si ya envió, ocultamos el botón de "Enviar" del menú principal
+    if(localStorage.getItem('apuesta_enviada') === 'true') {
+        document.getElementById('btn-enviar-menu').style.display = 'none';
+        document.getElementById('btn-pdf').style.display = 'block';
+    }
+    
+    // El botón "Inicio" del menú grid NO debe existir o debe estar oculto por defecto
+    // ya que el usuario ya está en el inicio.
+    const btnInicioMenu = document.getElementById('btn-inicio-menu'); // Asegúrate de que este sea el ID en tu HTML
+    if(btnInicioMenu) btnInicioMenu.style.display = 'none';
+}
+
+    function mostrarSeccion(sec) {
+        document.getElementById('welcome-section').style.display = 'none';
+        if(sec === 'jugar') document.getElementById('identificacion-section').style.display = 'block';
+            if(sec === 'consultar') {
+        document.getElementById('consulta-section').style.display = 'block';
+    }
+    
+    if(sec === 'ranking') {
+        document.getElementById('ranking-section').style.display = 'block';
+        cargarRankingPublico(); // <--- Esta es la función que hace el fetch a Google
+    }
+    }
+
+    function empezarAJugar() {
+        // Solo pedimos validación si NO hay una apuesta ya guardada en local
+        const yaEnviado = localStorage.getItem('apuesta_enviada') === 'true';
+        
+        if (!yaEnviado) {
+            const nom = document.getElementById('nombre_usuario').value.trim();
+            const tel = document.getElementById('telefono_usuario').value.trim();
+            if (!nom || !tel) {
+                return alert("⚠️ Por favor, introduce tu Nombre y Teléfono para empezar.");
+            }
+        }
+        
+        // Si ya ha enviado o los datos son correctos, mostramos el juego
+        document.getElementById('identificacion-section').style.display = 'none';
+        document.getElementById('btn-flotante-home').style.display = 'block';
+        generarInterfaz();
+        poblarSelecciones();
+        document.getElementById('extras-section').style.display = 'block';
+    }
+
+    function generarInterfaz() {
+        const container = document.getElementById('contenedor-partidos');
+        container.innerHTML = "";
+        const grupos = [...new Set(partidosData.map(p => p.g))];
+        grupos.forEach(nom => {
+            let card = `<div class="group-card" style="display:block"><div class="group-header">${nom}</div>`;
+            partidosData.filter(p => p.g === nom).forEach(p => {
+                const idx = partidosData.indexOf(p) + 1;
+                card += `<div class="match-row">
+                    <div class="team team-left">${p.t1}</div>
+                    <div class="scores">
+                        <input type="number" id="h${idx}" min="0" oninput="validarYCalcular('${nom}')">
+                        <input type="number" id="a${idx}" min="0" oninput="validarYCalcular('${nom}')">
+                    </div>
+                    <div class="team team-right">${p.t2}</div>
+                    <div class="info-col"><b>${p.f}</b><br><span class="tv-tag">📺 ${p.tv}</span></div>
+                </div>`;
+            });
+            card += `<table class="tabla-posiciones" id="tabla-${nom.replace(/\s/g,'')}">
+                <thead><tr><th>Equipo</th><th>PJ</th><th>G</th><th>E</th><th>P</th><th>GF</th><th>GC</th><th>DG</th><th class="pts-col">Pts</th></tr></thead>
+                <tbody></tbody></table></div>`;
+            container.innerHTML += card;
+            actualizarPuntosGrupo(nom);
+        });
+    }
+
+    function validarYCalcular(nom) {
+        document.querySelectorAll('input[type="number"]').forEach(i => { if(i.value < 0) i.value = 0; });
+        actualizarPuntosGrupo(nom);
+    }
+
+    function actualizarPuntosGrupo(nombreGrupo) {
+        const idTabla = nombreGrupo.replace(/\s/g, '');
+        const partidos = partidosData.filter(p => p.g === nombreGrupo);
+        const equipos = [...new Set(partidos.flatMap(p => [p.t1, p.t2]))];
+        let stats = equipos.map(name => ({ name, pj:0, g:0, e:0, p:0, gf:0, gc:0, dg:0, pts:0 }));
+
+        partidos.forEach(p => {
+            const pId = partidosData.indexOf(p) + 1;
+            const hV = document.getElementById(`h${pId}`).value;
+            const aV = document.getElementById(`a${pId}`).value;
+            if (hV !== "" && aV !== "") {
+                const h = parseInt(hV); const a = parseInt(aVal = aV);
+                const t1 = stats.find(s => s.name === p.t1);
+                const t2 = stats.find(s => s.name === p.t2);
+                t1.pj++; t2.pj++; t1.gf += h; t1.gc += a; t2.gf += a; t2.gc += h;
+                if (h > a) { t1.g++; t1.pts+=3; t2.p++; } else if (a > h) { t2.g++; t2.pts+=3; t1.p++; } else { t1.e++; t1.pts+=1; t2.e++; t2.pts+=1; }
+                t1.dg = t1.gf - t1.gc; t2.dg = t2.gf - t2.gc;
+            }
+        });
+        stats.sort((a, b) => b.pts - a.pts || b.dg - a.dg);
+        const tbody = document.querySelector(`#tabla-${idTabla} tbody`);
+        if(tbody) tbody.innerHTML = stats.map(s => `<tr><td style="text-align:left; padding-left:10px;">${s.name}</td><td>${s.pj}</td><td>${s.g}</td><td>${s.e}</td><td>${s.p}</td><td>${s.gf}</td><td>${s.gc}</td><td>${s.dg}</td><td class="pts-col">${s.pts}</td></tr>`).join('');
+    }
+
+    function poblarSelecciones() {
+        const select = document.getElementById('campeon_mundial');
+        const equipos = [...new Set(partidosData.flatMap(p => [p.t1, p.t2]))].sort();
+        select.innerHTML = '<option value="">-- Selecciona Campeón --</option>';
+        equipos.forEach(e => select.innerHTML += `<option value="${e}">${e}</option>`);
+    }
+
+// 1. FUNCIÓN DE ENVÍO CORREGIDA (Captura todos los campos)
+function enviarDatos() {
+    const user = document.getElementById('nombre_usuario').value.trim();
+    const tel = document.getElementById('telefono_usuario').value.trim();
+    const gol = document.getElementById('goleador').value.trim();
+    const campeon = document.getElementById('campeon_mundial').value;
+    
+    if(!gol || !campeon) return alert("⚠️ Elige Goleador y Campeón.");
+
+    // Recopilamos los marcadores en un texto largo para el Excel
+    let res_texto = "";
+    const apuesta = {};
+    
+    for(let i=1; i<=partidosData.length; i++) {
+        const hVal = document.getElementById(`h${i}`).value;
+        const aVal = document.getElementById(`a${i}`).value;
+        if(hVal === "" || aVal === "") return alert("⚠️ Completa todos los partidos.");
+        
+        apuesta[i] = { h: hVal, a: aVal };
+        res_texto += `P${i}: [${hVal}-${aVal}] / `;
+    }
+
+    const infoEnvio = { 
+        nombre: user, 
+        telefono: tel, 
+        goleador: gol, 
+        campeon: campeon, 
+        resultados: apuesta,
+        resultados_texto: res_texto 
+    };
+
+    // --- EL ENVÍO REAL A GOOGLE SHEETS ---
+    const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbwhp9NMKSI-ZPMJkPrb8i-lOx0fw4OtOeN4LYUL89uu5Mjb5GJJ7S9W1XfNYaxQbrkH/exec";
+
+    fetch(GOOGLE_URL, {
+      method: 'POST',
+      mode: 'no-cors', // Importante para evitar errores de seguridad del navegador
+      headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify(infoEnvio)
+})
+     
+    .then(() => {
+        localStorage.setItem('mi_porra_2026', JSON.stringify(infoEnvio));
+        localStorage.setItem('apuesta_enviada', 'true');
+        alert("✅ ¡Enviado con éxito! Tus datos están en el Excel y guardados en este móvil.");
+        location.reload();
+    })
+    .catch(error => {
+        alert("❌ Error al enviar al Excel: " + error);
+    });
+}
+
+// 3. FUNCIÓN PDF CORREGIDA (Usa el contenedor correcto)
+function exportarAPDF() {
+    // 1. Verificamos que la librería esté cargada
+    if (typeof html2pdf === 'undefined') {
+        return alert("❌ La librería PDF aún no ha cargado. Espera 2 segundos y vuelve a intentarlo.");
+    }
+
+    const element = document.getElementById('area-impresion');
+
+    // 2. Opciones para capturar las nuevas imágenes
+    const opt = {
+        margin: [0.3, 0.3],
+        filename: 'Mi_Quiniela_Mundial2026.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { 
+            scale: 2, 
+            useCORS: true, // <--- IMPORTANTE: Esto permite leer las nuevas URLs
+            allowTaint: true,
+            letterRendering: true
+        },
+        jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+    };
+
+    // 3. Ejecución
+    html2pdf().set(opt).from(element).save();
+}
+
+// 3. FUNCIÓN PDF CORREGIDA (Usa el contenedor correcto)
+function exportarAPDF() {
+    const datosRaw = localStorage.getItem('mi_porra_2026');
+    if (!datosRaw) return alert("❌ No hay datos guardados.");
+    const datos = JSON.parse(datosRaw);
+
+    const limpiarTexto = (txt) => txt ? String(txt).toUpperCase() : "---";
+
+    const win = window.open('', '_blank');
+    if (!win) return alert("❌ Por favor, permite las ventanas emergentes.");
+
+    // Construcción del HTML con diseño profesional
+    let html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Comprobante Quiniela 2026</title>
+        <style>
+            body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 40px; color: #333; line-height: 1.5; }
+            .header-pdf { text-align: center; border-bottom: 4px solid #0b3aa9; padding-bottom: 20px; margin-bottom: 30px; }
+            .header-pdf h1 { color: #0b3aa9; margin: 0; font-size: 28px; }
+            .header-pdf p { margin: 5px 0; color: #666; font-weight: bold; }
+            
+            .user-info { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; background: #f8f9fa; padding: 20px; border-radius: 12px; border: 1px solid #ddd; margin-bottom: 30px; }
+            .info-box b { color: #0b3aa9; font-size: 12px; display: block; text-transform: uppercase; margin-bottom: 4px; }
+            .info-box span { font-size: 16px; font-weight: bold; }
+
+            .pronosticos-title { background: #d32f2f; color: white; padding: 10px 15px; border-radius: 6px; font-size: 18px; margin-bottom: 15px; }
+            
+            table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+            th { text-align: left; background: #eee; padding: 10px; font-size: 12px; border-bottom: 2px solid #ccc; }
+            td { padding: 12px 10px; border-bottom: 1px solid #eee; font-size: 14px; }
+            .col-partido { width: 10%; color: #999; font-weight: bold; }
+            .col-equipos { width: 70%; }
+            .col-resultado { width: 20%; text-align: center; font-weight: bold; color: #d32f2f; background: #fff5f5; border-radius: 4px; border: 1px solid #ffcdd2; }
+            
+            .footer { text-align: center; margin-top: 50px; font-size: 11px; color: #aaa; border-top: 1px solid #eee; padding-top: 20px; }
+            @media print { body { padding: 0; } }
+        </style>
+    </head>
+    <body>
+        <div class="header-pdf">
+            <h1>🏆 MUNDIAL FIFA 2026</h1>
+            <p>COMPROBANTE OFICIAL DE PARTICIPACIÓN</p>
+        </div>
+
+        <div class="user-info">
+            <div class="info-box"><b>Participante</b><span>${limpiarTexto(datos.nombre)}</span></div>
+            <div class="info-box"><b>Teléfono</b><span>${datos.telefono}</span></div>
+            <div class="info-box"><b>Máximo Goleador</b><span>${limpiarTexto(datos.goleador)}</span></div>
+            <div class="info-box"><b>Campeón del Mundo</b><span>${limpiarTexto(datos.campeon)}</span></div>
+        </div>
+
+        <div class="pronosticos-title">📋 Mis Pronósticos (Fase de Grupos)</div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th class="col-partido">#</th>
+                    <th class="col-equipos">Encuentro</th>
+                    <th class="col-resultado">Resultado</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+
+    partidosData.forEach((p, i) => {
+        const id = i + 1;
+        const goles = (datos.resultados && datos.resultados[id]) 
+            ? `${datos.resultados[id].h} — ${datos.resultados[id].a}` 
+            : "N/P";
+        
+        html += `
+            <tr>
+                <td class="col-partido">P${id}</td>
+                <td class="col-equipos">${p.t1} vs ${p.t2}</td>
+                <td class="col-resultado">${goles}</td>
+            </tr>
+        `;
+    });
+
+    html += `
+            </tbody>
+        </table>
+
+        <div class="footer">
+            Este documento certifica tu apuesta para el Mundial 2026.<br>
+            Generado el ${new Date().toLocaleString('es-ES')} | Identificador único de dispositivo activo.
+        </div>
+    </body>
+    </html>`;
+
+    win.document.write(html);
+    win.document.close();
+    
+    // Esperamos a que carguen los estilos y lanzamos
+    setTimeout(() => {
+        win.print();
+        win.close();
+    }, 750);
+}
+
+
+// 1. FUNCIÓN DE RECUPERACIÓN MEJORADA
+function recuperarApuestaLocal() {
+    const datosRaw = localStorage.getItem('mi_porra_2026');
+    
+    if (!datosRaw) {
+        // Si no hay datos locales, avisamos y mandamos a la sección de consulta manual
+        alert("🔍 No tienes datos guardados en este dispositivo. Vamos a buscarlos en el servidor por tu teléfono.");
+        document.getElementById('welcome-section').style.display = 'none';
+        document.getElementById('consulta-section').style.display = 'block';
+        return; 
+    }
+    
+    // Si SI hay datos, seguimos con el proceso normal
+    const datos = JSON.parse(datosRaw);
+    document.getElementById('welcome-section').style.display = 'none';
+    
+    generarInterfaz(); 
+    poblarSelecciones(); 
+    document.getElementById('extras-section').style.display = 'block';
+
+    let intentos = 0;
+    const checkExist = setInterval(function() {
+        intentos++;
+        const testInput = document.getElementById('h1');
+        if (testInput || intentos > 10) {
+            clearInterval(checkExist);
+            rellenarYBloquear(datos);
+        }
+    }, 100);
+}
+// 2. RELLENAR Y BLOQUEAR (Actualizada para mostrar Nombre y Tel)
+function rellenarYBloquear(datos) {
+    // 1. Mostramos los datos personales pero bloqueados
+    document.getElementById('identificacion-section').style.display = 'block';
+    document.getElementById('nombre_usuario').value = datos.nombre || "";
+    document.getElementById('telefono_usuario').value = datos.telefono || "";
+    document.getElementById('goleador').value = datos.goleador || "";
+    document.getElementById('campeon_mundial').value = datos.campeon || "";
+
+    // Bloqueo total de inputs
+    const campos = ['nombre_usuario', 'telefono_usuario', 'goleador', 'campeon_mundial'];
+    campos.forEach(id => document.getElementById(id).disabled = true);
+
+    // 2. Ocultamos el botón de "Siguiente" que está en identificación
+    const btnSiguiente = document.querySelector('#identificacion-section .menu-btn');
+    if(btnSiguiente) btnSiguiente.classList.add('hidden');
+
+    // 3. Rellenar y bloquear los 72 partidos
+    for (let i = 1; i <= partidosData.length; i++) {
+        const h = document.getElementById(`h${i}`);
+        const a = document.getElementById(`a${i}`);
+        if (h && a && datos.resultados && datos.resultados[i]) {
+            h.value = datos.resultados[i].h;
+            a.value = datos.resultados[i].a;
+            h.disabled = true;
+            a.disabled = true;
+        }
+    }
+
+    // 4. EL CANDADO: Ocultar botón de enviar y mostrar el de volver
+    const btnEnviar = document.getElementById('btn-final');
+    if (btnEnviar) {
+        // En lugar de ocultarlo, lo transformamos en el botón de VOLVER
+        btnEnviar.innerText = "VOLVER AL INICIO";
+        btnEnviar.style.backgroundColor = "#FFFFFF"; // Gris navegación
+        btnEnviar.onclick = function() { location.reload(); };
+        btnEnviar.disabled = false; // Este botón sí debe estar activo para salir
+    }
+
+    // 5. Mostramos el botón de PDF si existe
+    if(document.getElementById('btn-pdf')) {
+        document.getElementById('btn-pdf').style.display = 'block';
+    }
+
+    // 6. Recalcular las tablas de grupos para que se vean los puntos guardados
+    const gruposUnicos = [...new Set(partidosData.map(p => p.g))];
+    gruposUnicos.forEach(g => actualizarPuntosGrupo(g));
+}
+// 1. FUNCIÓN PARA BUSCAR EN GOOGLE SHEETS (Si no hay nada local)
+async function consultarBBDD() {
+    const tel = document.getElementById('tel_consulta').value.trim();
+    if(!tel) return alert("⚠️ Introduce el teléfono con el que participaste.");
+
+    document.getElementById('resultado-consulta').innerText = "🔍 Buscando en el servidor...";
+
+    try {
+        const resp = await fetch(`${GOOGLE_URL}?action=leer&telefono=${tel}`);
+        const data = await resp.json();
+
+        if (data.exito) {
+            // 1. Guardamos en local
+            localStorage.setItem('mi_porra_2026', JSON.stringify(data.apuesta));
+            localStorage.setItem('apuesta_enviada', 'true');
+            
+            // 2. LA CLAVE: Ocultamos el cuadradito de recuperación
+            document.getElementById('consulta-section').style.display = 'none';
+            
+            // 3. Mostramos los datos recuperados
+            alert("✅ ¡Apuesta recuperada!");
+            recuperarApuestaLocal(); 
+        } else {
+            alert("❌ No se encontró ninguna apuesta con ese teléfono.");
+            document.getElementById('resultado-consulta').innerText = "";
+        }
+    } catch (e) {
+        alert("Error al conectar: " + e);
+        document.getElementById('resultado-consulta').innerText = "";
+    }
+}
+
+async function cargarRankingPublico() {
+    const tbody = document.querySelector("#tabla-ranking-publico tbody");
+    const labelJornadas = document.getElementById('rank-jornadas');
+    const labelUpdate = document.getElementById('rank-update');
+
+    try {
+        const resp = await fetch(`${GOOGLE_URL}?action=getRanking&t=${new Date().getTime()}`);
+        const data = await resp.json(); 
+
+        // Suponiendo que el script de Google ahora nos devuelve un objeto con {lista, jornadas, hora}
+        // Si el script devuelve directamente la lista, las jornadas las leemos de la respuesta:
+        
+        if (data && data.length > 0) {
+            // El JS de usuario limitará a 20
+            const top20 = data.slice(0, 20);
+
+            // Actualizamos las etiquetas de texto
+            // (Si no cambias el script de Google, el dato de jornada puedes estimarlo aquí)
+            labelJornadas.innerHTML = `⚽ <b>Partidos procesados:</b> ${data[0].jornadas || '---'}`;
+            labelUpdate.innerHTML = `🕒 <b>Actualizado:</b> ${data[0].hora || 'Recién'}`;
+
+            tbody.innerHTML = top20.map(p => `
+                <tr>
+                    <td style="padding:12px; font-weight:bold">${p.pos}</td>
+                    <td class="txt-left" style="padding-left:15px; font-weight:bold; color:#0b3aa9">${p.nombre}</td>
+                    <td>${p.ex}</td>
+                    <td>${p.ge}</td>
+                    <td class="pts-col" style="background:#e3f2fd; font-weight:bold">${p.pts}</td>
+                </tr>
+            `).join('');
+        }
+    } catch (e) {
+        tbody.innerHTML = "<tr><td colspan='5'>Error al cargar.</td></tr>";
+    }
+}
+</script>
+</div>
+<!-- Ventana Modal de Reglas -->
+<div id="modalReglas" class="modal">
+    <div class="modal-content">
+        <span class="close-modal" onclick="cerrarModal()">&times;</span>
+<div class="modal-body">
+    <h3>📖 NORMAS Y FUNCIONAMIENTO</h3>
+    
+    <p style="font-size: 0.95em; color: #333;"><b>1. Identificación Obligatoria:</b></p>
+    <ul style="font-size: 0.85em; color: #555;">
+        <li>Es obligatorio registrarse con un <b>Nombre o Apodo</b> (será el que aparezca en la clasificación pública).</li>
+        <li>El <b>Teléfono</b> es obligatorio y actúa como tu llave de seguridad para recuperar tu apuesta desde cualquier dispositivo.</li>
+    </ul>
+
+    <p style="font-size: 0.95em; color: #333;"><b>2. Sistema de Fases:</b></p>
+    <ul style="font-size: 0.85em; color: #555;">
+        <li><b>Fase 1 (Grupos):</b> Se pronostican los 72 partidos iniciales en esta App.</li>
+        <li><b>Fase 2 (Eliminatorias):</b> Se resetearán los puntos y se empezará de cero. Se lanzará una App específica para cada ronda (Dieciseisavos, Octavos, etc.). Los puntos se irán sumando a tu perfil para determinar el ganador final de la fase eliminatoria.</li>
+    </ul>
+    <ul style="font-size: 0.85em; color: #555;">
+        <li>Una vez enviados los pronosticos no se pueden modificar.</li>
+        
+    </ul>
+    <p style="font-size: 0.95em; color: #333;"><b>3. Puntuación y Desempate:</b></p>
+    <ul style="font-size: 0.85em; color: #555;">
+        <li><b>5 Puntos:</b> Resultado exacto.</li>
+        <li><b>2 Puntos:</b> Ganador o empate.</li>
+        <li><b>Desempate:</b> En caso de igualdad a puntos, quedará por encima el usuario que haya acertado más <b>resultados exactos</b>.</li>
+    </ul>
+
+    <p style="font-size: 0.95em; color: #333;"><b>4. Reparto de Premios (Bote):</b></p>
+    <div style="background: #e8f5e9; padding: 10px; border-radius: 8px; font-size: 0.85em; border: 1px solid #c8e6c9;">
+        💰 <b>45%:</b> Al usuario con más puntos en la <b>Fase de Grupos</b>.<br>
+        🏆 <b>40%:</b> Al usuario con más puntos en <b>Eliminatorias y Final</b>.<br>
+        ⚽ <b>5%:</b> Para quien acierte el <b>Máximo Goleador</b>.<br>
+        🌍 <b>10%:</b> Para quien acierte el <b>Campeón</b> (pronosticado en la primera apuesta).
+    </div>
+
+    <button class="menu-btn" style="background: #0b3aa9; margin-top: 20px;" onclick="cerrarModal()">¡ENTENDIDO Y ACEPTADO!</button>
+</div>
+    </div>
+</div>
+<!-- BOTÓN FLOTANTE VOLVER -->
+<button id="btn-flotante-home" class="btn-flotante" onclick="location.reload()" title="Volver al Inicio">
+    ⬅
+</button>
+</body>
+</html>
