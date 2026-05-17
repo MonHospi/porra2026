@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Maestro - Control de Eliminatorias</title>
+    <link rel="preconnect" href="https://googleapis.com">
+    <link rel="preconnect" href="https://gstatic.com" crossorigin>
+    <link href="https://googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #0a2240; --accent: #2e7d32; --bg: #f0f2f5; }
+        body { font-family: 'Montserrat', sans-serif; background: var(--bg); margin: 0; padding: 20px; }
+        .container { max-width: 900px; margin: auto; }
+        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .header-flex { display: flex; justify-content: space-between; align-items: center; background: var(--primary); color: white; padding: 15px 25px; border-radius: 12px; margin-bottom: 20px; }
+        
+        .selector-fase { padding: 12px 20px; font-size: 1em; font-weight: bold; border-radius: 200px; border: 2px solid black; background: white; color: black; cursor: pointer; font-family: inherit; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        
+        .match-card-admin { background: white; border: 1px solid #e0e0e0; border-radius: 8px; padding: 15px; margin-bottom: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+        .match-edit { display: grid; grid-template-columns: 50px 1fr 120px 1fr 100px; align-items: center; gap: 10px; font-size: 0.95em; }
+        .scores-admin { display: flex; gap: 8px; justify-content: center; }
+        .scores-admin input { width: 45px; height: 35px; text-align: center; font-weight: bold; border-radius: 6px; border: 2px solid #ccc; font-size: 1.1em; }
+        
+        .clasifica-box-admin { display: none; background: #fff3e0; margin-top: 12px; padding: 10px; border-radius: 6px; border: 1px dashed #ff9800; text-align: center; font-size: 0.85em; }
+        .clasifica-box-admin select { padding: 6px 12px; font-weight: bold; border-radius: 4px; border: 1px solid #ff9800; background: white; cursor: pointer; margin-left: 5px; font-family: inherit; }
+        
+        .btn-optikit { display: inline-block; padding: 15px 30px; font-size: 16px; color: white; background-color: var(--accent); border: 2px solid black; border-radius: 200px; cursor: pointer; font-family: inherit; font-weight: 600; text-align: center; transition: all 0.3s ease; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15); width: 100%; margin-top: 15px; }
+        .btn-optikit:hover { transform: translateY(-3px); box-shadow: 0 8px 12px rgba(0,0,0,0.15); }
+        .btn-optikit:disabled { background-color: #777 !important; cursor: not-allowed; transform: none; box-shadow: none; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header-flex">
+        <h2>⚙️ PANEL DE CONTROL REMOTO</h2>
+        <!-- SELECTOR REMOTO DE FASES -->
+        <select id="faseActual" class="selector-fase" onchange="cambiarDeFaseTorneo()">
+            <option value="dieciseisavos">DIECISEISAVOS (16)</option>
+            <option value="octavos">OCTAVOS DE FINAL (8)</option>
+            <option value="cuartos">CUARTOS DE FINAL (4)</option>
+            <option value="semifinales">SEMIFINALES (2)</option>
+            <option value="final">GRAN FINAL (2 PARTIDOS)</option>
+        </select>
+    </div>
+
+    <!-- TARJETA CENTRAL DE TRABAJO -->
+    <div class="card">
+        <h3 id="titulo-marcadores" style="margin-top: 0; color: var(--primary);">⚽ Marcadores Oficiales FIFA</h3>
+        <p style="font-size:0.85em; color:#666; margin-bottom: 20px;">Introduce los goles reales de los 90 minutos reglamentarios. Si el partido finaliza en empate, elige obligatoriamente quién avanza en el recuadro naranja.</p>
+        
+        <div id="admin-matches-container"></div>
+        
+        <button class="btn-optikit" id="btn-guardar" onclick="guardarResultadosEnServidor()">🚀 PUBLICAR RESULTADOS Y ACTUALIZAR COMPONENTES</button>
+    </div>
+</div>
+
+<script>
+    // ESTRUCTURA DE TORNEO COMPARTIDA CON EL USUARIO
+    const torneoEstructura = {
+        dieciseisavos: [
+            { id: 1, t1: "España 🇪🇸", t2: "Marruecos 🇲🇦", f: "29 Jun 18:00" },
+            { id: 2, t1: "Francia 🇫🇷", t2: "Ecuador 🇪🇨", f: "29 Jun 22:00" },
+            { id: 3, t1: "Argentina 🇦🇷", t2: "Suiza 🇨🇭", f: "30 Jun 18:00" },
+            { id: 4, t1: "Inglaterra 🏴󠁧󠁢󠁥󠁮󠁧󠁿", t2: "Turquía 🇹🇷", f: "30 Jun 22:00" },
+            { id: 5, t1: "Brasil 🇧🇷", t2: "Japón 🇯🇵", f: "01 Jul 18:00" },
+            { id: 6, t1: "Alemania 🇩🇪", t2: "Croacia 🇭🇷", f: "01 Jul 22:00" },
+            { id: 7, t1: "Portugal 🇵🇹", t2: "México 🇲🇽", f: "02 Jul 18:00" },
+            { id: 8, t1: "Países Bajos 🇳🇱", t2: "Uruguay 🇺🇾", f: "02 Jul 22:00" },
+            { id: 9, t1: "EE. UU. 🇺🇸", t2: "Senegal 🇸🇳", f: "03 Jul 18:00" },
+            { id: 10, t1: "Bélgica 🇧🇪", t2: "Colombia 🇨🇴", f: "03 Jul 22:00" },
+            { id: 11, t1: "Selección 21", t2: "Selección 22", f: "04 Jul 18:00" },
+            { id: 12, t1: "Selección 23", t2: "Selección 24", f: "04 Jul 22:00" },
+            { id: 13, t1: "Selección 25", t2: "Selección 26", f: "05 Jul 18:00" },
+            { id: 14, t1: "Selección 27", t2: "Selección 28", f: "05 Jul 22:00" },
+            { id: 15, t1: "Selección 29", t2: "Selección 30", f: "06 Jul 18:00" },
+            { id: 16, t1: "Selección 31", t2: "Selección 32", f: "06 Jul 22:00" }
+        ],
+        octavos: [
+            { id: 1, t1: "Ganador E1", t2: "Ganador E2", f: "07 Jul 18:00" },
+            { id: 2, t1: "Ganador E3", t2: "Ganador E4", f: "07 Jul 22:00" },
+            { id: 3, t1: "Ganador E5", t2: "Ganador E6", f: "08 Jul 18:00" },
+            { id: 4, t1: "Ganador E7", t2: "Ganador E8", f: "08 Jul 22:00" },
+            { id: 5, t1: "Ganador E9", t2: "Ganador E10", f: "09 Jul 18:00" },
+            { id: 6, t1: "Ganador E11", t2: "Ganador E12", f: "09 Jul 22:00" },
+            { id: 7, t1: "Ganador E13", t2: "Ganador E14", f: "10 Jul 18:00" },
+            { id: 8, t1: "Ganador E15", t2: "Ganador E16", f: "10 Jul 22:00" }
+        ],
+        cuartos: [
+            { id: 1, t1: "Ganador O1", t2: "Ganador O2", f: "12 Jul 18:00" },
+            { id: 2, t1: "Ganador O3", t2: "Ganador O4", f: "12 Jul 22:00" },
+            { id: 3, t1: "Ganador O5", t2: "Ganador O6", f: "13 Jul 18:00" },
+            { id: 4, t1: "Ganador O7", t2: "Ganador O8", f: "13 Jul 22:00" }
+        ],
+        semifinales: [
+            { id: 1, t1: "Ganador C1", t2: "Ganador C2", f: "15 Jul 21:00" },
+            { id: 2, t1: "Ganador C3", t2: "Ganador C4", f: "16 Jul 21:00" }
+        ],
+        final: [
+            { id: 1, t1: "Perdedor S1", t2: "Perdedor S2", f: "18 Jul 21:00", tipo: "🥉 3º y 4º PUESTO" },
+            { id: 2, t1: "Ganador S1", t2: "Ganador S2", f: "19 Jul 21:00", tipo: "👑 GRAN FINAL" }
+        ]
+    };
+
+    const GOOGLE_URL_ELIMINATORIAS = "https://script.google.com/macros/s/AKfycbxXcuku-A2Srwsrfc8jPNctIdHhA1sHINXK00iMOAlusSvE-lMhSik6b1gPMRxg3kBdMQ/exec";
+    
+    let partidosData = [];
+    let faseActiva = "dieciseisavos";
+
+    window.onload = function() {
+        cambiarDeFaseTorneo();
+    };
+
+    function cambiarDeFaseTorneo() {
+        faseActiva = document.getElementById('faseActual').value;
+        partidosData = torneoEstructura[faseActiva];
+        document.getElementById('titulo-marcadores').innerText = `⚽ Marcadores Oficiales: ${faseActiva.toUpperCase()}`;
+        
+        generarPartidosAdmin();
+        recuperarMarcadoresLocales();
+    }
+
+    function generarPartidosAdmin() {
+        const cont = document.getElementById('admin-matches-container');
+        cont.innerHTML = "";
+        
+        let letraFase = faseActiva === "dieciseisavos" ? "E" : faseActiva === "octavos" ? "O" : faseActiva === "cuartos" ? "C" : faseActiva === "semifinales" ? "S" : "F";
+
+        partidosData.forEach(p => {
+            const tagMatch = p.tipo ? `<div style="background:#0a2240; color:white; padding:4px 10px; font-size:0.75em; font-weight:bold; margin-bottom:8px; border-radius:4px; display:inline-block;">${p.tipo}</div>` : '';
+            
+            cont.innerHTML += `
+                <div class="match-card-admin">
+                    ${tagMatch}
+                    <div class="match-edit">
+                        <span style="font-weight:bold; color:var(--primary)">${letraFase}${p.id}</span>
+                        <span style="text-align:right; font-weight:600;">${p.t1}</span>
+                        <div class="scores-admin">
+                            <input type="number" id="h_${p.id}" min="0" oninput="evaluarEmpateAdmin(${p.id})">
+                            <input type="number" id="a_${p.id}" min="0" oninput="evaluarEmpateAdmin(${p.id})">
+                        </div>
+                        <span style="text-align:left; font-weight:600;">${p.t2}</span>
+                        <span style="font-size:0.75em; color:#888; text-align:right;">📅 ${p.f}</span>
+                    </div>
+                    
+                    <div class="clasifica-box-admin" id="box_pasa_${p.id}">
+                        ⚖️ Partido Empatado. ¿Quién se clasifica?
+                        <select id="pasa_${p.id}">
+                            <option value="${p.t1}">${p.t1}</option>
+                            <option value="${p.t2}">${p.t2}</option>
+                        </select>
+                    </div>
+                </div>
+            `;
+        });
+    }
+
+    function evaluarEmpateAdmin(id) {
+        const h = document.getElementById(`h_${id}`).value;
+        const a = document.getElementById(`a_${id}`).value;
+        const box = document.getElementById(`box_pasa_${id}`);
+        
+        if(h !== "" && a !== "" && parseInt(h) === parseInt(a)) {
+            box.style.display = "block";
+        } else {
+            box.style.display = "none";
+        }
+        guardarMarcadoresLocales();
+    }
+
+    // ENVÍO DE MARCADORES REMOTO SEGURO ANTI-CORS
+    function guardarResultadosEnServidor() {
+        const btn = document.getElementById('btn-guardar');
+        let resultadosFase = {};
+        
+        let letraFase = faseActiva === "dieciseisavos" ? "E" : faseActiva === "octavos" ? "O" : faseActiva === "cuartos" ? "C" : faseActiva === "semifinales" ? "S" : "F";
+
+        for(let p of partidosData) {
+            const hV = document.getElementById(`h_${p.id}`).value;
+            const aV = document.getElementById(`a_${p.id}`).value;
+            
+            // Si el partido está vacío, no lo enviamos todavía
+            if(hV !== "" && aV !== "") {
+                const h = parseInt(hV); const a = parseInt(aV);
+                let pasa = "";
+                if(h > a) pasa = p.t1;
+                else if(a > h) pasa = p.t2;
+                else pasa = document.getElementById(`pasa_${p.id}`).value;
+
+                resultadosFase[`${letraFase}${p.id}`] = { h: h, a: a, pasa: pasa };
+            }
+        }
+
+        btn.disabled = true;
+        btn.innerText = "⏳ PUBLICANDO Y RECALCULANDO EN SERVIDOR...";
+
+        const payload = {
+            accion_admin: "guardarGolesFifa",
+            resultados: resultadosFase
+        };
+
+        fetch(GOOGLE_URL_ELIMINATORIAS, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify(payload)
+        }).then(() => {
+            alert("🚀 ¡Resultados inyectados de forma exitosa! El Excel ha calculado el nuevo ranking.");
+            btn.disabled = false;
+            btn.innerText = "🚀 PUBLICAR RESULTADOS Y ACTUALIZAR COMPONENTES";
+        }).catch(err => {
+            alert("❌ Error al enlazar: " + err);
+            btn.disabled = false;
+            btn.innerText = "🚀 PUBLICAR RESULTADOS Y ACTUALIZAR COMPONENTES";
+        });
+    }
+
+    function guardarMarcadoresLocales() {
+        let datosCaja = {};
+        partidosData.forEach(p => {
+            datosCaja[p.id] = {
+                h: document.getElementById(`h_${p.id}`).value,
+                a: document.getElementById(`a_${p.id}`).value,
+                pasa: document.getElementById(`pasa_${p.id}`).value
+            };
+        });
+        localStorage.setItem(`cache_admin_fase_${faseActiva}`, JSON.stringify(datosCaja));
+    }
+
+    function recuperarMarcadoresLocales() {
+        const cache = localStorage.getItem(`cache_admin_fase_${faseActiva}`);
+        if(!cache) return;
+        const datos = JSON.parse(cache);
+        
+        partidosData.forEach(p => {
+            if(datos[p.id]) {
+                document.getElementById(`h_${p.id}`).value = datos[p.id].h;
+                document.getElementById(`a_${p.id}`).value = datos[p.id].a;
+                
+                if(datos[p.id].h !== "" && datos[p.id].a !== "" && parseInt(datos[p.id].h) === parseInt(datos[p.id].a)) {
+                    document.getElementById(`box_pasa_${p.id}`).style.display = "block";
+                    document.getElementById(`pasa_${p.id}`).value = datos[p.id].pasa;
+                }
+            }
+        });
+    }
+</script>
+</body>
+</html>

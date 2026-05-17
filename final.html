@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiniela Mundial 2026 - Final</title>
+    <link rel="preconnect" href="https://googleapis.com">
+    <link rel="preconnect" href="https://gstatic.com" crossorigin>
+    <link href="https://googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #0a2240; --accent: #d32f2f; --bg: #f4f7f6; --blue-axa: #0b3aa9; }
+        body { font-family: Montserrat, sans-serif; margin: 0; padding-bottom: 120px; background-image: linear-gradient(rgba(255,255,255,0.6), rgba(11,58,169,0.05)), url('https://123rf.com'); background-repeat: no-repeat; background-size: cover; background-position: top; }
+        
+        .header { background-image: linear-gradient(rgba(255,255,255,0), rgba(0,114,255,0.05)), url('imagenes/imagen2.jpg');
+                  background-size: cover; background-position: center; color: white; text-align: center; padding: 40px 10px; }
+        .header h1 { margin: 5px 0; font-size: 2em; letter-spacing: 1px; }
+        .header p { margin: 0; font-size: 1em; color: #ffeb3b; font-weight: bold; }
+        
+        .container { max-width: 850px; margin: 20px auto; padding: 10px; width: 100%; box-sizing: border-box; }
+        
+        /* Cuadrícula de Menú Principal */
+        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px; margin-bottom: 20px; }
+        
+        .user-box { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; margin-bottom: 20px; border: 2px solid var(--primary); }
+        input[type="text"], input[type="tel"] { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; margin-top: 5px; font-size: 1em; text-align: center; }
+        
+        /* Listado de partidos */
+        .match-card { background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin-bottom: 15px; padding: 15px; border-left: 6px solid var(--primary); }
+        .match-info { text-align: center; font-size: 0.8em; color: #666; margin-bottom: 10px; font-weight: bold; }
+        .tv-tag { color: var(--accent); }
+        .match-grid { display: grid; grid-template-columns: 1fr 130px 1fr; align-items: center; gap: 10px; }
+        .team { font-weight: 600; font-size: 0.95em; color: #222; }
+        .team-left { text-align: right; }
+        .team-right { text-align: left; }
+        
+        .scores { display: flex; justify-content: center; gap: 5px; align-items: center; }
+        .scores input { width: 50px; height: 40px; text-align: center; font-weight: bold; border: 2px solid #ddd; border-radius: 8px; font-size: 1.2em; }
+        .scores input:disabled { background-color: #f5f5f5; color: #333; border-color: #bbb; }
+        
+        /* Desempates */
+        .clasifica-box { grid-column: span 3; background: #fff3e0; margin-top: 12px; padding: 10px; border-radius: 6px; border: 1px dashed #ffb74d; text-align: center; font-size: 0.85em; display: none; }
+        .clasifica-box select { padding: 6px 12px; border-radius: 4px; border: 1px solid #ffb74d; font-weight: bold; background: white; margin-left: 5px; cursor: pointer; }
+        .clasifica-box select:disabled { background-color: #f5f5f5; color: #333; border-color: #bbb; }
+
+        /* Clasificación */
+        .tabla-posiciones { width: 100%; border-collapse: collapse; font-size: 0.85em; margin-top: 15px; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .tabla-posiciones th { background: var(--primary); padding: 12px; border-bottom: 2px solid #ddd; color: white; }
+        .tabla-posiciones td { border-bottom: 1px solid #eee; padding: 12px; text-align: center; }
+        .pts-col { font-weight: bold; color: var(--blue-axa); background: #f0f4ff; }
+        
+        /* Botones personalizados estilo Optikit */
+        .btn-optikit { display: inline-block; padding: 15px 20px; font-size: 15px; color: #000000; background-color: #ffffff; border: 2px solid black; border-radius: 200px; cursor: pointer; font-family: inherit; font-weight: 600; text-align: center; transition: all 0.3s ease; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15); box-sizing: border-box; min-height: 60px; }
+        .btn-optikit:hover { transform: translateY(-3px); box-shadow: 0 8px 12px rgba(0,0,0,0.15); }
+        .btn-full { width: 100%; padding: 18px; font-size: 1.1em; border-radius: 8px; margin-top: 15px; }
+        .btn-send { background: var(--accent); color: white; border: none; border-radius: 200px; }
+        .btn-back { background: #ffffff; color: #000000; border: 2px solid black; border-radius: 200px; }
+        
+        /* Ventanas Modales */
+        .modal { display: none; position: fixed; z-index: 3000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); overflow-y: auto; }
+        .modal-content { background-color: white; margin: 10% auto; padding: 25px; border-radius: 15px; width: 85%; max-width: 500px; line-height: 1.6; position: relative; box-shadow: 0 5px 25px rgba(0,0,0,0.3); }
+        .close-modal { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
+        .close-modal:hover { color: black; }
+        .modal-body h3 { color: var(--blue-axa); border-bottom: 2px solid #eee; padding-bottom: 10px; margin-top: 0; }
+        .modal-body ul { padding-left: 20px; font-size: 0.85em; color: #555; }
+        .modal-body li { margin-bottom: 8px; }
+        
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <p>FASE ELIMINATORIA</p>
+    <h1>FINAL</h1>
+</div>
+
+<div class="container">
+    <!-- MENÚ DE ENTRADA ÚNICO -->
+    <div id="welcome-section" class="welcome-panel">
+                <div style="width: 100%; overflow: hidden; background-color: white; text-align: center;">
+            <img src="https://i.etsystatic.com/60577639/r/il/b0ebd3/7842682356/il_794xN.7842682356_ggns.jpg" alt="Ranking 2026" style=" height: auto;width: 80%;">
+        </div>
+         <h2 style="text-align:center; font-size:xx-large;">Mundial 2026 - Fase Eliminatorias . Final</h2>
+    <div class="menu-grid">
+        <button class="btn-optikit" id="btn-menu-enviar" onclick="mostrarIdentificacion()">ENVIAR RESULTADOS</button>
+        <button class="btn-optikit" id="btn-menu-consultar" onclick="recuperarOBuscarApuesta()">MI APUESTA GUARDADA</button>
+        <button class="btn-optikit" onclick="mostrarClasificacion()">CLASIFICACIÓN</button>
+        <button class="btn-optikit" onclick="abrirModalReglas()">VER REGLAS</button>
+    </div>
+
+
+        <div style="padding-top: 50px;">
+        <h2 style="text-align:center; font-size:xx-large;">INFORMACIÓN ADICIONAL</h2>
+    
+    <div id="" class="user-box" style=" padding: 15px 0 0 0; overflow: hidden;">
+        <h3 style="margin: 10px 0 5px 0; color: var(--primary);">Máximos goleadores del momento</h3>
+        <p style="font-size:0.8em; color:#666; margin: 0 0 15px 0;">Solo a nivel informativo para el usuario </p>
+        <table class="tabla-posiciones" id="">
+            <thead>
+                <tr>
+                    <th style="width:50px">Pos</th>
+                    <th style="text-align:center; padding-left:15px;width: 100px;">Jugador</th>
+                    <th style="width:50px">Goles Marcados</th>      
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1</td>
+                    <td>Ferran Torres</td>
+                    <td>5</td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>Ferran Torres</td>
+                    <td>5</td>
+                </tr>                
+
+            </tbody>
+        </table>
+    </div>
+    <div id="" class="user-box" style=" padding: 15px 0 0 0; overflow: hidden;">
+        <h3 style="margin: 10px 0 5px 0; color: var(--primary);">Ganador del mundial según las casas de apuestas</h3>
+        <p style="font-size:0.8em; color:#666; margin: 0 0 15px 0;">Solo a nivel informativo para el usuario. Datos actualizados a 7/5/2026  </p>
+        <table class="tabla-posiciones" id="">
+            <thead>
+                <tr>
+                    <th style="width:100px">Selección</th>
+                    <th style="text-align:center; padding-left:15px;width: 20px;">Betfair</th>
+                    <th style="text-align:center; padding-left:15px;width: 20px;">Codere</th>
+                    <th style="text-align:center; padding-left:15px;width: 20px;">Bet365</th>    
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td style="background-color: lightgoldenrodyellow;">España</td>
+                    <td style="background-color: lightgoldenrodyellow;">5.00</td>
+                    <td style="background-color: lightgoldenrodyellow;">5.50</td>
+                    <td style="background-color: lightgoldenrodyellow;">5.50</td>
+                </tr>
+                <tr>
+                    <td>Francia</td>
+                    <td >5.00</td>
+                    <td >6.00</td>
+                    <td >6.00</td>
+                </tr>                
+                <tr>
+                    <td >Inglaterra</td>
+                    <td>7.50</td>
+                    <td>7.00</td>
+                    <td>7.00</td>
+                </tr>
+                <tr>
+                    <td >Argentina</td>
+                    <td>9.50</td>
+                    <td>9.00</td>
+                    <td>9.00</td>
+                </tr> 
+                <tr>
+                    <td >Brasil</td>
+                    <td>9.00</td>
+                    <td>9.00</td>
+                    <td>9.00</td>
+                </tr>               
+            </tbody>
+        </table>
+    </div>
+
+</div>
+</div>
+
+    <!-- SECCIÓN 1: FORMULARIO DE IDENTIFICACIÓN (SOLO PARA NUEVA APUESTA) -->
+    <div id="identificacion-section" class="user-box" style="display:none;">
+        <h3>⚽ Datos de Participación</h3>
+        <p style="font-size:0.85em; color:#555; margin-bottom: 20px;">Introduce tus datos obligatorios para registrar tus pronósticos.</p>
+        
+        <label><b>Nombre o Apodo:</b></label>
+        <input type="text" id="nombre_usuario" placeholder="Ej: Juan_Goles">
+        <br><br>
+        <label><b>Teléfono Móvil:</b></label>
+        <input type="tel" id="telefono_usuario" placeholder="Ej: 600123456">
+        
+        <button class="btn-optikit btn-full" style="background:#0a2240; color:white; margin-top:25px;" onclick="iniciarTableroJuego()">CONFIGURAR MIS GOLES</button>
+        <button class="btn-optikit btn-full btn-back" onclick="location.reload()">VOLVER AL INICIO</button>
+    </div>
+
+    <!-- SECCIÓN 2: BUSCADOR MANUAL EN SERVIDOR (SI NO HAY APUESTA LOCAL) -->
+    <div id="consulta-section" class="user-box" style="display:none;">
+        <h3>🔎 Recuperar mi Apuesta</h3>
+        <p style="font-size:0.9em; color:#555;">No detectamos datos guardados localmente. Introduce tu teléfono para descargarlos del servidor:</p>
+        <br>
+        <input type="tel" id="tel_consulta" placeholder="Ej: 600123456" style="font-size: 1.2em; letter-spacing: 1px;">
+        
+        <button class="btn-optikit btn-full" id="btn-buscar-servidor" style="background:#0a2240; color:white; margin-top:20px;" onclick="recuperarApuestaPorTelefono()">BUSCAR EN EL SERVIDOR</button>
+        <button class="btn-optikit btn-full btn-back" onclick="location.reload()">VOLVER AL INICIO</button>
+    </div>
+
+    <!-- SECCIÓN 3: CLASIFICACIÓN EN VIVO -->
+    <div id="ranking-section" class="user-box" style="display:none; padding: 15px 0 0 0; overflow: hidden;">
+        <h3 style="margin: 10px 0 5px 0; color: var(--primary);">CLASIFICACIÓN ACUMULADA</h3>
+        <p style="font-size:0.8em; color:#666; margin: 0 0 15px 0;">Suma consolidada en tiempo real: Solo fase de eliminatorias</p>
+        <table class="tabla-posiciones" id="tabla-ranking-publico">
+            <thead>
+                <tr>
+                    <th style="width:50px">Pos</th>
+                    <th style="text-align:left; padding-left:15px;">Jugador</th>
+                    <th>🎯 Exactos</th>
+                    <th>✅ G/E</th>
+                    <th class="pts-col" style="background:#0a2240; color:white;">Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Se poblará dinámicamente -->
+            </tbody>
+        </table>
+        <div style="padding: 20px;">
+            <button class="btn-optikit btn-full btn-back" onclick="location.reload()">VOLVER AL INICIO</button>
+        </div>
+    </div>
+
+    <!-- SECCIÓN CENTRAL DE JUEGO (PARTIDOS) -->
+    <div id="juego-section" style="display:none;">
+        <div id="contenedor-partidos"></div>
+        
+        <button class="btn-optikit btn-full btn-send" id="btn-enviar" onclick="procesarYEnviarApuesta()">🚀 CONFIRMAR Y ENVIAR MI APUESTA</button>
+        <button class="btn-optikit btn-full btn-send" id="btn-comprobante" style="display:none; background:#1976d2;" onclick="exportarImpresionNativa()">🖨️ IMPRIMIR COMPROBANTE DE APUESTA</button>
+        <button class="btn-optikit btn-full btn-back" style="margin-top:15px;" onclick="location.reload()">VOLVER AL INICIO</button>
+    </div>
+</div>
+
+<!-- MODAL DE REGLAS -->
+<div id="modalReglas" class="modal">
+    <div class="modal-content">
+        <span class="close-modal" onclick="cerrarModalReglas()">&times;</span>
+        <div class="modal-body">
+            <h3>📖 REGLAS - ELIMINATORIAS</h3>
+            <p style="font-size: 0.9em; color: #333; margin-bottom:5px;"><b>1. Puntuación por Encuentro:</b></p>
+            <ul>
+                <li><b>5 Puntos:</b> Pleno absoluto al marcador regular (90 minutos).</li>
+                <li><b>2 Puntos:</b> Acierto de tendencia (Ganador o Empate en 90 minutos).</li>
+            </ul>
+            <p style="font-size: 0.9em; color: #333; margin-bottom:5px;"><b>2. Prórrogas y Penaltis:</b></p>
+            <ul>
+                <li>Si pronosticas un <b>Empate</b>, se activará un selector obligatorio para predecir qué equipo clasifica finalmente de ronda.</li>
+            </ul>
+            <button class="btn-optikit" style="background: var(--blue-axa); color:white; width:100%; margin-top:15px; border-radius:8px;" onclick="cerrarModalReglas()">ENTENDIDO</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const partidosData = [
+        { id: 1, t1: "Perdedor Semifinal 1", t2: "Perdedor Semifinal 2", f: "18 Jul 21:00", tv: "La 1 TVE / DAZN", tipo: "TERCER Y CUARTO PUESTO" },
+        { id: 2, t1: "Ganador Semifinal 1", t2: "Ganador Semifinal 2", f: "19 Jul 21:00", tv: "La 1 TVE", tipo: "GRAN FINAL MUNDIAL 2026" }
+    ];
+
+    const GOOGLE_URL_ELIMINATORIAS = "https://script.google.com/macros/s/AKfycbxXcuku-A2Srwsrfc8jPNctIdHhA1sHINXK00iMOAlusSvE-lMhSik6b1gPMRxg3kBdMQ/exec";
+
+    window.onload = function() {
+        // Bloqueo de re-envío si ya guardó en este dispositivo
+        if(localStorage.getItem('mi_apuesta_final')) {
+            document.getElementById('btn-menu-enviar').style.display = 'none';
+        }
+    };
+
+    // CONTROL DE NAVEGACIÓN DE VISTAS PRINCIPALES
+    function mostrarIdentificacion() {
+        document.getElementById('welcome-section').style.display = 'none';
+        document.getElementById('identificacion-section').style.display = 'block';
+    }
+
+    function mostrarClasificacion() {
+        document.getElementById('welcome-section').style.display = 'none';
+        document.getElementById('ranking-section').style.display = 'block';
+        consultarRankingServidor();
+    }
+
+    function iniciarTableroJuego() {
+        const nom = document.getElementById('nombre_usuario').value.trim();
+        const tel = document.getElementById('telefono_usuario').value.trim();
+        if(!nom || !tel) return alert("⚠️ Rellena tu Nombre y Teléfono.");
+
+        document.getElementById('identificacion-section').style.display = 'none';
+        document.getElementById('juego-section').style.display = 'block';
+        desplegarEstructuraPartidos(false);
+    }
+
+    // FLUJO UNIFICADO DE MI APUESTA GUARDADA
+    function recuperarOBuscarApuesta() {
+        if(localStorage.getItem('mi_apuesta_final')) {
+            // SI EXISTE LOCAL: Carga la apuesta directamente
+            document.getElementById('welcome-section').style.display = 'none';
+            document.getElementById('juego-section').style.display = 'block';
+            desplegarEstructuraPartidos(true);
+            inyectarValoresGuardados();
+        } else {
+            // SI NO EXISTE LOCAL: Muestra el buscador manual
+            document.getElementById('welcome-section').style.display = 'none';
+            document.getElementById('consulta-section').style.display = 'block';
+        }
+    }
+
+    function desplegarEstructuraPartidos(bloqueado = false) {
+        const cont = document.getElementById('contenedor-partidos');
+        cont.innerHTML = "";
+        partidosData.forEach(p => {
+            cont.innerHTML += `
+                <!-- Etiqueta del Tipo de Partido (Final o 3ro/4to) -->
+                <div style="background: #0a2240; color: #ffeb3b; padding: 8px 15px; border-radius: 6px 6px 0 0; font-weight: bold; font-size: 0.85em; margin-bottom: -5px; display: inline-block; margin-top: 15px; letter-spacing: 0.5px;">
+                    ${p.tipo}
+                </div>
+                
+                <div class="match-card" style="margin-top:0;">
+                    <div class="match-info">PARTIDO REF P${p.id} — 📅 ${p.f} — <span class="tv-tag">📺 ${p.tv}</span></div>
+                    <div class="match-grid">
+                        <div class="team team-left">${p.t1}</div>
+                        <div class="scores">
+                            <input type="number" id="h_${p.id}" min="0" oninput="evaluarCondicionEmpate(${p.id})" ${bloqueado ? 'disabled' : ''}>
+                            <input type="number" id="a_${p.id}" min="0" oninput="evaluarCondicionEmpate(${p.id})" ${bloqueado ? 'disabled' : ''}>
+                        </div>
+                        <div class="team team-right">${p.t2}</div>
+                        
+                        <div class="clasifica-box" id="box_desempate_${p.id}">
+                            ⚖️ Empate técnico. ¿Quién se lleva la victoria final? 
+                            <select id="pasa_${p.id}" ${bloqueado ? 'disabled' : ''}>
+                                <option value="${p.t1}">${p.t1}</option>
+                                <option value="${p.t2}">${p.t2}</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+    }
+
+    function evaluarCondicionEmpate(id) {
+        const h = document.getElementById(`h_${id}`).value;
+        const a = document.getElementById(`a_${id}`).value;
+        const box = document.getElementById(`box_desempate_${id}`);
+        if(h !== "" && a !== "" && parseInt(h) === parseInt(a)) box.style.display = "block";
+        else box.style.display = "none";
+    }
+
+    function inyectarValoresGuardados() {
+        const datos = JSON.parse(localStorage.getItem('mi_apuesta_final'));
+        partidosData.forEach(p => {
+            const prono = datos.resultados[p.id];
+            if(prono) {
+                document.getElementById(`h_${p.id}`).value = prono.h;
+                document.getElementById(`a_${p.id}`).value = prono.a;
+                if(parseInt(prono.h) === parseInt(prono.a)) {
+                    document.getElementById(`box_desempate_${p.id}`).style.display = "block";
+                    document.getElementById(`pasa_${p.id}`).value = prono.pasa;
+                }
+            }
+        });
+        document.getElementById('btn-enviar').style.display = 'none';
+        document.getElementById('btn-comprobante').style.display = 'block';
+    }
+
+    // BUSCADOR EN EL SERVIDOR REMOTO (CORREGIDO)
+    async function recuperarApuestaPorTelefono() {
+        const tel = document.getElementById('tel_consulta').value.trim();
+        if(!tel) return alert("⚠️ Introduce tu número de teléfono.");
+
+        const btn = document.getElementById('btn-buscar-servidor');
+        btn.disabled = true;
+        btn.innerText = "⏳ BUSCANDO EN EL SERVIDOR...";
+
+        try {
+            const query = `${GOOGLE_URL_ELIMINATORIAS}?action=recuperarServidor&telefono=${tel}&fase=final&t=${Date.now()}`;
+            const resp = await fetch(query);
+            const textData = await resp.text(); 
+            const data = JSON.parse(textData); 
+
+            if (data && data.exito && data.apuesta) {
+                if (typeof data.apuesta.resultados === 'string') {
+                    data.apuesta.resultados = JSON.parse(data.apuesta.resultados);
+                }
+                localStorage.setItem('mi_apuesta_final', JSON.stringify(data.apuesta));
+                alert("✅ ¡Apuesta localizada con éxito! Cargando tu quiniela...");
+                location.reload();
+            } else {
+                alert("❌ No se encontró ninguna apuesta de Finales registrada para ese teléfono.");
+                btn.disabled = false; btn.innerText = "BUSCAR EN EL SERVIDOR";
+            }
+        } catch (e) {
+            alert("❌ Error de comunicación con el servidor: " + e.message);
+            btn.disabled = false; btn.innerText = "BUSCAR EN EL SERVIDOR";
+        }
+    }
+
+    function procesarYEnviarApuesta() {
+        const btn = document.getElementById('btn-enviar');
+        const nom = document.getElementById('nombre_usuario').value.trim();
+        const tel = document.getElementById('telefono_usuario').value.trim();
+        const apuesta = {}; let texto_plano = "";
+
+        for(let p of partidosData) {
+            const hV = document.getElementById(`h_${p.id}`).value;
+            const aV = document.getElementById(`a_${p.id}`).value;
+            if(hV === "" || aV === "") return alert("⚠️ Completa todos los marcadores.");
+            
+            const h = parseInt(hV); const a = parseInt(aV);
+            let pasa = "";
+            if(h > a) pasa = p.t1;
+            else if(a > h) pasa = p.t2;
+            else pasa = document.getElementById(`pasa_${p.id}`).value;
+
+            apuesta[p.id] = { h: h, a: a, pasa: pasa };
+            texto_plano += `F${p.id}:[${h}-${a}] Pasa:${pasa} / `;
+        }
+
+        btn.disabled = true;
+        btn.innerText = "⏳ ENVIANDO APUESTA AL EXCEL...";
+        btn.style.backgroundColor = "#777777";
+
+        const payload = {
+            fase: "final", nombre: nom, telefono: tel, resultados: apuesta, resultados_texto: texto_plano
+        };
+
+        fetch(GOOGLE_URL_ELIMINATORIAS, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify(payload)
+        }).then(() => {
+            localStorage.setItem('mi_apuesta_final', JSON.stringify(payload));
+            alert("✅ ¡Pronósticos enviados con éxito!");
+            location.reload();
+        }).catch(err => {
+            alert("❌ Error: " + err);
+            btn.disabled = false; btn.innerText = "🚀 CONFIRMAR Y ENVIAR MI APUESTA";
+            btn.style.backgroundColor = "";
+        });
+    }
+
+    function exportarImpresionNativa() {
+        const datos = JSON.parse(localStorage.getItem('mi_apuesta_final'));
+        const win = window.open('', '_blank');
+        let html = `<html><head><title>Comprobante Finales</title><style>body{font-family:sans-serif;padding:30px;}table{width:100%;border-collapse:collapse;}th{background:#eee;padding:10px;text-align:left;}td{padding:10px;border-bottom:1px solid #eee;}</style></head><body>`;
+        html += `<h2>🏆 MUNDIAL 2026 - FINALES</h2><p><b>Participante:</b> ${datos.nombre.toUpperCase()} | <b>Teléfono:</b> ${datos.telefono}</p><table><thead><tr><th>Fase</th><th>Partido</th><th>Pronóstico Regular</th><th>Avanza de Ronda</th></tr></thead><tbody>`;
+        partidosData.forEach(p => {
+            const item = datos.resultados[p.id];
+            html += `<tr><td>E${p.id}</td><td>${p.t1} vs ${p.t2}</td><td><b>${item.h} — ${item.a}</b></td><td>${item.pasa}</td></tr>`;
+        });
+        html += `</tbody></table></body></html>`;
+        win.document.write(html); win.document.close();
+        setTimeout(() => { win.print(); win.close(); }, 500);
+    }
+
+    // MOTOR DE CONSULTA DEL RANKING (LISTO PARA PRUEBAS)
+// MOTOR DE CONSULTA Y PINTADO DEL RANKING DESGLOSADO
+async function consultarRankingServidor() {
+    const tbody = document.querySelector("#tabla-ranking-publico tbody");
+    tbody.innerHTML = "<tr><td colspan='5' style='padding:20px; color:#666;'>🔍 Descargando tabla de posiciones desde el servidor...</td></tr>";
+    
+    try {
+        // DETECCIÓN DER FASE DINÁMICA SEGÚN EL ARCHIVO ACTUAL
+        // Extrae automáticamente si estás en dieciseisavos, octavos, cuartos, etc.
+        let archivoNombre = window.location.pathname.split("/").pop().toLowerCase();
+        let faseQuery = "dieciseisavos"; // por defecto
+        
+        if (archivoNombre.includes("octavos")) faseQuery = "octavos";
+        else if (archivoNombre.includes("cuartos")) faseQuery = "cuartos";
+        else if (archivoNombre.includes("semifinales")) faseQuery = "semifinales";
+        else if (archivoNombre.includes("final")) faseQuery = "final";
+
+        // ENLACE POR RED: Enviamos el parámetro &fase para traer los desgloses correctos de la ronda
+        const query = `${GOOGLE_URL_ELIMINATORIAS}?action=obtenerRankingAcumulado&fase=final&t=${Date.now()}`;
+
+        const resp = await fetch(query);
+        const textData = await resp.text();
+        const data = JSON.parse(textData);
+        
+        if (data && data.length > 0) {
+            // RENDERIZADO EN PANTALLA: Inyectamos los plenos (p.ex) y las tendencias (p.ge)
+            tbody.innerHTML = data.map(p => `
+                <tr>
+                    <td><b>${p.pos}</b></td>
+                    <td style="text-align:left; padding-left:15px; font-weight:bold; color:var(--blue-axa)">${p.nombre}</td>
+                    <td>${p.ex}</td> <!-- 🎯 Plenos Exactos de esta fase (5 pts) -->
+                    <td>${p.ge}</td> <!-- ✅ Tendencias Ganador/Empate de esta fase (2 pts) -->
+                    <td class="pts-col" style="background:#e3f2fd; font-weight:bold; color:#0a2240;">${p.pts} pts</td>
+                </tr>
+            `).join('');
+        } else { 
+            tbody.innerHTML = "<tr><td colspan='5' style='padding:20px; color:#d32f2f; font-weight:bold;'>📊 Aún no se ha publicado la clasificación de esta ronda.</td></tr>"; 
+        }
+    } catch (e) { 
+        tbody.innerHTML = "<tr><td colspan='5' style='padding:20px; color:red;'>❌ Error de red al cargar el ranking.</td></tr>"; 
+    }
+}
+
+
+    function abrirModalReglas() { document.getElementById('modalReglas').style.display = 'block'; }
+    function cerrarModalReglas() { document.getElementById('modalReglas').style.display = 'none'; }
+</script>
+</body>
+</html>
