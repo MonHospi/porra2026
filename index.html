@@ -261,8 +261,8 @@
         <table class="tabla-posiciones" id="">
             <thead>
                 <tr>
-                    <th style="width:50px">Pos</th>
-                    <th style="text-align:center; padding-left:15px;width: 100px;">Jugador</th>
+                    <th style="width:100px">Jugador</th>
+                    <th style="text-align:center; padding-left:15px;width: 50px;">Selección</th>
                     <th style="width:50px">Goles Marcados</th>      
                 </tr>
             </thead>
@@ -379,7 +379,7 @@
         <div style="width: 100%; overflow: hidden; border-bottom: 2px solid #0b3aa9;background-color: black; text-align: center;">
             <img src="https://i.etsystatic.com/64651255/r/il/86a9af/7810126836/il_794xN.7810126836_cmiy.jpg" alt="Ranking 2026" style=" height: auto;width: 80%;">
         </div>
-        <div class="group-header">TOP 20 - CLASIFICACIÓN GENERAL</div>
+        <div class="group-header">TOP 30 - CLASIFICACIÓN GENERAL</div>
                 <!-- Bloque informativo de actualización -->
         <div id="info-ranking" style="background:#f8f9fa; padding:10px; font-size:0.85em; text-align:center; border-bottom:1px solid #ddd; color:#555;">
             <span id="rank-jornadas">...</span> | <span id="rank-update">...</span>
@@ -400,7 +400,7 @@
         </table>
     </div>
     
-    <button class="btn-optikit-custom4" style="margin-top: 30PX;" onclick="location.reload()">
+    <button class="btn-optikit-custom4" style="margin-left: 40%; margin-top: 30PX;" onclick="location.reload()">
         VOLVER AL INICIO
     </button>
 </div>
@@ -671,7 +671,7 @@ function enviarDatos() {
     .then(() => {
         localStorage.setItem('mi_porra_2026', JSON.stringify(infoEnvio));
         localStorage.setItem('apuesta_enviada', 'true');
-        alert("✅ ¡Enviado con éxito! Tus datos están en el Excel y guardados en este móvil.");
+        alert("✅ ¡Enviado con éxito! Tus datos están en el Excel y guardados en este dispositivo.");
         location.reload();
     })
     .catch(error => {
@@ -980,7 +980,7 @@ async function cargarRankingPublico() {
         
         if (data && data.length > 0) {
             // El JS de usuario limitará a 20
-            const top20 = data.slice(0, 20);
+            const top20 = data.slice(0, 30);
 
             // Actualizamos las etiquetas de texto
             // (Si no cambias el script de Google, el dato de jornada puedes estimarlo aquí)
