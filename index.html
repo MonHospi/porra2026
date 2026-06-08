@@ -245,7 +245,7 @@
         </div>
     <h2 style="text-align:center; font-size:xx-large;">Mundial 2026 - Fase de Grupos</h2>
     <div class="menu-grid">
-        <button class="btn-optikit-custom" id="btn-enviar-menu" onclick="mostrarSeccion('jugar')">ENVIAR RESULTADOS</button>
+        <button class="btn-optikit-custom" style="display:none" id="btn-enviar-menu" onclick="mostrarSeccion('jugar')">ENVIAR RESULTADOS</button>
         <button class="btn-optikit-custom2" id="btn-menu-consultar"  onclick="recuperarApuestaLocal()">MI APUESTA GUARDADA</button>
         <button class="btn-optikit-custom3"  onclick="mostrarSeccion('ranking')">CLASIFICACIÓN</button>
         <button class="btn-optikit-custom4"  onclick="abrirModal()">VER REGLAS</button>
@@ -979,7 +979,7 @@ async function cargarRankingPublico() {
         // Si el script devuelve directamente la lista, las jornadas las leemos de la respuesta:
         
         if (data && data.length > 0) {
-            // El JS de usuario limitará a 20
+            // El JS de usuario limitará a 50
             const top20 = data.slice(0, 50);
 
             // Actualizamos las etiquetas de texto
