@@ -1005,8 +1005,8 @@ async function cargarRankingPublico() {
 
             // Actualizamos las etiquetas de texto
             // (Si no cambias el script de Google, el dato de jornada puedes estimarlo aquí)
-            labelJornadas.innerHTML = `⚽ <b>Partidos procesados:</b> ${data[0].jornadas || '0'}`;
-            labelUpdate.innerHTML = `🕒 <b>Actualizado:</b> ${data[0].hora || '15:30'}`;
+            labelJornadas.innerHTML = `⚽ <b>Partidos procesados:</b> ${data[0].jornadas || '1'}`;
+            labelUpdate.innerHTML = `🕒 <b>Actualizado:</b> ${data[0].hora || '23:05'}`;
 
             tbody.innerHTML = top20.map(p => `
                 <tr>
