@@ -244,7 +244,13 @@
     </style>
 </head>
 <body>
-
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js');
+    });
+  }
+</script>
 <div id="pdf-area">
   <div id="area-impresion">
     <div class="header">
@@ -998,8 +1004,8 @@ async function cargarRankingPublico() {
 
             // Actualizamos las etiquetas de texto
             // (Si no cambias el script de Google, el dato de jornada puedes estimarlo aquí)
-            labelJornadas.innerHTML = `⚽ <b>Partidos procesados:</b> ${data[0].jornadas || '---'}`;
-            labelUpdate.innerHTML = `🕒 <b>Actualizado:</b> ${data[0].hora || 'Recién'}`;
+            labelJornadas.innerHTML = `⚽ <b>Partidos procesados:</b> ${data[0].jornadas || '0'}`;
+            labelUpdate.innerHTML = `🕒 <b>Actualizado:</b> ${data[0].hora || '15:30'}`;
 
             tbody.innerHTML = top20.map(p => `
                 <tr>
