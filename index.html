@@ -344,7 +344,17 @@
                     <td>Breel Embolo </td>
                     <td>Suiza</td>
                     <td>1</td>
-                </tr>   
+                </tr> 
+<tr>
+                    <td>Boualem Khoukhi</td>
+                    <td>Qatar</td>
+                    <td>1</td>
+                </tr>
+
+ 
+
+
+ 
             </tbody>
         </table>
     </div>
@@ -1055,8 +1065,8 @@ async function cargarRankingPublico() {
 
             // Actualizamos las etiquetas de texto
             // (Si no cambias el script de Google, el dato de jornada puedes estimarlo aquí)
-            labelJornadas.innerHTML = `⚽ <b>Partidos procesados:</b> ${data[0].jornadas || '4'}`;
-            labelUpdate.innerHTML = `🕒 <b>Actualizado:</b> ${data[0].hora || '09:15'}`;
+            labelJornadas.innerHTML = `⚽ <b>Partidos procesados:</b> ${data[0].jornadas || '5'}`;
+            labelUpdate.innerHTML = `🕒 <b>Actualizado:</b> ${data[0].hora || '23:15'}`;
 
             tbody.innerHTML = top20.map(p => `
                 <tr>
