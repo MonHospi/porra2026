@@ -1292,17 +1292,17 @@ function calcularMisPuntosPasoAPaso(datosUsuario) {
                     contadorExactos++;
                     puntosAcumulados += 5;
                     estiloTexto = "color: #2e7d32; font-weight: bold;";
-                    textoPuntos = "🎯 +5 Puntos";
+                    textoPuntos = "🎯 +5";
                 } else if ((gHPred > gAPred && gHReal > gAReal) || 
                            (gHPred < gAPred && gHReal < gAReal) || 
                            (gHPred === gAPred && gHReal === gAReal)) {
                     contadorSignos++;
                     puntosAcumulados += 2;
                     estiloTexto = "color: #f57c00; font-weight: bold;";
-                    textoPuntos = "✅ +2 Puntos";
+                    textoPuntos = "✅ +2";
                 } else {
                     estiloTexto = "color: #c62828; font-weight: bold;";
-                    textoPuntos = "❌ 0 Puntos";
+                    textoPuntos = "❌ 0";
                 }
             } else {
                 textoPuntos = "❌ Sin apuesta";
