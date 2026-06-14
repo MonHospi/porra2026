@@ -519,11 +519,11 @@
 
 
 
-<!-- NUEVA PANTALLA: SEGUIMIENTO DE MIS PROPIOS PUNTOS CON RESUMEN TOTAL -->
+<!-- NUEVA PANTALLA: SEGUIMIENTO DE MIS PROPIOS PUNTOS CON RESUMEN TOTAL Y POSICIÓN -->
 <div id="seccion-seguimiento-propio" class="container" style="display: none; padding: 20px;">
     
     <div class="group-card" style="display: block; margin-top: 0;">
-        <div class="group-header" style="background-color: #0b3aa9;">SEGUIMIENTO DE MIS PUNTOS</div>
+        <div class="group-header" style="background-color: #0b3aa9;">🏅 SEGUIMIENTO DE MIS PUNTOS</div>
         
         <!-- Ficha superior del participante -->
         <div class="user-box" style="margin: 20px 20px 10px 20px; background: #f0f4ff; text-align: center; border: 2px solid var(--blue-axa);">
@@ -532,19 +532,23 @@
             </p>
         </div>
 
-        <!-- TARJETAS DE MÉTRICAS GLOBALES DEL USUARIO -->
-        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin: 0 20px 15px 20px;">
+        <!-- TARJETAS DE MÉTRICAS GLOBALES (4 Columnas responsivas) -->
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 0 20px 15px 20px;">
+            <div style="background: #fff3e0; border: 1px solid #ffcc80; padding: 10px; border-radius: 8px; text-align: center;">
+                <b style="font-size: 0.7em; color: #e65100; display: block; text-transform: uppercase;">Posición</b>
+                <span id="meta-total-pos" style="font-size: 1.2em; font-weight: bold; color: #e65100;">—</span>
+            </div>
             <div style="background: #e3f2fd; border: 1px solid #90caf9; padding: 10px; border-radius: 8px; text-align: center;">
-                <b style="font-size: 0.75em; color: #0d47a1; display: block; text-transform: uppercase;">Puntos Totales</b>
-                <span id="meta-total-pts" style="font-size: 1.3em; font-weight: bold; color: #0b3aa9;">0</span>
+                <b style="font-size: 0.7em; color: #0d47a1; display: block; text-transform: uppercase;">Puntos</b>
+                <span id="meta-total-pts" style="font-size: 1.2em; font-weight: bold; color: #0b3aa9;">0</span>
             </div>
             <div style="background: #e8f5e9; border: 1px solid #a5d6a7; padding: 10px; border-radius: 8px; text-align: center;">
-                <b style="font-size: 0.75em; color: #1b5e20; display: block; text-transform: uppercase;">🎯 Exactos</b>
-                <span id="meta-total-ex" style="font-size: 1.3em; font-weight: bold; color: #2e7d32;">0</span>
+                <b style="font-size: 0.7em; color: #1b5e20; display: block; text-transform: uppercase;">🎯 Exactos</b>
+                <span id="meta-total-ex" style="font-size: 1.2em; font-weight: bold; color: #2e7d32;">0</span>
             </div>
-            <div style="background: #fff3e0; border: 1px solid #ffcc80; padding: 10px; border-radius: 8px; text-align: center;">
-                <b style="font-size: 0.75em; color: #e65100; display: block; text-transform: uppercase;">✅ Ganador/E</b>
-                <span id="meta-total-ge" style="font-size: 1.3em; font-weight: bold; color: #f57c00;">0</span>
+            <div style="background: #f3e5f5; border: 1px solid #ce93d8; padding: 10px; border-radius: 8px; text-align: center;">
+                <b style="font-size: 0.7em; color: #4a148c; display: block; text-transform: uppercase;">✅ Signos</b>
+                <span id="meta-total-ge" style="font-size: 1.2em; font-weight: bold; color: #7b1fa2;">0</span>
             </div>
         </div>
 
@@ -559,7 +563,7 @@
                     </tr>
                 </thead>
                 <tbody id="tbody-seguimiento-propio">
-                    <!-- Se rellena dinámicamente con JavaScript -->
+                    <!-- Se rellena dinámicamente -->
                 </tbody>
             </table>
         </div>
@@ -1203,8 +1207,8 @@ async function cargarRankingPublico() {
 
 
 
-// 1. Función para controlar la navegación y verificar si hay datos guardados
-function mostrarPantallaSeguimiento() {
+// 1. Nueva función de navegación con consulta asíncrona al ranking
+async function mostrarPantallaSeguimiento() {
     const datosRaw = localStorage.getItem('mi_porra_2026');
     
     if (!datosRaw) {
@@ -1212,22 +1216,47 @@ function mostrarPantallaSeguimiento() {
         return;
     }
 
-    // Ocultamos la pantalla de bienvenida y mostramos la nueva pantalla de puntos
+    const datosUsuario = JSON.parse(datosRaw);
+
+    // Ocultamos la pantalla de bienvenida y desplegamos la de puntos propia
     document.getElementById('welcome-section').style.display = 'none';
     document.getElementById('seccion-seguimiento-propio').style.display = 'block';
     
-    // Ejecutamos el procesador de puntos propio
-    calcularMisPuntosPasoAPaso(JSON.parse(datosRaw));
+    // Ponemos un estado de carga temporal en la tarjeta de posición
+    document.getElementById("meta-total-pos").innerText = "⏳";
+
+    // Ejecutamos primero la pintura detallada de la tabla
+    calcularMisPuntosPasoAPaso(datosUsuario);
+
+    // Buscamos de forma independiente su posición real en tu tabla de Google Sheets
+    try {
+        const resp = await fetch(`${GOOGLE_URL}?action=getRanking&t=${new Date().getTime()}`);
+        const rankingServidor = await resp.json();
+        
+        if (rankingServidor && rankingServidor.length > 0) {
+            // Buscamos el nick del usuario de este móvil en la lista que devuelve Google
+            const miRegistroReal = rankingServidor.find(p => String(p.nombre).trim().toUpperCase() === String(datosUsuario.nombre).trim().toUpperCase());
+            
+            if (miRegistroReal && miRegistroReal.pos) {
+                // Inyectamos su puesto oficial de la clasificación (Ej: "14º")
+                document.getElementById("meta-total-pos").innerText = `${miRegistroReal.pos}º`;
+            } else {
+                document.getElementById("meta-total-pos").innerText = "—";
+            }
+        }
+    } catch (e) {
+        console.error("No se pudo extraer la posición del servidor:", e);
+        document.getElementById("meta-total-pos").innerText = "⚠️";
+    }
 }
 
-// 2. Motor de cálculo que rellena las 3 columnas solicitadas
+// 2. Motor de pintura de las tres columnas (Permanecerá fiel a tu lógica local)
 function calcularMisPuntosPasoAPaso(datosUsuario) {
     document.getElementById("txt-nombre-seguimiento").innerText = String(datosUsuario.nombre).toUpperCase();
     
     const tbody = document.getElementById("tbody-seguimiento-propio");
     tbody.innerHTML = "";
 
-    // Inicializamos los contadores de la persona
     let puntosAcumulados = 0;
     let contadorExactos = 0;
     let contadorSignos = 0;
@@ -1236,7 +1265,6 @@ function calcularMisPuntosPasoAPaso(datosUsuario) {
         const idPartido = idx + 1;
         const nombreEncuentro = `${partido.t1} vs ${partido.t2}`;
         
-        // Recuperamos la apuesta del usuario en este dispositivo
         let miPrediccion = "N/P";
         let gHPred = null;
         let gAPred = null;
@@ -1247,39 +1275,32 @@ function calcularMisPuntosPasoAPaso(datosUsuario) {
             miPrediccion = `${gHPred}-${gAPred}`;
         }
         
-        // Detección del resultado real en partidosData (golesH/golesA o gH/gA)
         let gHReal = (partido.golesH !== undefined) ? partido.golesH : partido.gH;
         let gAReal = (partido.golesA !== undefined) ? partido.golesA : partido.gA;
 
         let resultadoReal = "—";
-        let puntosSuma = 0;
         let estiloTexto = "color: #777; font-weight: normal;";
         let textoPuntos = "Pendiente";
 
-        // Si el partido ya cuenta con goles reales en tu código
         if (gHReal !== undefined && gHReal !== null && gHReal !== "") {
             gHReal = parseInt(gHReal);
             gAReal = parseInt(gAReal);
             resultadoReal = `${gHReal}-${gAReal}`;
 
-            // Si el usuario rellenó este partido, calculamos los puntos y sumamos a las tarjetas
             if (gHPred !== null) {
                 if (gHPred === gHReal && gAPred === gAReal) {
-                    puntosSuma = 5;
-                    contadorExactos++; // Sumamos un pleno exacto
+                    contadorExactos++;
                     puntosAcumulados += 5;
                     estiloTexto = "color: #2e7d32; font-weight: bold;";
                     textoPuntos = "🎯 +5 Puntos";
                 } else if ((gHPred > gAPred && gHReal > gAReal) || 
                            (gHPred < gAPred && gHReal < gAReal) || 
                            (gHPred === gAPred && gHReal === gAReal)) {
-                    puntosSuma = 2;
-                    contadorSignos++; // Sumamos un acierto de ganador o empate
+                    contadorSignos++;
                     puntosAcumulados += 2;
                     estiloTexto = "color: #f57c00; font-weight: bold;";
                     textoPuntos = "✅ +2 Puntos";
                 } else {
-                    puntosSuma = 0;
                     estiloTexto = "color: #c62828; font-weight: bold;";
                     textoPuntos = "❌ 0 Puntos";
                 }
@@ -1300,7 +1321,6 @@ function calcularMisPuntosPasoAPaso(datosUsuario) {
         `;
     });
 
-    // PINTAMOS LOS MARCADORES GLOBALES FINALES EN LAS TARJETAS SUPERIORES
     document.getElementById("meta-total-pts").innerText = `${puntosAcumulados} pts`;
     document.getElementById("meta-total-ex").innerText = contadorExactos;
     document.getElementById("meta-total-ge").innerText = contadorSignos;
