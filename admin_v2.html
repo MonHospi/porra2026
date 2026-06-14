@@ -97,31 +97,31 @@
 
 <script>
     // 1. CONFIGURACIÓN INICIAL
-    const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbwhp9NMKSI-ZPMJkPrb8i-lOx0fw4OtOeN4LYUL89uu5Mjb5GJJ7S9W1XfNYaxQbrkH/exec"; 
+    const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbz2vHyibGtbkrIZTnOKbifD1rJd4ZY65HgHHdq-pYszTssU5JIRhvsj9DMxzd1YWgAM/exec"; 
     
     const partidosData = [
-        { t1: "México 🇲🇽", t2: "Sudáfrica 🇿🇦", f: "11 Jun 15:00" },
-        { t1: "R. de Corea 🇰🇷", t2: "R. Checa 🇨🇿", f: "11 Jun 22:00" },
-        { t1: "Canadá 🇨🇦", t2: "Bosnia y Herz. 🇧🇦", f: "12 Jun 15:00" },
-        { t1: "EE. UU. 🇺🇸", t2: "Paraguay 🇵🇾", f: "12 Jun 21:00" },
-        { t1: "Catar 🇶🇦", t2: "Suiza 🇨🇭", f: "13 Jun 15:00" },
-        { t1: "Brasil 🇧🇷", t2: "Marruecos 🇲🇦", f: "13 Jun 18:00" },
-        { t1: "Haití 🇭🇹", t2: "Escocia 🏴󠁧󠁢󠁳󠁣󠁴󠁿", f: "13 Jun 21:00" },
-        { t1: "Australia 🇦🇺", t2: "Turquía 🇹🇷", f: "14 Jun 00:00" },
-        { t1: "Alemania 🇩🇪", t2: "Curazao 🇨🇼", f: "14 Jun 13:00" },
-        { t1: "Países Bajos 🇳🇱", t2: "Japón 🇯🇵", f: "14 Jun 16:00" },
-        { t1: "Costa de Marfil 🇨🇮", t2: "Ecuador 🇪🇨", f: "14 Jun 19:00" },
-        { t1: "Suecia 🇸🇪", t2: "Túnez 🇹🇳", f: "14 Jun 22:00" },
-        { t1: "España 🇪🇸", t2: "Cabo Verde 🇨🇻", f: "15 Jun 12:00" },
-        { t1: "Bélgica 🇧🇪", t2: "Egipto 🇪🇬", f: "15 Jun 15:00" },
-        { t1: "Arabia Saudí 🇸🇦", t2: "Uruguay 🇺🇾", f: "15 Jun 18:00" },
-        { t1: "Irán 🇮🇷", t2: "Nueva Zelanda 🇳🇿", f: "15 Jun 21:00" },
-        { t1: "Francia 🇫🇷", t2: "Senegal 🇸🇳", f: "16 Jun 15:00" },
-        { t1: "Irak 🇮🇶", t2: "Noruega 🇳🇴", f: "16 Jun 18:00" },
-        { t1: "Argentina 🇦🇷", t2: "Argelia 🇩🇿", f: "16 Jun 21:00" },
-        { t1: "Austria 🇦🇹", t2: "Jordania 🇯🇴", f: "17 Jun 00:00" },
-        { t1: "Portugal 🇵🇹", t2: "RD Congo 🇨🇩", f: "17 Jun 13:00" },
-        { t1: "Inglaterra 🏴󠁧󠁢󠁥󠁮󠁧󠁿", t2: "Croacia 🇭🇷", f: "17 Jun 16:00" },
+        { t1: "México 🇲🇽", t2: "Sudáfrica 🇿🇦", f: "11 Jun 21:00" },
+        { t1: "R. de Corea 🇰🇷", t2: "R. Checa 🇨🇿", f: "12 Jun 04:00" },
+        { t1: "Canadá 🇨🇦", t2: "Bosnia y Herz. 🇧🇦", f: "12 Jun 21:00" },
+        { t1: "EE. UU. 🇺🇸", t2: "Paraguay 🇵🇾", f: "13 Jun 03:00" },
+        { t1: "Catar 🇶🇦", t2: "Suiza 🇨🇭", f: "13 Jun 21:00" },
+        { t1: "Brasil 🇧🇷", t2: "Marruecos 🇲🇦", f: "14 Jun 00:00" },
+        { t1: "Haití 🇭🇹", t2: "Escocia 🏴󠁧󠁢󠁳󠁣󠁴󠁿", f: "14 Jun 03:00" },
+        { t1: "Australia 🇦🇺", t2: "Turquía 🇹🇷", f: "14 Jun 06:00" },
+        { t1: "Alemania 🇩🇪", t2: "Curazao 🇨🇼", f: "14 Jun 19:00" },
+        { t1: "Países Bajos 🇳🇱", t2: "Japón 🇯🇵", f: "14 Jun 22:00" },
+        { t1: "Costa de Marfil 🇨🇮", t2: "Ecuador 🇪🇨", f: "15 Jun 01:00" },
+        { t1: "Suecia 🇸🇪", t2: "Túnez 🇹🇳", f: "15 Jun 04:00" },
+        { t1: "España 🇪🇸", t2: "Cabo Verde 🇨🇻", f: "15 Jun 18:00" },
+        { t1: "Bélgica 🇧🇪", t2: "Egipto 🇪🇬", f: "15 Jun 21:00" },
+        { t1: "Arabia Saudí 🇸🇦", t2: "Uruguay 🇺🇾", f: "16 Jun 01:00" },
+        { t1: "Irán 🇮🇷", t2: "Nueva Zelanda 🇳🇿", f: "16 Jun 03:00" },
+        { t1: "Francia 🇫🇷", t2: "Senegal 🇸🇳", f: "16 Jun 21:00" },
+        { t1: "Irak 🇮🇶", t2: "Noruega 🇳🇴", f: "17 Jun 00:00" },
+        { t1: "Argentina 🇦🇷", t2: "Argelia 🇩🇿", f: "17 Jun 03:00" },
+        { t1: "Austria 🇦🇹", t2: "Jordania 🇯🇴", f: "17 Jun 19:00" },
+        { t1: "Portugal 🇵🇹", t2: "RD Congo 🇨🇩", f: "17 Jun 22:00" },
+        { t1: "Inglaterra 🏴󠁧󠁢󠁥󠁮󠁧󠁿", t2: "Croacia 🇭🇷", f: "17 Jun 22:00" },
         { t1: "Ghana 🇬🇭", t2: "Panamá 🇵🇦", f: "17 Jun 19:00" },
         { t1: "Uzbekistán 🇺🇿", t2: "Colombia 🇨🇴", f: "17 Jun 22:00" },
         { t1: "R. Checa 🇨🇿", t2: "Sudáfrica 🇿🇦", f: "18 Jun 12:00" },
@@ -275,34 +275,63 @@
     }
 
     // 5. SINCRONIZACIÓN CON GOOGLE SHEETS
-function subirRankingAGoogle(ranking) {
+async function subirRankingAGoogle(ranking) {
     if (!ranking || ranking.length === 0) return;
+    
+    console.log("🔄 Iniciando rescate masivo de los 72 partidos desde Respuestas...");
+    
     const inputsRellenos = [...document.querySelectorAll('.scores-admin input')].filter(i => i.value !== "").length;
-    const partidosContados = Math.floor(inputsRellenos / 2); // 2 inputs por partido
-    const partidosJugados = [...document.querySelectorAll('.scores-admin input')].filter(i => i.value !== "").length / 2;
+    const partidosContados = Math.floor(inputsRellenos / 2);
+
+    let baseDatosApuestasReales = {};
+
+    // 1. RASTREADOR REAL: Interrogamos a la nueva acción del servidor para bajarnos los 72 partidos de todos
+    try {
+        const respBBDD = await fetch(`${GOOGLE_URL}?action=getTodasLasApuestas&t=${new Date().getTime()}`);
+        if (respBBDD.ok) {
+            baseDatosApuestasReales = await respBBDD.json();
+            console.log("🎯 Histórico de apuestas descargado con éxito desde el servidor.");
+        }
+    } catch (err) {
+        console.error("❌ No se pudo conectar con el histórico de Respuestas:", err);
+    }
+
+    // 2. CONSTRUIMOS EL PAQUETE COMPLETO DE SUBIDA PARA TU COLUMNA F
     const dataParaSubir = {
-        ranking: ranking.map((p, i) => ({
-            pos: i + 1,
-            nombre: p.nombre,
-            pts: p.pts,
-            ex: p.ex,
-            ge: p.ge // <--- Enviamos los aciertos de tendencia
-        })),
-                infoExtra: {
+        ranking: ranking.map((p, i) => {
+            const nombreClave = String(p.nombre).trim().toUpperCase();
+            
+            // Buscamos sus 72 partidos en la base de datos que nos acabamos de descargar
+            let apuestasRealesDelAmigo = p.resultados || p.pronosticos || p.apuesta || baseDatosApuestasReales[nombreClave];
+            
+            // Si por algún motivo un usuario no tiene registro (ej: pruebas), dejamos el objeto controlado vacio
+            if (!apuestasRealesDelAmigo) {
+                apuestasRealesDelAmigo = {};
+            }
+            
+            return {
+                pos: i + 1,
+                nombre: p.nombre,
+                pts: p.pts,
+                ex: p.ex,
+                ge: p.ge,
+                resultados: apuestasRealesDelAmigo // Sincronizamos los 72 partidos reales de su inscripción
+            };
+        }),
+        infoExtra: {
             jornadas: partidosContados,
             ultimaActualizacion: new Date().toLocaleString('es-ES', { hour: '2-digit', minute: '2-digit' }) + "h"
         }
     };
 
+    // 3. ENVÍO DEFINITIVO A TU GOOGLE SHEETS
     fetch(GOOGLE_URL, {
         method: 'POST',
-        mode: 'no-cors', // Google requiere esto desde navegadores
-        headers: {
-            'Content-Type': 'text/plain' // Evita errores de pre-flight CORS
-        },
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain' },
         body: JSON.stringify(dataParaSubir)
     }).then(() => {
-        console.log("🚀 Sincronización enviada a Google Sheets");
+        alert("🚀 ¡Sincronización completada! Los 72 partidos reales de cada amigo se han guardado en la columna F.");
     }).catch(err => {
         console.error("❌ Error en la sincronización:", err);
     });

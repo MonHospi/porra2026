@@ -263,7 +263,12 @@
     <div class="menu-grid">
         <button class="btn-optikit-custom" style="display:none" id="btn-enviar-menu" onclick="mostrarSeccion('jugar')">ENVIAR RESULTADOS</button>
         <button class="btn-optikit-custom2" id="btn-menu-consultar"  onclick="recuperarApuestaLocal()">MI APUESTA GUARDADA</button>
+        <!-- Añadir en el menú principal -->
+<button class="btn-optikit-custom" style="" id="btn-seguimiento-propio" onclick="mostrarPantallaSeguimiento()">
+    MIS PUNTOS DETALLADOS
+</button>
         <button class="btn-optikit-custom3"  onclick="mostrarSeccion('ranking')">CLASIFICACIÓN</button>
+
         <button class="btn-optikit-custom4"  onclick="abrirModal()">VER REGLAS</button>
         <button class="btn-pdf" id="btn-pdf" onclick="exportarAPDF()" style="display:none; ">GUARDAR O IMPRIMIR MI APUESTA</button>
     </div>
@@ -511,6 +516,76 @@
         VOLVER AL INICIO
     </button>
 </div>
+
+
+
+<!-- NUEVA PANTALLA: SEGUIMIENTO DE MIS PROPIOS PUNTOS CON RESUMEN TOTAL Y POSICIÓN -->
+<div id="seccion-seguimiento-propio" class="container" style="display: none; padding: 20px;">
+    
+    <div class="group-card" style="display: block; margin-top: 0;">
+        <div class="group-header" style="background-color: #0b3aa9;">SEGUIMIENTO DE MIS PUNTOS</div>
+        
+        <!-- Ficha superior del participante -->
+        <div class="user-box" style="margin: 20px 20px 10px 20px; background: #f0f4ff; text-align: center; border: 2px solid var(--blue-axa);">
+            <p style="margin: 0; font-size: 1.2em;">
+                Participante: <span id="txt-nombre-seguimiento" style="font-weight: bold; color: #0b3aa9;">—</span>
+            </p>
+        </div>
+
+        <!-- TARJETAS DE MÉTRICAS GLOBALES (4 Columnas responsivas) -->
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 0 20px 15px 20px;">
+            <div style="background: #fff3e0; border: 1px solid #ffcc80; padding: 10px; border-radius: 8px; text-align: center;">
+                <b style="font-size: 0.7em; color: #e65100; display: block; text-transform: uppercase;">Posición</b>
+                <span id="meta-total-pos" style="font-size: 1.2em; font-weight: bold; color: #e65100;">—</span>
+            </div>
+            <div style="background: #e3f2fd; border: 1px solid #90caf9; padding: 10px; border-radius: 8px; text-align: center;">
+                <b style="font-size: 0.7em; color: #0d47a1; display: block; text-transform: uppercase;">Puntos</b>
+                <span id="meta-total-pts" style="font-size: 1.2em; font-weight: bold; color: #0b3aa9;">0</span>
+            </div>
+            <div style="background: #e8f5e9; border: 1px solid #a5d6a7; padding: 10px; border-radius: 8px; text-align: center;">
+                <b style="font-size: 0.7em; color: #1b5e20; display: block; text-transform: uppercase;">🎯 Exactos</b>
+                <span id="meta-total-ex" style="font-size: 1.2em; font-weight: bold; color: #2e7d32;">0</span>
+            </div>
+            <div style="background: #f3e5f5; border: 1px solid #ce93d8; padding: 10px; border-radius: 8px; text-align: center;">
+                <b style="font-size: 0.7em; color: #4a148c; display: block; text-transform: uppercase;">✅ Signos</b>
+                <span id="meta-total-ge" style="font-size: 1.2em; font-weight: bold; color: #7b1fa2;">0</span>
+            </div>
+        </div>
+
+        <!-- Tabla Detallada de 3 Columnas -->
+        <div style="padding: 10px 20px;">
+            <table class="tabla-posiciones" style="width: 100%; font-size: 0.85em; background: #fff;">
+                <thead>
+                    <tr>
+                        <th style="text-align: left; padding-left: 5px; width: 45%;">Encuentro</th>
+                        <th style="width: 25%; text-align: center;">Mi Apuesta vs Real</th>
+                        <th style="width: 30%; text-align: center;" class="pts-col">Puntos Obtenidos</th>
+                    </tr>
+                </thead>
+                <tbody id="tbody-seguimiento-propio">
+                    <!-- Se rellena dinámicamente -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Botón para regresar al menú de inicio -->
+    <div style="text-align: center; margin-top: 25px; padding: 0 20px;">
+        <button class="btn-optikit-custom4" style="width: 100%;" onclick="location.reload()">
+            VOLVER AL INICIO
+        </button>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
 </div>
 
     </div>
@@ -519,80 +594,80 @@
 </div>
 
 <script>
-    const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbwlIrXmBD9l1Lb9Sgkly5wMZ8y3lHHkoZdLmmcpoGZjFXQK1M8OxmSh0XmPipGTfQpn/exec"; 
+    const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbz2vHyibGtbkrIZTnOKbifD1rJd4ZY65HgHHdq-pYszTssU5JIRhvsj9DMxzd1YWgAM/exec"; 
     const partidosData = [
-        { g: "GRUPO A", t1: "México 🇲🇽", t2: "Sudáfrica 🇿🇦", f: "11 Jun 21:00", tv: "La 1 TVE / DAZN" },
-        { g: "GRUPO A", t1: "Corea del Sur 🇰🇷", t2: "República Checa 🇨🇿", f: "12 Jun 04:00",tv: "DAZN" },
-        { g: "GRUPO B", t1: "Canadá 🇨🇦", t2: "Bosnia y Herz. 🇧🇦", f: "12 Jun 21:00", tv: "La 1 TVE/DAZN" },
-        { g: "GRUPO D", t1: "EE. UU. 🇺🇸", t2: "Paraguay 🇵🇾", f: "13 Jun 03:00", tv: "DAZN" },
-        { g: "GRUPO B", t1: "Catar 🇶🇦", t2: "Suiza 🇨🇭", f: "13 Jun 21:00", tv: "DAZN" },
-        { g: "GRUPO C", t1: "Brasil 🇧🇷", t2: "Marruecos 🇲🇦", f: "14 Jun 00:00", tv: "La 1 TVE / DAZN"  },
-        { g: "GRUPO C", t1: "Haití 🇭🇹", t2: "Escocia 🏴󠁧󠁢󠁳󠁣󠁴󠁿", f: "14 Jun 03:00", tv: "DAZN"  },
-        { g: "GRUPO D", t1: "Australia 🇦🇺", t2: "Turquía 🇹🇷", f: "14 Jun 06:00", tv: "DAZN"  },
-        { g: "GRUPO E", t1: "Alemania 🇩🇪", t2: "Curazao 🇨🇼", f: "14 Jun 19:00", tv: "La 1 TVE / DAZN"  },
-        { g: "GRUPO F", t1: "Países Bajos 🇳🇱", t2: "Japón 🇯🇵", f: "14 Jun 22:00", tv: "DAZN"  },
-        { g: "GRUPO E", t1: "Costa de Marfil 🇨🇮", t2: "Ecuador 🇪🇨", f: "15 Jun 01:00", tv: "DAZN"  },
-        { g: "GRUPO F", t1: "Suecia 🇸🇪", t2: "Túnez 🇹🇳", f: "15 Jun 04:00", tv: "DAZN"  },
-        { g: "GRUPO H", t1: "España 🇪🇸", t2: "Cabo Verde 🇨🇻", f: "15 Jun 18:00", tv: "La 1 TVE / DAZN"  },
-        { g: "GRUPO G", t1: "Bélgica 🇧🇪", t2: "Egipto 🇪🇬", f: "15 Jun 21:00", tv: "DAZN"  },
-        { g: "GRUPO H", t1: "Arabia Saudí 🇸🇦", t2: "Uruguay 🇺🇾", f: "16 Jun 01:00", tv: "DAZN"  },
-        { g: "GRUPO G", t1: "Irán 🇮🇷", t2: "Nueva Zelanda 🇳🇿", f: "16 Jun 03:00", tv: "DAZN"  },
-        { g: "GRUPO I", t1: "Francia 🇫🇷", t2: "Senegal 🇸🇳", f: "16 Jun 21:00", tv: "DAZN"  },
-        { g: "GRUPO I", t1: "Irak 🇮🇶", t2: "Noruega 🇳🇴", f: "17 Jun 00:00", tv: "DAZN"  },
-        { g: "GRUPO J", t1: "Argentina 🇦🇷", t2: "Argelia 🇩🇿", f: "17 Jun 03:00", tv: "DAZN"  },
-        { g: "GRUPO J", t1: "Austria 🇦🇹", t2: "Jordania 🇯🇴", f: "17 Jun 06:00", tv: "DAZN"  },
-        { g: "GRUPO K", t1: "Portugal 🇵🇹", t2: "RD Congo 🇨🇩", f: "17 Jun 19:00", tv: "DAZN"  },
-        { g: "GRUPO L", t1: "Inglaterra 🏴󠁧󠁢󠁥󠁮󠁧󠁿", t2: "Croacia 🇭🇷", f: "17 Jun 22:00", tv: "La 1 TVE / DAZN"  },
-        { g: "GRUPO L", t1: "Ghana 🇬🇭", t2: "Panamá 🇵🇦", f: "18 Jun 01:00", tv: "DAZN"  },
-        { g: "GRUPO K", t1: "Uzbekistán 🇺🇿", t2: "Colombia 🇨🇴", f: "18 Jun 04:00", tv: "DAZN"  },
-        { g: "GRUPO A", t1: "República Checa 🇨🇿", t2: "Sudáfrica 🇿🇦", f: "18 Jun 18:00", tv: "DAZN"  },
-        { g: "GRUPO B", t1: "Suiza 🇨🇭", t2: "Bosnia y Herz. 🇧🇦", f: "18 Jun 21:00", tv: "DAZN"  },
-        { g: "GRUPO B", t1: "Canadá 🇨🇦", t2: "Catar 🇶🇦", f: "19 Jun 00:00", tv: "DAZN"  },
-        { g: "GRUPO A", t1: "México 🇲🇽", t2: "Corea del Sur 🇰🇷", f: "19 Jun 03:00", tv: "DAZN"  },
-        { g: "GRUPO D", t1: "EE. UU. 🇺🇸", t2: "Australia 🇦🇺", f: "19 Jun 21:00", tv: "La 1 TVE / DAZN"  },
-        { g: "GRUPO C", t1: "Escocia 🏴󠁧󠁢󠁳󠁣󠁴󠁿", t2: "Marruecos 🇲🇦", f: "20 Jun 00:00", tv: "DAZN"  },
-        { g: "GRUPO C", t1: "Brasil 🇧🇷", t2: "Haití 🇭🇹", f: "20 Jun 03:00", tv: "DAZN"  },
-        { g: "GRUPO D", t1: "Turquía 🇹🇷", t2: "Paraguay 🇵🇾", f: "20 Jun 06:00", tv: "DAZN"  },
-        { g: "GRUPO F", t1: "Países Bajos 🇳🇱", t2: "Suecia 🇸🇪", f: "20 Jun 19:00", tv: "La 1 TVE / DAZN"  },
-        { g: "GRUPO E", t1: "Alemania 🇩🇪", t2: "Costa de Marfil 🇨🇮", f: "20 Jun 22:00", tv: "DAZN"  },
-        { g: "GRUPO E", t1: "Ecuador 🇪🇨", t2: "Curazao 🇨🇼", f: "21 Jun 02:00", tv: "DAZN"  },
-        { g: "GRUPO F", t1: "Túnez 🇹🇳", t2: "Japón 🇯🇵", f: "21 Jun 06:00", tv: "DAZN"  },
-        { g: "GRUPO H", t1: "España 🇪🇸", t2: "Arabia Saudí 🇸🇦", f: "21 Jun 18:00", tv: "La 1 TVE / DAZN"  },
-        { g: "GRUPO G", t1: "Bélgica 🇧🇪", t2: "Irán 🇮🇷", f: "21 Jun 21:00", tv: "DAZN"  },
-        { g: "GRUPO H", t1: "Uruguay 🇺🇾", t2: "Cabo Verde 🇨🇻", f: "22 Jun 00:00", tv: "DAZN"  },
-        { g: "GRUPO G", t1: "Nueva Zelanda 🇳🇿", t2: "Egipto 🇪🇬", f: "22 Jun 03:00", tv: "DAZN"  },
-        { g: "GRUPO J", t1: "Argentina 🇦🇷", t2: "Austria 🇦🇹", f: "22 Jun 19:00", tv: "La 1 TVE / DAZN"  },
-        { g: "GRUPO I", t1: "Francia 🇫🇷", t2: "Irak 🇮🇶", f: "22 Jun 23:00", tv: "DAZN"  },
-        { g: "GRUPO I", t1: "Noruega 🇳🇴", t2: "Senegal 🇸🇳", f: "23 Jun 02:00", tv: "DAZN"  },
-        { g: "GRUPO J", t1: "Jordania 🇯🇴", t2: "Argelia 🇩🇿", f: "23 Jun 05:00", tv: "DAZN"  },
-        { g: "GRUPO K", t1: "Portugal 🇵🇹", t2: "Uzbekistán 🇺🇿", f: "23 Jun 19:00", tv: "DAZN"  },
-        { g: "GRUPO L", t1: "Inglaterra 🏴󠁧󠁢󠁥󠁮󠁧󠁿", t2: "Ghana 🇬🇭", f: "23 Jun 22:00", tv: "La 1 TVE / DAZN"  },
-        { g: "GRUPO L", t1: "Panamá 🇵🇦", t2: "Croacia 🇭🇷", f: "24 Jun 01:00", tv: "DAZN"  },
-        { g: "GRUPO K", t1: "Colombia 🇨🇴", t2: "RD Congo 🇨🇩", f: "24 Jun 04:00", tv: "DAZN"  },
-        { g: "GRUPO B", t1: "Suiza 🇨🇭", t2: "Canadá 🇨🇦", f: "24 Jun 21:00", tv: "DAZN"  },
-        { g: "GRUPO B", t1: "Bosnia y Herz. 🇧🇦", t2: "Catar 🇶🇦", f: "24 Jun 21:00", tv: "DAZN"  },
-        { g: "GRUPO C", t1: "Escocia 🏴󠁧󠁢󠁳󠁣󠁴󠁿", t2: "Brasil 🇧🇷", f: "25 Jun 00:00", tv: "La 1 TVE / DAZN"  },
-        { g: "GRUPO C", t1: "Marruecos 🇲🇦", t2: "Haití 🇭🇹", f: "25 Jun 00:00", tv: "DAZN"  },
-        { g: "GRUPO A", t1: "República Checa 🇨🇿", t2: "México 🇲🇽", f: "25 Jun 03:00", tv: "DAZN"  },
-        { g: "GRUPO A", t1: "Sudáfrica 🇿🇦", t2: "Corea del Sur 🇰🇷", f: "25 Jun 03:00", tv: "DAZN"  },
-        { g: "GRUPO E", t1: "Curazao 🇨🇼", t2: "Costa de Marfil 🇨🇮", f: "25 Jun 22:00", tv: "DAZN"  },
-        { g: "GRUPO E", t1: "Ecuador 🇪🇨", t2: "Alemania 🇩🇪", f: "25 Jun 22:00", tv: "La 1 TVE / DAZN"  },
-        { g: "GRUPO F", t1: "Japón 🇯🇵", t2: "Suecia 🇸🇪", f: "26 Jun 01:00", tv: "DAZN"  },
-        { g: "GRUPO F", t1: "Túnez 🇹🇳", t2: "Países Bajos 🇳🇱", f: "26 Jun 01:00", tv: "DAZN"  },
-        { g: "GRUPO D", t1: "Turquía 🇹🇷", t2: "EE. UU. 🇺🇸", f: "26 Jun 04:00", tv: "DAZN"  },
-        { g: "GRUPO D", t1: "Paraguay 🇵🇾", t2: "Australia 🇦🇺", f: "26 Jun 04:00", tv: "DAZN"  },
-        { g: "GRUPO I", t1: "Noruega 🇳🇴", t2: "Francia 🇫🇷", f: "26 Jun 21:00", tv: "DAZN"  },
-        { g: "GRUPO I", t1: "Senegal 🇸🇳", t2: "Irak 🇮🇶", f: "26 Jun 21:00", tv: "DAZN"  },
-        { g: "GRUPO H", t1: "Cabo Verde 🇨🇻", t2: "Arabia Saudí 🇸🇦", f: "27 Jun 02:00", tv: "DAZN"  },
-        { g: "GRUPO H", t1: "Uruguay 🇺🇾", t2: "España 🇪🇸", f: "27 Jun 02:00", tv: "La 1 TVE / DAZN"  },
-        { g: "GRUPO G", t1: "Egipto 🇪🇬", t2: "Irán 🇮🇷", f: "27 Jun 05:00", tv: "DAZN"  },
-        { g: "GRUPO G", t1: "Nueva Zelanda 🇳🇿", t2: "Bélgica 🇧🇪", f: "27 Jun 05:00", tv: "DAZN"  },
-        { g: "GRUPO L", t1: "Panamá 🇵🇦", t2: "Inglaterra 🏴󠁧󠁢󠁥󠁮󠁧󠁿", f: "27 Jun 23:00", tv: "DAZN"  },
-        { g: "GRUPO L", t1: "Croacia 🇭🇷", t2: "Ghana 🇬🇭", f: "27 Jun 23:00", tv: "DAZN"  },
-        { g: "GRUPO K", t1: "Colombia 🇨🇴", t2: "Portugal 🇵🇹", f: "28 Jun 01:30", tv: "La 1 TVE / DAZN"  },
-        { g: "GRUPO K", t1: "RD Congo 🇨🇩", t2: "Uzbekistán 🇺🇿", f: "28 Jun 01:30", tv: "DAZN"  },
-        { g: "GRUPO J", t1: "Argelia 🇩🇿", t2: "Austria 🇦🇹", f: "28 Jun 04:00", tv: "DAZN"  },
-        { g: "GRUPO J", t1: "Jordania 🇯🇴", t2: "Argentina 🇦🇷", f: "28 Jun 04:00", tv: "DAZN"  }
+        { g: "GRUPO A", t1: "México 🇲🇽", t2: "Sudáfrica 🇿🇦", f: "11 Jun 21:00", tv: "La 1 TVE / DAZN", golesH: 2, golesA: 0 },
+        { g: "GRUPO A", t1: "Corea del Sur 🇰🇷", t2: "República Checa 🇨🇿", f: "12 Jun 04:00",tv: "DAZN", golesH: 2, golesA: 1  },
+        { g: "GRUPO B", t1: "Canadá 🇨🇦", t2: "Bosnia y Herz. 🇧🇦", f: "12 Jun 21:00", tv: "La 1 TVE/DAZN", golesH: 1, golesA: 1  },
+        { g: "GRUPO D", t1: "EE. UU. 🇺🇸", t2: "Paraguay 🇵🇾", f: "13 Jun 03:00", tv: "DAZN", golesH: 4, golesA: 1  },
+        { g: "GRUPO B", t1: "Catar 🇶🇦", t2: "Suiza 🇨🇭", f: "13 Jun 21:00", tv: "DAZN", golesH: 1, golesA: 1  },
+        { g: "GRUPO C", t1: "Brasil 🇧🇷", t2: "Marruecos 🇲🇦", f: "14 Jun 00:00", tv: "La 1 TVE / DAZN", golesH: 1, golesA: 1   },
+        { g: "GRUPO C", t1: "Haití 🇭🇹", t2: "Escocia 🏴󠁧󠁢󠁳󠁣󠁴󠁿", f: "14 Jun 03:00", tv: "DAZN", golesH: 0, golesA: 1   },
+        { g: "GRUPO D", t1: "Australia 🇦🇺", t2: "Turquía 🇹🇷", f: "14 Jun 06:00", tv: "DAZN", golesH: 2, golesA: 0   },
+        { g: "GRUPO E", t1: "Alemania 🇩🇪", t2: "Curazao 🇨🇼", f: "14 Jun 19:00", tv: "La 1 TVE / DAZN", golesH: undefined, golesA: undefined   },
+        { g: "GRUPO F", t1: "Países Bajos 🇳🇱", t2: "Japón 🇯🇵", f: "14 Jun 22:00", tv: "DAZN", golesH: undefined, golesA: undefined   },
+        { g: "GRUPO E", t1: "Costa de Marfil 🇨🇮", t2: "Ecuador 🇪🇨", f: "15 Jun 01:00", tv: "DAZN", golesH: undefined, golesA: undefined   },
+        { g: "GRUPO F", t1: "Suecia 🇸🇪", t2: "Túnez 🇹🇳", f: "15 Jun 04:00", tv: "DAZN", golesH: undefined, golesA: undefined   },
+        { g: "GRUPO H", t1: "España 🇪🇸", t2: "Cabo Verde 🇨🇻", f: "15 Jun 18:00", tv: "La 1 TVE / DAZN", golesH: undefined, golesA: undefined   },
+        { g: "GRUPO G", t1: "Bélgica 🇧🇪", t2: "Egipto 🇪🇬", f: "15 Jun 21:00", tv: "DAZN", golesH: undefined, golesA: undefined   },
+        { g: "GRUPO H", t1: "Arabia Saudí 🇸🇦", t2: "Uruguay 🇺🇾", f: "16 Jun 01:00", tv: "DAZN", golesH: undefined, golesA: undefined   },
+        { g: "GRUPO G", t1: "Irán 🇮🇷", t2: "Nueva Zelanda 🇳🇿", f: "16 Jun 03:00", tv: "DAZN", golesH: undefined, golesA: undefined   },
+        { g: "GRUPO I", t1: "Francia 🇫🇷", t2: "Senegal 🇸🇳", f: "16 Jun 21:00", tv: "DAZN", golesH: undefined, golesA: undefined   },
+        { g: "GRUPO I", t1: "Irak 🇮🇶", t2: "Noruega 🇳🇴", f: "17 Jun 00:00", tv: "DAZN", golesH: undefined, golesA: undefined   },
+        { g: "GRUPO J", t1: "Argentina 🇦🇷", t2: "Argelia 🇩🇿", f: "17 Jun 03:00", tv: "DAZN", golesH: undefined, golesA: undefined   },
+        { g: "GRUPO J", t1: "Austria 🇦🇹", t2: "Jordania 🇯🇴", f: "17 Jun 06:00", tv: "DAZN", golesH: undefined, golesA: undefined   },
+        { g: "GRUPO K", t1: "Portugal 🇵🇹", t2: "RD Congo 🇨🇩", f: "17 Jun 19:00", tv: "DAZN", golesH: undefined, golesA: undefined   },
+        { g: "GRUPO L", t1: "Inglaterra 🏴󠁧󠁢󠁥󠁮󠁧󠁿", t2: "Croacia 🇭🇷", f: "17 Jun 22:00", tv: "La 1 TVE / DAZN", golesH: undefined, golesA: undefined   },
+        { g: "GRUPO L", t1: "Ghana 🇬🇭", t2: "Panamá 🇵🇦", f: "18 Jun 01:00", tv: "DAZN", golesH: undefined, golesA: undefined   },
+        { g: "GRUPO K", t1: "Uzbekistán 🇺🇿", t2: "Colombia 🇨🇴", f: "18 Jun 04:00", tv: "DAZN", golesH: undefined, golesA: undefined   },
+        { g: "GRUPO A", t1: "República Checa 🇨🇿", t2: "Sudáfrica 🇿🇦", f: "18 Jun 18:00", tv: "DAZN", golesH: undefined, golesA: undefined   },
+        { g: "GRUPO B", t1: "Suiza 🇨🇭", t2: "Bosnia y Herz. 🇧🇦", f: "18 Jun 21:00", tv: "DAZN", golesH: undefined, golesA: undefined   },
+        { g: "GRUPO B", t1: "Canadá 🇨🇦", t2: "Catar 🇶🇦", f: "19 Jun 00:00", tv: "DAZN", golesH: undefined, golesA: undefined   },
+        { g: "GRUPO A", t1: "México 🇲🇽", t2: "Corea del Sur 🇰🇷", f: "19 Jun 03:00", tv: "DAZN", golesH: undefined, golesA: undefined   },
+        { g: "GRUPO D", t1: "EE. UU. 🇺🇸", t2: "Australia 🇦🇺", f: "19 Jun 21:00", tv: "La 1 TVE / DAZN", golesH: undefined, golesA: undefined   },
+        { g: "GRUPO C", t1: "Escocia 🏴󠁧󠁢󠁳󠁣󠁴󠁿", t2: "Marruecos 🇲🇦", f: "20 Jun 00:00", tv: "DAZN" , golesH: undefined, golesA: undefined  },
+        { g: "GRUPO C", t1: "Brasil 🇧🇷", t2: "Haití 🇭🇹", f: "20 Jun 03:00", tv: "DAZN", golesH: undefined, golesA: undefined   },
+        { g: "GRUPO D", t1: "Turquía 🇹🇷", t2: "Paraguay 🇵🇾", f: "20 Jun 06:00", tv: "DAZN", golesH: undefined, golesA: undefined   },
+        { g: "GRUPO F", t1: "Países Bajos 🇳🇱", t2: "Suecia 🇸🇪", f: "20 Jun 19:00", tv: "La 1 TVE / DAZN", golesH: undefined, golesA: undefined   },
+        { g: "GRUPO E", t1: "Alemania 🇩🇪", t2: "Costa de Marfil 🇨🇮", f: "20 Jun 22:00", tv: "DAZN", golesH: undefined, golesA: undefined   },
+        { g: "GRUPO E", t1: "Ecuador 🇪🇨", t2: "Curazao 🇨🇼", f: "21 Jun 02:00", tv: "DAZN", golesH: undefined, golesA: undefined   },
+        { g: "GRUPO F", t1: "Túnez 🇹🇳", t2: "Japón 🇯🇵", f: "21 Jun 06:00", tv: "DAZN" , golesH: undefined, golesA: undefined  },
+        { g: "GRUPO H", t1: "España 🇪🇸", t2: "Arabia Saudí 🇸🇦", f: "21 Jun 18:00", tv: "La 1 TVE / DAZN", golesH: undefined, golesA: undefined   },
+        { g: "GRUPO G", t1: "Bélgica 🇧🇪", t2: "Irán 🇮🇷", f: "21 Jun 21:00", tv: "DAZN", golesH: undefined, golesA: undefined   },
+        { g: "GRUPO H", t1: "Uruguay 🇺🇾", t2: "Cabo Verde 🇨🇻", f: "22 Jun 00:00", tv: "DAZN", golesH: undefined, golesA: undefined   },
+        { g: "GRUPO G", t1: "Nueva Zelanda 🇳🇿", t2: "Egipto 🇪🇬", f: "22 Jun 03:00", tv: "DAZN", golesH: undefined, golesA: undefined   },
+        { g: "GRUPO J", t1: "Argentina 🇦🇷", t2: "Austria 🇦🇹", f: "22 Jun 19:00", tv: "La 1 TVE / DAZN", golesH: undefined, golesA: undefined   },
+        { g: "GRUPO I", t1: "Francia 🇫🇷", t2: "Irak 🇮🇶", f: "22 Jun 23:00", tv: "DAZN", golesH: undefined, golesA: undefined   },
+        { g: "GRUPO I", t1: "Noruega 🇳🇴", t2: "Senegal 🇸🇳", f: "23 Jun 02:00", tv: "DAZN", golesH: undefined, golesA: undefined   },
+        { g: "GRUPO J", t1: "Jordania 🇯🇴", t2: "Argelia 🇩🇿", f: "23 Jun 05:00", tv: "DAZN", golesH: undefined, golesA: undefined   },
+        { g: "GRUPO K", t1: "Portugal 🇵🇹", t2: "Uzbekistán 🇺🇿", f: "23 Jun 19:00", tv: "DAZN", golesH: undefined, golesA: undefined   },
+        { g: "GRUPO L", t1: "Inglaterra 🏴󠁧󠁢󠁥󠁮󠁧󠁿", t2: "Ghana 🇬🇭", f: "23 Jun 22:00", tv: "La 1 TVE / DAZN", golesH: undefined, golesA: undefined   },
+        { g: "GRUPO L", t1: "Panamá 🇵🇦", t2: "Croacia 🇭🇷", f: "24 Jun 01:00", tv: "DAZN", golesH: undefined, golesA: undefined   },
+        { g: "GRUPO K", t1: "Colombia 🇨🇴", t2: "RD Congo 🇨🇩", f: "24 Jun 04:00", tv: "DAZN", golesH: undefined, golesA: undefined   },
+        { g: "GRUPO B", t1: "Suiza 🇨🇭", t2: "Canadá 🇨🇦", f: "24 Jun 21:00", tv: "DAZN", golesH: undefined, golesA: undefined   },
+        { g: "GRUPO B", t1: "Bosnia y Herz. 🇧🇦", t2: "Catar 🇶🇦", f: "24 Jun 21:00", tv: "DAZN", golesH: undefined, golesA: undefined   },
+        { g: "GRUPO C", t1: "Escocia 🏴󠁧󠁢󠁳󠁣󠁴󠁿", t2: "Brasil 🇧🇷", f: "25 Jun 00:00", tv: "La 1 TVE / DAZN", golesH: undefined, golesA: undefined   },
+        { g: "GRUPO C", t1: "Marruecos 🇲🇦", t2: "Haití 🇭🇹", f: "25 Jun 00:00", tv: "DAZN", golesH: undefined, golesA: undefined   },
+        { g: "GRUPO A", t1: "República Checa 🇨🇿", t2: "México 🇲🇽", f: "25 Jun 03:00", tv: "DAZN", golesH: undefined, golesA: undefined   },
+        { g: "GRUPO A", t1: "Sudáfrica 🇿🇦", t2: "Corea del Sur 🇰🇷", f: "25 Jun 03:00", tv: "DAZN", golesH: undefined, golesA: undefined   },
+        { g: "GRUPO E", t1: "Curazao 🇨🇼", t2: "Costa de Marfil 🇨🇮", f: "25 Jun 22:00", tv: "DAZN", golesH: undefined, golesA: undefined   },
+        { g: "GRUPO E", t1: "Ecuador 🇪🇨", t2: "Alemania 🇩🇪", f: "25 Jun 22:00", tv: "La 1 TVE / DAZN", golesH: undefined, golesA: undefined   },
+        { g: "GRUPO F", t1: "Japón 🇯🇵", t2: "Suecia 🇸🇪", f: "26 Jun 01:00", tv: "DAZN", golesH: undefined, golesA: undefined   },
+        { g: "GRUPO F", t1: "Túnez 🇹🇳", t2: "Países Bajos 🇳🇱", f: "26 Jun 01:00", tv: "DAZN", golesH: undefined, golesA: undefined   },
+        { g: "GRUPO D", t1: "Turquía 🇹🇷", t2: "EE. UU. 🇺🇸", f: "26 Jun 04:00", tv: "DAZN", golesH: undefined, golesA: undefined   },
+        { g: "GRUPO D", t1: "Paraguay 🇵🇾", t2: "Australia 🇦🇺", f: "26 Jun 04:00", tv: "DAZN", golesH: undefined, golesA: undefined   },
+        { g: "GRUPO I", t1: "Noruega 🇳🇴", t2: "Francia 🇫🇷", f: "26 Jun 21:00", tv: "DAZN", golesH: undefined, golesA: undefined   },
+        { g: "GRUPO I", t1: "Senegal 🇸🇳", t2: "Irak 🇮🇶", f: "26 Jun 21:00", tv: "DAZN", golesH: undefined, golesA: undefined   },
+        { g: "GRUPO H", t1: "Cabo Verde 🇨🇻", t2: "Arabia Saudí 🇸🇦", f: "27 Jun 02:00", tv: "DAZN", golesH: undefined, golesA: undefined   },
+        { g: "GRUPO H", t1: "Uruguay 🇺🇾", t2: "España 🇪🇸", f: "27 Jun 02:00", tv: "La 1 TVE / DAZN", golesH: undefined, golesA: undefined   },
+        { g: "GRUPO G", t1: "Egipto 🇪🇬", t2: "Irán 🇮🇷", f: "27 Jun 05:00", tv: "DAZN", golesH: undefined, golesA: undefined   },
+        { g: "GRUPO G", t1: "Nueva Zelanda 🇳🇿", t2: "Bélgica 🇧🇪", f: "27 Jun 05:00", tv: "DAZN", golesH: undefined, golesA: undefined   },
+        { g: "GRUPO L", t1: "Panamá 🇵🇦", t2: "Inglaterra 🏴󠁧󠁢󠁥󠁮󠁧󠁿", f: "27 Jun 23:00", tv: "DAZN" , golesH: undefined, golesA: undefined  },
+        { g: "GRUPO L", t1: "Croacia 🇭🇷", t2: "Ghana 🇬🇭", f: "27 Jun 23:00", tv: "DAZN", golesH: undefined, golesA: undefined   },
+        { g: "GRUPO K", t1: "Colombia 🇨🇴", t2: "Portugal 🇵🇹", f: "28 Jun 01:30", tv: "La 1 TVE / DAZN", golesH: undefined, golesA: undefined   },
+        { g: "GRUPO K", t1: "RD Congo 🇨🇩", t2: "Uzbekistán 🇺🇿", f: "28 Jun 01:30", tv: "DAZN", golesH: undefined, golesA: undefined   },
+        { g: "GRUPO J", t1: "Argelia 🇩🇿", t2: "Austria 🇦🇹", f: "28 Jun 04:00", tv: "DAZN", golesH: undefined, golesA: undefined   },
+        { g: "GRUPO J", t1: "Jordania 🇯🇴", t2: "Argentina 🇦🇷", f: "28 Jun 04:00", tv: "DAZN", golesH: undefined, golesA: undefined   }
     ];
 
 // Abrir modal automáticamente al entrar si es la primera vez
@@ -1114,7 +1189,9 @@ async function cargarRankingPublico() {
             tbody.innerHTML = top20.map(p => `
                 <tr>
                     <td style="padding:12px; font-weight:bold">${p.pos}</td>
-                    <td class="txt-left" style="padding-left:15px; font-weight:bold; color:#0b3aa9">${p.nombre}</td>
+                    <td class="txt-left" style="padding-left:15px; font-weight:bold; color:#0b3aa9; cursor:pointer; text-decoration:underline;" onclick="verApuestasDeOtroJugador('${p.nombre}')">
+    ${p.nombre}
+</td>
                     <td>${p.ex}</td>
                     <td>${p.ge}</td>
                     <td class="pts-col" style="background:#e3f2fd; font-weight:bold">${p.pts}</td>
@@ -1123,6 +1200,196 @@ async function cargarRankingPublico() {
         }
     } catch (e) {
         tbody.innerHTML = "<tr><td colspan='5'>Error al cargar.</td></tr>";
+    }
+}
+
+
+
+
+
+
+
+// 1. Nueva función de navegación con consulta asíncrona al ranking
+async function mostrarPantallaSeguimiento() {
+    const datosRaw = localStorage.getItem('mi_porra_2026');
+    
+    if (!datosRaw) {
+        alert("⚠️ No tienes ninguna apuesta guardada en este dispositivo para poder hacer el seguimiento.");
+        return;
+    }
+
+    const datosUsuario = JSON.parse(datosRaw);
+
+    // Ocultamos la pantalla de bienvenida y desplegamos la de puntos propia
+    document.getElementById('welcome-section').style.display = 'none';
+    document.getElementById('seccion-seguimiento-propio').style.display = 'block';
+    
+    // Ponemos un estado de carga temporal en la tarjeta de posición
+    document.getElementById("meta-total-pos").innerText = "⏳";
+
+    // Ejecutamos primero la pintura detallada de la tabla
+    calcularMisPuntosPasoAPaso(datosUsuario);
+
+    // Buscamos de forma independiente su posición real en tu tabla de Google Sheets
+    try {
+        const resp = await fetch(`${GOOGLE_URL}?action=getRanking&t=${new Date().getTime()}`);
+        const rankingServidor = await resp.json();
+        
+        if (rankingServidor && rankingServidor.length > 0) {
+            // Buscamos el nick del usuario de este móvil en la lista que devuelve Google
+            const miRegistroReal = rankingServidor.find(p => String(p.nombre).trim().toUpperCase() === String(datosUsuario.nombre).trim().toUpperCase());
+            
+            if (miRegistroReal && miRegistroReal.pos) {
+                // Inyectamos su puesto oficial de la clasificación (Ej: "14º")
+                document.getElementById("meta-total-pos").innerText = `${miRegistroReal.pos}º`;
+            } else {
+                document.getElementById("meta-total-pos").innerText = "—";
+            }
+        }
+    } catch (e) {
+        console.error("No se pudo extraer la posición del servidor:", e);
+        document.getElementById("meta-total-pos").innerText = "⚠️";
+    }
+}
+// Pega esta línea al final de la función mostrarPantallaSeguimiento
+const btnVolver = document.querySelector("#seccion-seguimiento-propio button");
+if (btnVolver) {
+    btnVolver.innerText = "VOLVER AL INICIO";
+    btnVolver.onclick = () => location.reload();
+}
+// 2. Motor de pintura de las tres columnas (Permanecerá fiel a tu lógica local)
+function calcularMisPuntosPasoAPaso(datosUsuario) {
+    document.getElementById("txt-nombre-seguimiento").innerText = String(datosUsuario.nombre).toUpperCase();
+    
+    const tbody = document.getElementById("tbody-seguimiento-propio");
+    tbody.innerHTML = "";
+
+    let puntosAcumulados = 0;
+    let contadorExactos = 0;
+    let contadorSignos = 0;
+
+    partidosData.forEach((partido, idx) => {
+        const idPartido = idx + 1;
+        const nombreEncuentro = `${partido.t1} vs ${partido.t2}`;
+        
+        let miPrediccion = "N/P";
+        let gHPred = null;
+        let gAPred = null;
+
+        if (datosUsuario.resultados && datosUsuario.resultados[idPartido]) {
+            gHPred = parseInt(datosUsuario.resultados[idPartido].h);
+            gAPred = parseInt(datosUsuario.resultados[idPartido].a);
+            miPrediccion = `${gHPred}-${gAPred}`;
+        }
+        
+        let gHReal = (partido.golesH !== undefined) ? partido.golesH : partido.gH;
+        let gAReal = (partido.golesA !== undefined) ? partido.golesA : partido.gA;
+
+        let resultadoReal = "—";
+        let estiloTexto = "color: #777; font-weight: normal;";
+        let textoPuntos = "Pendiente";
+
+        if (gHReal !== undefined && gHReal !== null && gHReal !== "") {
+            gHReal = parseInt(gHReal);
+            gAReal = parseInt(gAReal);
+            resultadoReal = `${gHReal}-${gAReal}`;
+
+            if (gHPred !== null) {
+                if (gHPred === gHReal && gAPred === gAReal) {
+                    contadorExactos++;
+                    puntosAcumulados += 5;
+                    estiloTexto = "color: #2e7d32; font-weight: bold;";
+                    textoPuntos = "🎯 +5";
+                } else if ((gHPred > gAPred && gHReal > gAReal) || 
+                           (gHPred < gAPred && gHReal < gAReal) || 
+                           (gHPred === gAPred && gHReal === gAReal)) {
+                    contadorSignos++;
+                    puntosAcumulados += 2;
+                    estiloTexto = "color: #f57c00; font-weight: bold;";
+                    textoPuntos = "✅ +2";
+                } else {
+                    estiloTexto = "color: #c62828; font-weight: bold;";
+                    textoPuntos = "❌ 0";
+                }
+            } else {
+                textoPuntos = "❌ Sin apuesta";
+                estiloTexto = "color: #c62828; font-weight: bold;";
+            }
+        }
+        
+        const celdaComparativa = `<b>${miPrediccion}</b> <span style="color:#777;font-weight:normal;">vs</span> <b>${resultadoReal}</b>`;
+
+        tbody.innerHTML += `
+            <tr>
+                <td style="text-align: left; padding: 12px 5px;">${nombreEncuentro}</td>
+                <td style="text-align: center;">${celdaComparativa}</td>
+                <td style="text-align: center; ${estiloTexto}">${textoPuntos}</td>
+            </tr>
+        `;
+    });
+
+    document.getElementById("meta-total-pts").innerText = `${puntosAcumulados} pts`;
+    document.getElementById("meta-total-ex").innerText = contadorExactos;
+    document.getElementById("meta-total-ge").innerText = contadorSignos;
+}
+async function verApuestasDeOtroJugador(nombreAmigo) {
+    try {
+        // 1. Descargamos el ranking actual desde tu nueva URL de Google Sheets
+        const resp = await fetch(`${GOOGLE_URL}?action=getRanking&t=${new Date().getTime()}`);
+        const rankingServidor = await resp.json();
+        
+        if (rankingServidor && rankingServidor.length > 0) {
+            // 2. Localizamos al amigo seleccionado ignorando espacios y mayúsculas
+            const registroAmigo = rankingServidor.find(p => String(p.nombre).trim().toUpperCase() === String(nombreAmigo).trim().toUpperCase());
+            
+            if (!registroAmigo) {
+                return alert(`❌ El nombre "${nombreAmigo}" no se encuentra en el objeto que devuelve Google.`);
+            }
+
+            // 3. ASIGNAMOS LOS MARCADORES RECUPERADOS DE LA COLUMNA F
+            let marcadoresEncontrados = registroAmigo.resultados || registroAmigo.pronosticos;
+
+            // 4. CAMBIO DE PANTALLA VISUAL
+            document.getElementById('ranking-section').style.display = 'none';
+            document.getElementById('seccion-seguimiento-propio').style.display = 'block';
+            
+            // 5. CONEXIÓN DIRECTA CON TU MOTOR DE 3 COLUMNAS
+            const datosParaPintar = {
+                nombre: registroAmigo.nombre,
+                resultados: marcadoresEncontrados || {} // Si viniera vacío, pasamos objeto limpio controlado
+            };
+
+            // Ejecutamos tu motor nativo de pintura de 3 columnas
+            calcularMisPuntosPasoAPaso(datosParaPintar);
+
+            // 6. RELLENAMOS LAS TARJETAS SUPERIORES CON LAS MEDALLAS DEL EXCEL
+            document.getElementById("meta-total-pos").innerText = `${registroAmigo.pos || '—'}º`;
+            document.getElementById("meta-total-pts").innerText = `${registroAmigo.pts || 0} pts`;
+            document.getElementById("meta-total-ex").innerText = registroAmigo.ex || 0;
+            document.getElementById("meta-total-ge").innerText = registroAmigo.ge || 0;
+            
+            // 7. CONTROL DEL MENSAJE DE CANDADO
+            // Si la columna F viniera vacía de verdad en un usuario sin apuestas, se activa la protección
+            if (!marcadoresEncontrados || Object.keys(marcadoresEncontrados).length === 0) {
+                const tbody = document.getElementById("tbody-seguimiento-propio");
+                tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; padding:30px; color:#666; font-style:italic;">
+                    🔒 Los pronósticos detallados de este usuario se desbloquearán de forma pública en cuanto comience oficialmente el primer partido del Mundial.
+                </td></tr>`;
+            } else {
+                // MODIFICACIÓN DINÁMICA DEL BOTÓN: Al pulsar, vuelve atrás al ranking en vez de reiniciar la web
+                const btnVolver = document.querySelector("#seccion-seguimiento-propio button");
+                if (btnVolver) {
+                    btnVolver.innerText = "⬅ VOLVER A LA CLASIFICACIÓN";
+                    btnVolver.onclick = () => {
+                        document.getElementById('seccion-seguimiento-propio').style.display = 'none';
+                        document.getElementById('ranking-section').style.display = 'block';
+                    };
+                }
+            }
+        }
+    } catch (e) {
+        console.error("Error al visualizar las apuestas de un tercero:", e);
+        alert("⚠️ Hubo un problema al leer los datos detallados del participante.");
     }
 }
 </script>
