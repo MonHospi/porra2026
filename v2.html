@@ -523,7 +523,7 @@
 <div id="seccion-seguimiento-propio" class="container" style="display: none; padding: 20px;">
     
     <div class="group-card" style="display: block; margin-top: 0;">
-        <div class="group-header" style="background-color: #0b3aa9;">🏅 SEGUIMIENTO DE MIS PUNTOS</div>
+        <div class="group-header" style="background-color: #0b3aa9;">SEGUIMIENTO DE MIS PUNTOS</div>
         
         <!-- Ficha superior del participante -->
         <div class="user-box" style="margin: 20px 20px 10px 20px; background: #f0f4ff; text-align: center; border: 2px solid var(--blue-axa);">
@@ -594,7 +594,7 @@
 </div>
 
 <script>
-    const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbwlIrXmBD9l1Lb9Sgkly5wMZ8y3lHHkoZdLmmcpoGZjFXQK1M8OxmSh0XmPipGTfQpn/exec"; 
+    const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbz2vHyibGtbkrIZTnOKbifD1rJd4ZY65HgHHdq-pYszTssU5JIRhvsj9DMxzd1YWgAM/exec"; 
     const partidosData = [
         { g: "GRUPO A", t1: "México 🇲🇽", t2: "Sudáfrica 🇿🇦", f: "11 Jun 21:00", tv: "La 1 TVE / DAZN", golesH: 2, golesA: 0 },
         { g: "GRUPO A", t1: "Corea del Sur 🇰🇷", t2: "República Checa 🇨🇿", f: "12 Jun 04:00",tv: "DAZN", golesH: 2, golesA: 1  },
@@ -1189,7 +1189,9 @@ async function cargarRankingPublico() {
             tbody.innerHTML = top20.map(p => `
                 <tr>
                     <td style="padding:12px; font-weight:bold">${p.pos}</td>
-                    <td class="txt-left" style="padding-left:15px; font-weight:bold; color:#0b3aa9">${p.nombre}</td>
+                    <td class="txt-left" style="padding-left:15px; font-weight:bold; color:#0b3aa9; cursor:pointer; text-decoration:underline;" onclick="verApuestasDeOtroJugador('${p.nombre}')">
+    ${p.nombre}
+</td>
                     <td>${p.ex}</td>
                     <td>${p.ge}</td>
                     <td class="pts-col" style="background:#e3f2fd; font-weight:bold">${p.pts}</td>
@@ -1249,7 +1251,12 @@ async function mostrarPantallaSeguimiento() {
         document.getElementById("meta-total-pos").innerText = "⚠️";
     }
 }
-
+// Pega esta línea al final de la función mostrarPantallaSeguimiento
+const btnVolver = document.querySelector("#seccion-seguimiento-propio button");
+if (btnVolver) {
+    btnVolver.innerText = "VOLVER AL INICIO";
+    btnVolver.onclick = () => location.reload();
+}
 // 2. Motor de pintura de las tres columnas (Permanecerá fiel a tu lógica local)
 function calcularMisPuntosPasoAPaso(datosUsuario) {
     document.getElementById("txt-nombre-seguimiento").innerText = String(datosUsuario.nombre).toUpperCase();
@@ -1324,6 +1331,66 @@ function calcularMisPuntosPasoAPaso(datosUsuario) {
     document.getElementById("meta-total-pts").innerText = `${puntosAcumulados} pts`;
     document.getElementById("meta-total-ex").innerText = contadorExactos;
     document.getElementById("meta-total-ge").innerText = contadorSignos;
+}
+async function verApuestasDeOtroJugador(nombreAmigo) {
+    try {
+        // 1. Descargamos el ranking actual desde tu nueva URL de Google Sheets
+        const resp = await fetch(`${GOOGLE_URL}?action=getRanking&t=${new Date().getTime()}`);
+        const rankingServidor = await resp.json();
+        
+        if (rankingServidor && rankingServidor.length > 0) {
+            // 2. Localizamos al amigo seleccionado ignorando espacios y mayúsculas
+            const registroAmigo = rankingServidor.find(p => String(p.nombre).trim().toUpperCase() === String(nombreAmigo).trim().toUpperCase());
+            
+            if (!registroAmigo) {
+                return alert(`❌ El nombre "${nombreAmigo}" no se encuentra en el objeto que devuelve Google.`);
+            }
+
+            // 3. ASIGNAMOS LOS MARCADORES RECUPERADOS DE LA COLUMNA F
+            let marcadoresEncontrados = registroAmigo.resultados || registroAmigo.pronosticos;
+
+            // 4. CAMBIO DE PANTALLA VISUAL
+            document.getElementById('ranking-section').style.display = 'none';
+            document.getElementById('seccion-seguimiento-propio').style.display = 'block';
+            
+            // 5. CONEXIÓN DIRECTA CON TU MOTOR DE 3 COLUMNAS
+            const datosParaPintar = {
+                nombre: registroAmigo.nombre,
+                resultados: marcadoresEncontrados || {} // Si viniera vacío, pasamos objeto limpio controlado
+            };
+
+            // Ejecutamos tu motor nativo de pintura de 3 columnas
+            calcularMisPuntosPasoAPaso(datosParaPintar);
+
+            // 6. RELLENAMOS LAS TARJETAS SUPERIORES CON LAS MEDALLAS DEL EXCEL
+            document.getElementById("meta-total-pos").innerText = `${registroAmigo.pos || '—'}º`;
+            document.getElementById("meta-total-pts").innerText = `${registroAmigo.pts || 0} pts`;
+            document.getElementById("meta-total-ex").innerText = registroAmigo.ex || 0;
+            document.getElementById("meta-total-ge").innerText = registroAmigo.ge || 0;
+            
+            // 7. CONTROL DEL MENSAJE DE CANDADO
+            // Si la columna F viniera vacía de verdad en un usuario sin apuestas, se activa la protección
+            if (!marcadoresEncontrados || Object.keys(marcadoresEncontrados).length === 0) {
+                const tbody = document.getElementById("tbody-seguimiento-propio");
+                tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; padding:30px; color:#666; font-style:italic;">
+                    🔒 Los pronósticos detallados de este usuario se desbloquearán de forma pública en cuanto comience oficialmente el primer partido del Mundial.
+                </td></tr>`;
+            } else {
+                // MODIFICACIÓN DINÁMICA DEL BOTÓN: Al pulsar, vuelve atrás al ranking en vez de reiniciar la web
+                const btnVolver = document.querySelector("#seccion-seguimiento-propio button");
+                if (btnVolver) {
+                    btnVolver.innerText = "⬅ VOLVER A LA CLASIFICACIÓN";
+                    btnVolver.onclick = () => {
+                        document.getElementById('seccion-seguimiento-propio').style.display = 'none';
+                        document.getElementById('ranking-section').style.display = 'block';
+                    };
+                }
+            }
+        }
+    } catch (e) {
+        console.error("Error al visualizar las apuestas de un tercero:", e);
+        alert("⚠️ Hubo un problema al leer los datos detallados del participante.");
+    }
 }
 </script>
 </div>
