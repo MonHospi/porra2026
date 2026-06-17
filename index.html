@@ -289,7 +289,11 @@
             </thead>
             <tbody>
 
-
+                <tr>
+                    <td>L. Messi</td>
+                    <td>Argentina</td>
+                    <td>3</td>
+                </tr> 
                 <tr>
                     <td>Y. Ayari</td>
                     <td>Suecia</td>
@@ -312,8 +316,16 @@
                     <td>Nueva Zelanda</td>
                     <td>2</td>
                 </tr> 
-
-
+                <tr>
+                    <td>K.Mbappe</td>
+                    <td>Francia</td>
+                    <td>2</td>
+                </tr> 
+                <tr>
+                    <td>E. Haaland</td>
+                    <td>Noruegs</td>
+                    <td>2</td>
+                </tr> 
 
                 <tr>
                     <td>J.A. Quiñones</td>
@@ -503,6 +515,18 @@
                     <td>Belgica </td>
                     <td>1</td>
                 </tr> 
+                <tr>
+                    <td>B. Barcols</td>
+                    <td>Francia</td>
+                    <td>1</td>
+                </tr> 
+                <tr>
+                    <td>Mbaye</td>
+                    <td>Senegal</td>
+                    <td>1</td>
+                </tr> 
+
+
 
 
 
@@ -739,9 +763,9 @@
         { g: "GRUPO G", t1: "Bélgica 🇧🇪", t2: "Egipto 🇪🇬", f: "15 Jun 21:00", tv: "DAZN", golesH: 1, golesA: 1  },
         { g: "GRUPO H", t1: "Arabia Saudí 🇸🇦", t2: "Uruguay 🇺🇾", f: "16 Jun 01:00", tv: "DAZN", golesH: 1, golesA: 1   },
         { g: "GRUPO G", t1: "Irán 🇮🇷", t2: "Nueva Zelanda 🇳🇿", f: "16 Jun 03:00", tv: "DAZN", golesH: 2, golesA: 2   },
-        { g: "GRUPO I", t1: "Francia 🇫🇷", t2: "Senegal 🇸🇳", f: "16 Jun 21:00", tv: "DAZN", golesH: undefined, golesA: undefined   },
-        { g: "GRUPO I", t1: "Irak 🇮🇶", t2: "Noruega 🇳🇴", f: "17 Jun 00:00", tv: "DAZN", golesH: undefined, golesA: undefined   },
-        { g: "GRUPO J", t1: "Argentina 🇦🇷", t2: "Argelia 🇩🇿", f: "17 Jun 03:00", tv: "DAZN", golesH: undefined, golesA: undefined   },
+        { g: "GRUPO I", t1: "Francia 🇫🇷", t2: "Senegal 🇸🇳", f: "16 Jun 21:00", tv: "DAZN", golesH: 3, golesA: 1   },
+        { g: "GRUPO I", t1: "Irak 🇮🇶", t2: "Noruega 🇳🇴", f: "17 Jun 00:00", tv: "DAZN", golesH: 1, golesA: 4   },
+        { g: "GRUPO J", t1: "Argentina 🇦🇷", t2: "Argelia 🇩🇿", f: "17 Jun 03:00", tv: "DAZN", golesH: 3, golesA: 0   },
         { g: "GRUPO J", t1: "Austria 🇦🇹", t2: "Jordania 🇯🇴", f: "17 Jun 06:00", tv: "DAZN", golesH: undefined, golesA: undefined   },
         { g: "GRUPO K", t1: "Portugal 🇵🇹", t2: "RD Congo 🇨🇩", f: "17 Jun 19:00", tv: "DAZN", golesH: undefined, golesA: undefined   },
         { g: "GRUPO L", t1: "Inglaterra 🏴󠁧󠁢󠁥󠁮󠁧󠁿", t2: "Croacia 🇭🇷", f: "17 Jun 22:00", tv: "La 1 TVE / DAZN", golesH: undefined, golesA: undefined   },
@@ -1301,8 +1325,8 @@ async function cargarRankingPublico() {
 
 
 
-            labelJornadas.innerHTML = `⚽ <b>Partidos procesados:</b> ${data[0].jornadas || '16'}`;
-            labelUpdate.innerHTML = `🕒 <b>Actualizado:</b> ${data[0].hora || '05:20'}`;
+            labelJornadas.innerHTML = `⚽ <b>Partidos procesados:</b> ${data[0].jornadas || '19'}`;
+            labelUpdate.innerHTML = `🕒 <b>Actualizado:</b> ${data[0].hora || '06:50'}`;
 
 
 
