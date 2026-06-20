@@ -544,9 +544,9 @@
         { g: "GRUPO B", t1: "Canadá 🇨🇦", t2: "Catar 🇶🇦", f: "19 Jun 00:00", tv: "DAZN", golesH: 6, golesA: 0   },
         { g: "GRUPO A", t1: "México 🇲🇽", t2: "Corea del Sur 🇰🇷", f: "19 Jun 03:00", tv: "DAZN", golesH: 1, golesA: 0   },
         { g: "GRUPO D", t1: "EE. UU. 🇺🇸", t2: "Australia 🇦🇺", f: "19 Jun 21:00", tv: "La 1 TVE / DAZN", golesH: 2, golesA: 0   },
-        { g: "GRUPO C", t1: "Escocia 🏴󠁧󠁢󠁳󠁣󠁴󠁿", t2: "Marruecos 🇲🇦", f: "20 Jun 00:00", tv: "DAZN" , golesH: undefined, golesA: undefined  },
-        { g: "GRUPO C", t1: "Brasil 🇧🇷", t2: "Haití 🇭🇹", f: "20 Jun 03:00", tv: "DAZN", golesH: undefined, golesA: undefined   },
-        { g: "GRUPO D", t1: "Turquía 🇹🇷", t2: "Paraguay 🇵🇾", f: "20 Jun 06:00", tv: "DAZN", golesH: undefined, golesA: undefined   },
+        { g: "GRUPO C", t1: "Escocia 🏴󠁧󠁢󠁳󠁣󠁴󠁿", t2: "Marruecos 🇲🇦", f: "20 Jun 00:00", tv: "DAZN" , golesH: 0, golesA: 1 },
+        { g: "GRUPO C", t1: "Brasil 🇧🇷", t2: "Haití 🇭🇹", f: "20 Jun 03:00", tv: "DAZN", golesH: 3, golesA: 0  },
+        { g: "GRUPO D", t1: "Turquía 🇹🇷", t2: "Paraguay 🇵🇾", f: "20 Jun 06:00", tv: "DAZN", golesH: 0, golesA: 1  },
         { g: "GRUPO F", t1: "Países Bajos 🇳🇱", t2: "Suecia 🇸🇪", f: "20 Jun 19:00", tv: "La 1 TVE / DAZN", golesH: undefined, golesA: undefined   },
         { g: "GRUPO E", t1: "Alemania 🇩🇪", t2: "Costa de Marfil 🇨🇮", f: "20 Jun 22:00", tv: "DAZN", golesH: undefined, golesA: undefined   },
         { g: "GRUPO E", t1: "Ecuador 🇪🇨", t2: "Curazao 🇨🇼", f: "21 Jun 02:00", tv: "DAZN", golesH: undefined, golesA: undefined   },
@@ -1103,8 +1103,8 @@ async function cargarRankingPublico() {
 
 
 
-            labelJornadas.innerHTML = `⚽ <b>Partidos procesados:</b> ${data[0].jornadas || '29'}`;
-            labelUpdate.innerHTML = `🕒 <b>Actualizado:</b> ${data[0].hora || '23:20'}`;
+            labelJornadas.innerHTML = `⚽ <b>Partidos procesados:</b> ${data[0].jornadas || '32'}`;
+            labelUpdate.innerHTML = `🕒 <b>Actualizado:</b> ${data[0].hora || '9:10'}`;
 
 
 
