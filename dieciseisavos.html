@@ -7,6 +7,14 @@
     <link rel="preconnect" href="https://googleapis.com">
     <link rel="preconnect" href="https://gstatic.com" crossorigin>
     <link href="https://googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
+     <!-- Icono para la pestaña del ordenador (Desktop) -->
+<link rel="icon" type="image/png" href="icono-192.png">
+
+<!-- Icono para dispositivos Apple (iOS) -->
+<link rel="apple-touch-icon" sizes="180x180" href="icono-192.png">
+
+<!-- Vinculación del archivo de configuración para Android -->
+<link rel="manifest" href="manifest.json">
     <style>
         :root { --primary: #0a2240; --accent: #d32f2f; --bg: #f4f7f6; --blue-axa: #0b3aa9; }
         body { font-family: Montserrat, sans-serif; margin: 0; padding-bottom: 120px; background-image: linear-gradient(rgba(255,255,255,0.6), rgba(11,58,169,0.05)), url('https://123rf.com'); background-repeat: no-repeat; background-size: cover; background-position: top; }
@@ -65,6 +73,77 @@
         .modal-body li { margin-bottom: 8px; }
         
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+/* BOTÓN FLOTANTE INTELIGENTE PARA REGRESAR AL MENÚ */
+.btn-flotante-fase2 {
+    position: fixed;
+    bottom: 25px;       /* Separación del borde inferior */
+    right: 25px;        /* Lado derecho de la pantalla */
+    width: 55px;
+    height: 55px;
+    background-color: var(--primary); /* Azul oscuro de tu Fase 2 */
+    color: white;
+    border-radius: 50%; /* Completamente redondo */
+    border: 2px solid white;
+    box-shadow: 0px 5px 15px rgba(0,0,0,0.3);
+    font-size: 22px;
+    cursor: pointer;
+    z-index: 5000;      /* Por encima de cualquier otra sección */
+    display: none;      /* Oculto por defecto en la pantalla de inicio */
+    transition: transform 0.2s, background-color 0.3s;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-flotante-fase2:hover {
+    background-color: var(--accent); /* Cambia a tu color rojo al pasar el ratón */
+    transform: scale(1.1);
+}
+
+.btn-flotante-fase2:active {
+    transform: scale(0.95);
+}
+
+/* Ocultar automáticamente si el usuario decide imprimir la pantalla */
+@media print {
+    .btn-flotante-fase2 { display: none !important; }
+}
+
+/* CAPA SUPERPUESTA CON ANILLO DE CARGA INTERACTIVO */
+.capa-carga-fase2 {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background-color: rgba(255, 255, 255, 0.85); /* Fondo blanco semitransparente */
+    backdrop-filter: blur(4px); /* Suaviza el fondo */
+    display: none; /* Oculto por defecto */
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999; /* Por encima de absolutamente todo */
+}
+
+.anillo-spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid #f3f3f3;
+    border-top: 5px solid var(--primary); /* Gira con tu color azul oscuro */
+    border-radius: 50%;
+    animation: girarSpinner 1s linear infinite;
+}
+
+.texto-carga {
+    margin-top: 15px;
+    font-weight: 600;
+    color: var(--primary);
+    font-size: 1.05em;
+    letter-spacing: 0.5px;
+}
+
+@keyframes girarSpinner {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+
     </style>
 </head>
 <body>
@@ -83,6 +162,8 @@
     <div class="menu-grid">
         <button class="btn-optikit" id="btn-menu-enviar" onclick="mostrarIdentificacion()">ENVIAR RESULTADOS</button>
         <button class="btn-optikit" id="btn-menu-consultar" onclick="recuperarOBuscarApuesta()">MI APUESTA GUARDADA</button>
+        <button class="btn-optikit" id="btn-seguimiento-propio" onclick="verMisPuntosPropios()">MIS PUNTOS DETALLADOS
+</button>
         <button class="btn-optikit" onclick="mostrarClasificacion()">CLASIFICACIÓN</button>
         <button class="btn-optikit" onclick="abrirModalReglas()">VER REGLAS</button>
 
@@ -97,72 +178,58 @@
         <table class="tabla-posiciones" id="">
             <thead>
                 <tr>
-                    <th style="width:50px">Pos</th>
-                    <th style="text-align:center; padding-left:15px;width: 100px;">Jugador</th>
+                    <th style="width:100px">Jugador</th>
+                    <th style="text-align:center; padding-left:15px;width: 50px;">Selección</th>
                     <th style="width:50px">Goles Marcados</th>      
                 </tr>
             </thead>
             <tbody>
                 <tr>
-                    <td>1</td>
-                    <td>Ferran Torres</td>
-                    <td>5</td>
+                <tr>
+                    <td>L. Messi</td>
+                    <td>Argentina</td>
+                    <td>3</td>
+                </tr> 
+                <tr>
+                    <td>Y. Ayari</td>
+                    <td>Suecia</td>
+                    <td>2</td>
+                </tr> 
+
+               <tr>
+                    <td>Folarin Balogun</td>
+                    <td>EEUU</td>
+                    <td>2</td>
                 </tr>
                 <tr>
+                    <td>Kai Havertz</td>
+                    <td>Alemania</td>
                     <td>2</td>
-                    <td>Ferran Torres</td>
-                    <td>5</td>
-                </tr>                
+                </tr> 
+
+                <tr>
+                    <td>E. Just</td>
+                    <td>Nueva Zelanda</td>
+                    <td>2</td>
+                </tr> 
+                <tr>
+                    <td>K.Mbappe</td>
+                    <td>Francia</td>
+                    <td>2</td>
+                </tr> 
+                <tr>
+                    <td>E. Haaland</td>
+                    <td>Noruegs</td>
+                    <td>2</td>
+                </tr> 
+
+
+            
 
             </tbody>
         </table>
     </div>
-    <div id="" class="user-box" style=" padding: 15px 0 0 0; overflow: hidden;">
-        <h3 style="margin: 10px 0 5px 0; color: var(--primary);">Ganador del mundial según las casas de apuestas</h3>
-        <p style="font-size:0.8em; color:#666; margin: 0 0 15px 0;">Solo a nivel informativo para el usuario. Datos actualizados a 7/5/2026  </p>
-        <table class="tabla-posiciones" id="">
-            <thead>
-                <tr>
-                    <th style="width:100px">Selección</th>
-                    <th style="text-align:center; padding-left:15px;width: 20px;">Betfair</th>
-                    <th style="text-align:center; padding-left:15px;width: 20px;">Codere</th>
-                    <th style="text-align:center; padding-left:15px;width: 20px;">Bet365</th>    
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td style="background-color: lightgoldenrodyellow;">España</td>
-                    <td style="background-color: lightgoldenrodyellow;">5.00</td>
-                    <td style="background-color: lightgoldenrodyellow;">5.50</td>
-                    <td style="background-color: lightgoldenrodyellow;">5.50</td>
-                </tr>
-                <tr>
-                    <td>Francia</td>
-                    <td >5.00</td>
-                    <td >6.00</td>
-                    <td >6.00</td>
-                </tr>                
-                <tr>
-                    <td >Inglaterra</td>
-                    <td>7.50</td>
-                    <td>7.00</td>
-                    <td>7.00</td>
-                </tr>
-                <tr>
-                    <td >Argentina</td>
-                    <td>9.50</td>
-                    <td>9.00</td>
-                    <td>9.00</td>
-                </tr> 
-                <tr>
-                    <td >Brasil</td>
-                    <td>9.00</td>
-                    <td>9.00</td>
-                    <td>9.00</td>
-                </tr>               
-            </tbody>
-        </table>
-    </div>
+    
 </div>
 
 </div>
@@ -215,6 +282,61 @@
             <button class="btn-optikit btn-full btn-back" onclick="location.reload()">VOLVER AL INICIO</button>
         </div>
     </div>
+
+
+<!-- NUEVA PANTALLA INDEPENDIENTE: SEGUIMIENTO INTERACTIVO DE MIS PUNTOS Y DE OTROS JUGADORES -->
+<div id="seccion-seguimiento-propio" class="user-box" style="display: none; padding: 20px; text-align: left;">
+    
+    <h3 style="margin: 0 0 15px 0; color: var(--primary); text-align: center;">🏅 DETALLE DE PRONÓSTICOS Y PUNTOS</h3>
+    
+    <!-- Ficha superior del participante auditado -->
+    <div style="background: #f0f4ff; text-align: center; border: 2px solid var(--primary); padding: 10px; border-radius: 8px; margin-bottom: 15px;">
+        <p style="margin: 0; font-size: 1.1em; font-weight: bold; color: var(--primary);">
+            Participante: <span id="txt-nombre-seguimiento" style="color: var(--accent);">—</span>
+        </p>
+    </div>
+
+    <!-- TARJETAS DE MÉTRICAS GLOBALES DE ELIMINATORIAS (4 Columnas simétricas) -->
+    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 20px;">
+        <div style="background: #fff3e0; border: 1px solid #ffcc80; padding: 8px; border-radius: 8px; text-align: center;">
+            <b style="font-size: 0.65em; color: #e65100; display: block; text-transform: uppercase;">Posición</b>
+            <span id="meta-total-pos" style="font-size: 1.1em; font-weight: bold; color: #e65100;">—</span>
+        </div>
+        <div style="background: #e3f2fd; border: 1px solid #90caf9; padding: 8px; border-radius: 8px; text-align: center;">
+            <b style="font-size: 0.65em; color: #0d47a1; display: block; text-transform: uppercase;">Puntos</b>
+            <span id="meta-total-pts" style="font-size: 1.1em; font-weight: bold; color: #0b3aa9;">0</span>
+        </div>
+        <div style="background: #e8f5e9; border: 1px solid #a5d6a7; padding: 8px; border-radius: 8px; text-align: center;">
+            <b style="font-size: 0.65em; color: #1b5e20; display: block; text-transform: uppercase;">🎯 Exactos</b>
+            <span id="meta-total-ex" style="font-size: 1.1em; font-weight: bold; color: #2e7d32;">0</span>
+        </div>
+        <div style="background: #f3e5f5; border: 1px solid #ce93d8; padding: 8px; border-radius: 8px; text-align: center;">
+            <b style="font-size: 0.65em; color: #4a148c; display: block; text-transform: uppercase;">✅ Signos</b>
+            <span id="meta-total-ge" style="font-size: 1.1em; font-weight: bold; color: #7b1fa2;">0</span>
+        </div>
+    </div>
+
+    <!-- Tabla Desglosada de 3 Columnas -->
+    <table class="tabla-posiciones" style="width: 100%; font-size: 0.85em; margin-top: 5px;">
+        <thead>
+            <tr>
+                <th style="text-align: left; padding-left: 10px; width: 45%; background-color: var(--primary);">Encuentro</th>
+                <th style="width: 30%; text-align: center; background-color: var(--primary);">Apuesta vs Real</th>
+                <th style="width: 25%; text-align: center; background-color: var(--primary);">Puntos</th>
+            </tr>
+        </thead>
+        <tbody id="tbody-seguimiento-propio">
+            <!-- Se rellena dinámicamente con JavaScript -->
+        </tbody>
+    </table>
+
+    <!-- Botón inteligente para regresar atrás -->
+    <button class="btn-optikit btn-full btn-back" id="btn-volver-seguimiento" style="margin-top: 25px;">
+        VOLVER AL INICIO
+    </button>
+</div>
+
+
 
     <!-- SECCIÓN CENTRAL DE JUEGO (PARTIDOS) -->
     <div id="juego-section" style="display:none;">
@@ -281,21 +403,27 @@
         document.getElementById('identificacion-section').style.display = 'block';
     }
 
-    function mostrarClasificacion() {
-        document.getElementById('welcome-section').style.display = 'none';
-        document.getElementById('ranking-section').style.display = 'block';
-        consultarRankingServidor();
-    }
+function mostrarClasificacion() {
+    document.getElementById('welcome-section').style.display = 'none';
+    document.getElementById('ranking-section').style.display = 'block';
+    consultarRankingServidor();
 
-    function iniciarTableroJuego() {
-        const nom = document.getElementById('nombre_usuario').value.trim();
-        const tel = document.getElementById('telefono_usuario').value.trim();
-        if(!nom || !tel) return alert("⚠️ Rellena tu Nombre y Teléfono.");
+    // 🚨 NUEVO: Activa el botón flotante al abrir la tabla de 41 amigos
+    gestionarVisibilidadBotonFlotante(true, "inicio");
+}
 
-        document.getElementById('identificacion-section').style.display = 'none';
-        document.getElementById('juego-section').style.display = 'block';
-        desplegarEstructuraPartidos(false);
-    }
+function iniciarTableroJuego() {
+    const nom = document.getElementById('nombre_usuario').value.trim();
+    const tel = document.getElementById('telefono_usuario').value.trim();
+    if(!nom || !tel) return alert("⚠️ Rellena tu Nombre y Teléfono.");
+
+    document.getElementById('identificacion-section').style.display = 'none';
+    document.getElementById('juego-section').style.display = 'block';
+    desplegarEstructuraPartidos(false);
+
+    // 🚨 NUEVO: Activa el botón flotante al abrir los partidos
+    gestionarVisibilidadBotonFlotante(true, "inicio");
+}
 
     // FLUJO UNIFICADO DE MI APUESTA GUARDADA
     function recuperarOBuscarApuesta() {
@@ -395,6 +523,7 @@
             alert("❌ Error de comunicación con el servidor: " + e.message);
             btn.disabled = false; btn.innerText = "BUSCAR EN EL SERVIDOR";
         }
+
     }
 
     function procesarYEnviarApuesta() {
@@ -458,35 +587,49 @@
 
 // MOTOR DE CONSULTA DEL RANKING (VINCULADO CON EL DESGLOSE DEL EXCEL)
 // MOTOR DE CONSULTA Y PINTADO DEL RANKING DESGLOSADO
+// 1. FUNCIÓN DEL RANKING: SEPARA EL RANKING DE LOS GOLES OFICIALES
 async function consultarRankingServidor() {
     const tbody = document.querySelector("#tabla-ranking-publico tbody");
     tbody.innerHTML = "<tr><td colspan='5' style='padding:20px; color:#666;'>🔍 Descargando tabla de posiciones desde el servidor...</td></tr>";
     
     try {
-        // DETECCIÓN DER FASE DINÁMICA SEGÚN EL ARCHIVO ACTUAL
-        // Extrae automáticamente si estás en dieciseisavos, octavos, cuartos, etc.
         let archivoNombre = window.location.pathname.split("/").pop().toLowerCase();
-        let faseQuery = "dieciseisavos"; // por defecto
+        let faseQuery = "dieciseisavos"; 
         
         if (archivoNombre.includes("octavos")) faseQuery = "octavos";
         else if (archivoNombre.includes("cuartos")) faseQuery = "cuartos";
         else if (archivoNombre.includes("semifinales")) faseQuery = "semifinales";
         else if (archivoNombre.includes("final")) faseQuery = "final";
 
-        // ENLACE POR RED: Enviamos el parámetro &fase para traer los desgloses correctos de la ronda
         const query = `${GOOGLE_URL_ELIMINATORIAS}?action=obtenerRankingAcumulado&fase=${faseQuery}&t=${Date.now()}`;
         const resp = await fetch(query);
-        const textData = await resp.text();
-        const data = JSON.parse(textData);
+        const dataJson = await resp.json();
         
-        if (data && data.length > 0) {
-            // RENDERIZADO EN PANTALLA: Inyectamos los plenos (p.ex) y las tendencias (p.ge)
-            tbody.innerHTML = data.map(p => `
+        // Separamos los datos del paquete de Google
+        const listadoRanking = dataJson.ranking || [];
+        const golesOficialesExcel = dataJson.oficiales || {};
+
+        if (listadoRanking.length > 0) {
+            // Guardamos el ranking en caché para la navegación
+            window.rankingServidorCache = listadoRanking;
+
+            // 🚨 SINCRONIZACIÓN AUTOMÁTICA: Metemos los goles de la hoja Resultados_Reales en partidosData
+            partidosData.forEach(p => {
+                if (golesOficialesExcel[p.id]) {
+                    p.golesH = golesOficialesExcel[p.id].golesH;
+                    p.golesA = golesOficialesExcel[p.id].golesA;
+                    p.pasaReal = golesOficialesExcel[p.id].pasaReal;
+                }
+            });
+
+            tbody.innerHTML = listadoRanking.map(p => `
                 <tr>
                     <td><b>${p.pos}</b></td>
-                    <td style="text-align:left; padding-left:15px; font-weight:bold; color:var(--blue-axa)">${p.nombre}</td>
-                    <td>${p.ex}</td> <!-- 🎯 Plenos Exactos de esta fase (5 pts) -->
-                    <td>${p.ge}</td> <!-- ✅ Tendencias Ganador/Empate de esta fase (2 pts) -->
+                    <td style="text-align:left; padding-left:15px; font-weight:bold; color:var(--blue-axa); cursor:pointer; text-decoration:underline;" onclick="verApuestasDeOtroJugador('${p.nombre}')">
+                        ${p.nombre}
+                    </td>
+                    <td>${p.ex}</td> 
+                    <td>${p.ge}</td> 
                     <td class="pts-col" style="background:#e3f2fd; font-weight:bold; color:#0a2240;">${p.pts} pts</td>
                 </tr>
             `).join('');
@@ -494,6 +637,7 @@ async function consultarRankingServidor() {
             tbody.innerHTML = "<tr><td colspan='5' style='padding:20px; color:#d32f2f; font-weight:bold;'>📊 Aún no se ha publicado la clasificación de esta ronda.</td></tr>"; 
         }
     } catch (e) { 
+        console.error(e);
         tbody.innerHTML = "<tr><td colspan='5' style='padding:20px; color:red;'>❌ Error de red al cargar el ranking.</td></tr>"; 
     }
 }
@@ -501,6 +645,290 @@ async function consultarRankingServidor() {
 
     function abrirModalReglas() { document.getElementById('modalReglas').style.display = 'block'; }
     function cerrarModalReglas() { document.getElementById('modalReglas').style.display = 'none'; }
+
+// 1. Función gatillo para ver Mis Propios Puntos (Local)
+// 1. VER MIS PUNTOS PROPIOS (Con Spinner Integrado)
+async function verMisPuntosPropios() {
+    const datosRaw = localStorage.getItem('mi_apuesta_16avos');
+    if (!datosRaw) return alert("⚠️ No tienes ninguna apuesta guardada en este dispositivo.");
+    const datosUsuario = JSON.parse(datosRaw);
+
+    // 🚨 ENCIENDE EL SPINNER DE CARGA
+    const capaCarga = document.getElementById("pantalla-carga-servidor");
+    if (capaCarga) capaCarga.style.display = "flex";
+
+    try {
+        let archivoNombre = window.location.pathname.split("/").pop().toLowerCase();
+        let faseQuery = "dieciseisavos";
+        if (archivoNombre.includes("octavos")) faseQuery = "octavos";
+        
+        const query = `${GOOGLE_URL_ELIMINATORIAS}?action=obtenerRankingAcumulado&fase=${faseQuery}&t=${Date.now()}`;
+        const resp = await fetch(query);
+        const dataJson = await resp.json();
+        
+        window.rankingServidorCache = dataJson.ranking || [];
+        const oficiales = dataJson.oficiales || {};
+        
+        partidosData.forEach(p => {
+            if (oficiales[p.id]) {
+                p.golesH = oficiales[p.id].golesH;
+                p.golesA = oficiales[p.id].golesA;
+                p.pasaReal = oficiales[p.id].pasaReal;
+            }
+        });
+    } catch(e) { 
+        console.error("Error bajando oficiales:", e); 
+    }
+
+    // Cambiamos de sección en la interfaz
+    document.getElementById('welcome-section').style.display = 'none';
+    document.getElementById('seccion-seguimiento-propio').style.display = 'block';
+    
+    const btnVolver = document.getElementById("btn-volver-seguimiento");
+    if (btnVolver) {
+        btnVolver.innerText = "VOLVER AL INICIO";
+        btnVolver.onclick = () => location.reload();
+    }
+    if (typeof gestionarVisibilidadBotonFlotante === 'function') {
+        gestionarVisibilidadBotonFlotante(true, "inicio");
+    }
+
+    document.getElementById("meta-total-pos").innerText = "⏳";
+    
+    // Pintamos la tabla de 3 columnas
+    calcularMisPuntosPasoAPaso(datosUsuario, true);
+
+    if (window.rankingServidorCache) {
+        const miPerfil = window.rankingServidorCache.find(u => String(u.nombre).trim().toUpperCase() === String(datosUsuario.nombre).trim().toUpperCase());
+        if (miPerfil && miPerfil.pos) document.getElementById("meta-total-pos").innerText = `${miPerfil.pos}º`;
+        else document.getElementById("meta-total-pos").innerText = "—";
+    } else {
+        document.getElementById("meta-total-pos").innerText = "—";
+    }
+
+    // 🚨 APAGA EL SPINNER DE CARGA DE FORMA INSTANTÁNEA
+    if (capaCarga) capaCarga.style.display = "none";
+}
+
+// 2. Función puente para ver las apuestas de otro amigo de la clasificación
+async function verApuestasDeOtroJugador(nombreAmigo) {
+    if (!window.rankingServidorCache) return;
+
+    // 🚨 ENCIENDE EL SPINNER DE CARGA
+    const capaCarga = document.getElementById("pantalla-carga-servidor");
+    if (capaCarga) {
+        document.querySelector(".texto-carga").innerText = `Cargando pronósticos de ${nombreAmigo}...`;
+        capaCarga.style.display = "flex";
+    }
+
+    // Retardamos un milisegundo la pintura de las 3 columnas para permitir que el Spinner aparezca fluido
+    setTimeout(() => {
+        const registroAmigo = window.rankingServidorCache.find(p => String(p.nombre).trim().toUpperCase() === String(nombreAmigo).trim().toUpperCase());
+        if (!registroAmigo) {
+            if (capaCarga) capaCarga.style.display = "none";
+            return alert(`❌ No se encontraron datos para ${nombreAmigo}.`);
+        }
+
+        document.getElementById('ranking-section').style.display = 'none';
+        document.getElementById('seccion-seguimiento-propio').style.display = 'block';
+        
+        const btnVolver = document.getElementById("btn-volver-seguimiento");
+        if (btnVolver) {
+            btnVolver.innerText = "⬅ VOLVER A LA CLASIFICACIÓN";
+            btnVolver.onclick = () => {
+                document.getElementById('seccion-seguimiento-propio').style.display = 'none';
+                document.getElementById('ranking-section').style.display = 'block';
+                gestionarVisibilidadBotonFlotante(true, "inicio");
+            };
+        }
+
+        const datosParaPintar = {
+            nombre: registroAmigo.nombre,
+            resultados: registroAmigo.resultados || registroAmigo.pronosticos || {}
+        };
+
+        calcularMisPuntosPasoAPaso(datosParaPintar, false);
+
+        document.getElementById("meta-total-pos").innerText = `${registroAmigo.pos || '—'}º`;
+        document.getElementById("meta-total-pts").innerText = `${registroAmigo.pts || 0} pts`;
+        document.getElementById("meta-total-ex").innerText = registroAmigo.ex || 0;
+        document.getElementById("meta-total-ge").innerText = registroAmigo.ge || 0;
+
+        if (!registroAmigo.resultados || Object.keys(registroAmigo.resultados).length === 0) {
+            const tbody = document.getElementById("tbody-seguimiento-propio");
+            tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; padding:30px; color:#666; font-style:italic;">
+                🔒 Los pronósticos detallados de este usuario se desbloquearán de forma pública en cuanto comience oficialmente el primer partido de Dieciseisavos.
+            </td></tr>`;
+        }
+        
+        if (typeof gestionarVisibilidadBotonFlotante === 'function') {
+            gestionarVisibilidadBotonFlotante(true, "clasificacion");
+        }
+
+        // 🚨 APAGA EL SPINNER DE CARGA
+        if (capaCarga) capaCarga.style.display = "none";
+    }, 50);
+}
+
+// 3. El motor visual de renderizado de 3 columnas para la Fase 2 (Soporta desempates)
+// MOTOR VISUAL DE CORRECCIÓN DEFINITIVA DE LA WEB (SOPORTA CLASIFICACIÓN ELÁSTICA)
+function calcularMisPuntosPasoAPaso(datosUsuario, esPropio = false) {
+    document.getElementById("txt-nombre-seguimiento").innerText = String(datosUsuario.nombre).toUpperCase();
+    
+    const tbody = document.getElementById("tbody-seguimiento-propio");
+    tbody.innerHTML = "";
+
+    let puntosAcumulados = 0;
+    let contadorExactos = 0;
+    let contadorSignos = 0;
+
+    let origenApuestas = datosUsuario.resultados || datosUsuario.pronosticos || datosUsuario.apuesta || {};
+    if (typeof origenApuestas === "string" && origenApuestas.trim() !== "") {
+        try { origenApuestas = JSON.parse(origenApuestas); } catch(e) { origenApuestas = {}; }
+    }
+
+    partidosData.forEach((partido) => {
+        const nombreEncuentro = `${partido.t1} vs ${partido.t2}`;
+        
+        let miPrediccion = "N/P";
+        let gHPred = null;
+        let gAPred = null;
+        let pasaPred = "";
+
+        // 1. Extraemos lo que apostó el usuario en su móvil
+        if (origenApuestas && origenApuestas[partido.id]) {
+            gHPred = origenApuestas[partido.id].h !== undefined ? parseInt(origenApuestas[partido.id].h) : null;
+            gAPred = origenApuestas[partido.id].a !== undefined ? parseInt(origenApuestas[partido.id].a) : null;
+            
+            // Forzamos limpieza absoluta del equipo que el usuario eligió para pasar de ronda
+            pasaPred = String(origenApuestas[partido.id].pasa || "").trim().toUpperCase();
+            
+            if (gHPred !== null && gAPred !== null) {
+                miPrediccion = `${gHPred}-${gAPred}`;
+                if (gHPred === gAPred && origenApuestas[partido.id].pasa) {
+                    miPrediccion += ` (${origenApuestas[partido.id].pasa.substring(0,3).toUpperCase()})`; 
+                }
+            }
+        }
+        
+        // 2. Extraemos el marcador real que viene del servidor (hoja Resultados_Reales)
+        let gHReal = partido.golesH;
+        let gAReal = partido.golesA;
+        
+        // Forzamos limpieza absoluta de la selección que clasificó realmente
+        let pasaReal = String(partido.pasaReal || "").trim().toUpperCase(); 
+
+        let resultadoReal = "—";
+        let estiloTexto = "color: #777; font-weight: normal;";
+        let textoPuntos = "Pendiente";
+
+        if (gHReal !== undefined && gHReal !== null && gHReal !== "") {
+            gHReal = parseInt(gHReal);
+            gAReal = parseInt(gAReal);
+            resultadoReal = `${gHReal}-${gAReal}`;
+            if (gHReal === gAReal && partido.pasaReal) {
+                resultadoReal += ` (${partido.pasaReal.substring(0,3).toUpperCase()})`;
+            }
+
+            if (gHPred !== null && gAPred !== null) {
+                // Calculamos tendencias estándar de 90 minutos (1, X, 2)
+                var signoReal = gHReal > gAReal ? "1" : (gHReal < gAReal ? "2" : "X");
+                var signoPred = gHPred > gAPred ? "1" : (gHPred < gAPred ? "2" : "X");
+
+                // --- SISTEMA DE CONTROL DE TEXTO PARA ELIMINATORIAS DIRECTAS ---
+                // Limpiamos los textos eliminando banderas o espacios extra para que el cruce sea infalible
+                var txtPasaPredLimpio = pasaPred.split(" ")[0].normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^A-Z0-9]/g, "");
+                var txtPasaRealLimpio = pasaReal.split(" ")[0].normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^A-Z0-9]/g, "");
+
+                // REGLA 1: CLAVADO PERFECTO DE RESULTADO EXACTO (+5 PUNTOS)
+                if (gHPred === gHReal && gAPred === gAReal && (signoReal !== "X" || txtPasaPredLimpio === txtPasaRealLimpio)) {
+                    contadorExactos++;
+                    puntosAcumulados += 5;
+                    estiloTexto = "color: #2e7d32; font-weight: bold;";
+                    textoPuntos = "🎯 +5 Puntos";
+                } 
+                // REGLAS COMPARTIDAS DE TENDENCIA ACERTADA (+2 PUNTOS)
+                // ¡AQUÍ ESTÁ EL ARREGLO DE TU CAPTURA!
+                // Condición A: Coincide el signo regular 1X2 (Ej: Votó 3-1 y quedaron 2-0)
+                // Condición B: Coincide el equipo clasificado (Ej: Tu captura de RAMON. Votó que pasaba España y pasó España)
+                else if ((signoPred === signoReal) || (txtPasaPredLimpio !== "" && txtPasaPredLimpio === txtPasaRealLimpio)) {
+                    contadorSignos++;
+                    puntosAcumulados += 2;
+                    estiloTexto = "color: #f57c00; font-weight: bold;";
+                    textoPuntos = "✅ +2 Puntos";
+                } 
+                // CASO 3: Fallo absoluto de pronóstico (0 puntos)
+                else {
+                    estiloTexto = "color: #c62828; font-weight: bold;";
+                    textoPuntos = "❌ 0 Puntos";
+                }
+            } else {
+                textoPuntos = "❌ Sin apuesta";
+                estiloTexto = "color: #c62828; font-weight: bold;";
+            }
+        }
+        
+        const celdaComparativa = `<b>${miPrediccion}</b> <span style="color:#777;font-weight:normal;">vs</span> <b>${resultadoReal}</b>`;
+
+        tbody.innerHTML += `
+            <tr>
+                <td style="text-align: left; padding: 12px 5px;">${nombreEncuentro}</td>
+                <td style="text-align: center;">${celdaComparativa}</td>
+                <td style="text-align: center; ${estiloTexto}">${textoPuntos}</td>
+            </tr>
+        `;
+    });
+
+    if (esPropio || document.getElementById("meta-total-pos").innerText === "⏳") {
+        document.getElementById("meta-total-pts").innerText = `${puntosAcumulados} pts`;
+        document.getElementById("meta-total-ex").innerText = contadorExactos;
+        document.getElementById("meta-total-ge").innerText = contadorSignos;
+    }
+    
+    if (!esPropio && (!origenApuestas || Object.keys(origenApuestas).length === 0)) {
+        tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; padding:30px; color:#666; font-style:italic;">
+            🔒 Los pronósticos detallados de este usuario se desbloquearán de forma pública en cuanto comience oficialmente el primer partido de Dieciseisavos.
+        </td></tr>`;
+    }
+}
+// Variable global para controlar a qué pantalla debe regresar el botón flotante
+let destinoFlotanteActual = "inicio";
+
+// 1. Función inteligente que decide la acción del botón flotante según la pantalla activa
+function accionBotonFlotante() {
+    if (destinoFlotanteActual === "clasificacion") {
+        // Si estamos cotilleando a un amigo, nos devuelve limpiamente al ranking
+        document.getElementById('seccion-seguimiento-propio').style.display = 'none';
+        document.getElementById('ranking-section').style.display = 'block';
+        destinoFlotanteActual = "inicio"; // Siguiente clic irá al inicio
+    } else {
+        // En cualquier otro caso (Mis puntos, Clasificación, Quiniela), reinicia la app al menú
+        location.reload();
+    }
+}
+
+// 2. Función puente auxiliar para encender y apagar el botón según la pantalla
+function gestionarVisibilidadBotonFlotante(mostrar, destino = "inicio") {
+    const btn = document.getElementById("boton-flotante-navegacion");
+    if (!btn) return;
+    
+    destinoFlotanteActual = destino;
+    
+    if (mostrar) {
+        btn.style.display = "flex"; // Lo muestra en pantalla con su alineación central
+    } else {
+        btn.style.display = "none";  // Lo esconde por completo
+    }
+}
 </script>
+<!-- BOTÓN FLOTANTE DINÁMICO (Colocar justo antes de </body>) -->
+<button id="boton-flotante-navegacion" class="btn-flotante-fase2" onclick="accionBotonFlotante()" title="Volver">
+    ⬅
+</button>
+<!-- CONTENEDOR DEL SPINNER (Colocar justo antes de </body>) -->
+<div id="pantalla-carga-servidor" class="capa-carga-fase2">
+    <div class="anillo-spinner"></div>
+    <div class="texto-carga">Sincronizando con Google Sheets...</div>
+</div>
 </body>
 </html>
