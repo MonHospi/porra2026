@@ -289,6 +289,8 @@
     <div id="ranking-section" class="user-box" style="display:none; padding: 15px 0 0 0; overflow: hidden;">
         <h3 style="margin: 10px 0 5px 0; color: var(--primary);">CLASIFICACIÓN ACUMULADA</h3>
         <p style="font-size:0.8em; color:#666; margin: 0 0 15px 0;">Suma consolidada en tiempo real: Solo fase de eliminatorias</p>
+                <!-- 🕒 Celda visual para la fecha de actualización -->
+        <p style="font-size:0.75em; color:var(--accent); font-weight: bold; margin: 0 0 15px 0;">🔄 Actualizado: <span id="txt-actualizacion">—</span></p>
         <table class="tabla-posiciones" id="tabla-ranking-publico">
             <thead>
                 <tr>
@@ -629,6 +631,11 @@ async function consultarRankingServidor() {
         const query = `${GOOGLE_URL_ELIMINATORIAS}?action=obtenerRankingAcumulado&fase=${faseQuery}&t=${Date.now()}`;
         const resp = await fetch(query);
         const dataJson = await resp.json();
+        // 🚀 NUEVO: Inyectamos la fecha recibida del Excel en el texto del HTML
+        if (dataJson.actualizado) {
+            document.getElementById("txt-actualizacion").innerText = dataJson.actualizado;
+        }
+
         
         // Separamos los datos del paquete de Google
         const listadoRanking = dataJson.ranking || [];
@@ -821,20 +828,24 @@ function calcularMisPuntosPasoAPaso(datosUsuario, esPropio = false) {
         let pasaPred = "";
 
         // 1. Extraemos lo que apostó el usuario en su móvil
-        if (origenApuestas && origenApuestas[partido.id]) {
-            gHPred = origenApuestas[partido.id].h !== undefined ? parseInt(origenApuestas[partido.id].h) : null;
-            gAPred = origenApuestas[partido.id].a !== undefined ? parseInt(origenApuestas[partido.id].a) : null;
-            
-            // Forzamos limpieza absoluta del equipo que el usuario eligió para pasar de ronda
-            pasaPred = String(origenApuestas[partido.id].pasa || "").trim().toUpperCase();
-            
-            if (gHPred !== null && gAPred !== null) {
-                miPrediccion = `${gHPred}-${gAPred}`;
-                if (gHPred === gAPred && origenApuestas[partido.id].pasa) {
-                    miPrediccion += ` (${origenApuestas[partido.id].pasa.substring(0,3).toUpperCase()})`; 
-                }
-            }
+if (origenApuestas && origenApuestas[partido.id]) {
+    // Si la apuesta viene con texto como "1-1 (HOL)", nos quedamos solo con los números antes del espacio
+    let hRaw = String(origenApuestas[partido.id].h).split(" ")[0];
+    let aRaw = String(origenApuestas[partido.id].a).split(" ")[0];
+
+    gHPred = hRaw !== undefined && hRaw !== "" ? parseInt(hRaw) : null;
+    gAPred = aRaw !== undefined && aRaw !== "" ? parseInt(aRaw) : null;
+    
+    if (gHPred !== null && gAPred !== null) {
+        miPrediccion = `${gHPred}-${gAPred}`;
+        // Volvemos a pintar estéticamente el desempate en la web si fue un empate apostado
+        if (gHPred === gAPred && origenApuestas[partido.id].pasa) {
+            // Buscamos el nombre limpio de banderas del equipo que pasa
+            let nombreCorto = String(origenApuestas[partido.id].pasa).replace(/[\uE000-\uF8FF]|\uD83C[\uDDC0-\uDFFF]|\uD83D[\uDC00-\uDDFF]/g, "").trim();
+            miPrediccion += ` (${nombreCorto.substring(0,3).toUpperCase()})`; 
         }
+    }
+}
         
         // 2. Extraemos el marcador real que viene del servidor (hoja Resultados_Reales)
         let gHReal = partido.golesH;
