@@ -402,7 +402,7 @@
         { id: 2, t1: "Brasil 🇧🇷", t2: "Japón 🇯🇵", f: "29 Jun 19:00", tv: "La 1 TVE", golesH: 2, golesA: 1 },
         { id: 3, t1: "Alemania 🇩🇪", t2: "Paraguay 🇵🇾", f: "29 Jun 22:30", tv: "La 1 TVE" , golesH: 1, golesA: 1},
         { id: 4, t1: "Holanda 🇳🇱", t2: "Marruecos 🇲🇦", f: "30 Jun 03:00", tv: "La 1 TVE" , golesH: 1, golesA: 1},
-        { id: 5, t1: "Costa de Marfil 🇨🇮", t2: "Noruega 🇳🇴", f: "30 Jun 19:00", tv: "La 1 TVE" },
+        { id: 5, t1: "Costa de Marfil 🇨🇮", t2: "Noruega 🇳🇴", f: "30 Jun 19:00", tv: "La 1 TVE", golesH: 1, golesA: 2 },
         { id: 6, t1: "Francia 🇫🇷", t2: "Suecia 🇸🇪", f: "30 Jun 23:00", tv: "La 1 TVE" },
         { id: 7, t1: "México 🇲🇽", t2: "Ecuador 🇪🇨", f: "01 Jul 03:00", tv: "La 1 TVE" },
         { id: 8, t1: "Inglaterra 🏴󠁧󠁢󠁥󠁮󠁧󠁿", t2: "RD Congo 🇨🇩", f: "01 Jul 18:00", tv: "La 1 TVE" },
@@ -642,6 +642,8 @@ async function consultarRankingServidor() {
         const listadoRanking = dataJson.ranking || [];
         const golesOficialesExcel = dataJson.oficiales || {};
 
+        window.golesOficialesGlobalCache = golesOficialesExcel; // Guardamos en memoria global para el clic de amigos
+
         if (listadoRanking.length > 0) {
             // Guardamos el ranking en caché para la navegación
             window.rankingServidorCache = listadoRanking;
@@ -743,7 +745,7 @@ async function verMisPuntosPropios() {
     if (capaCarga) capaCarga.style.display = "none";
 }
 
-// 2. Función puente para ver las apuestas de otro amigo de la clasificación
+// 2. Función puente corregida para ver las apuestas de otro amigo de la clasificación
 async function verApuestasDeOtroJugador(nombreAmigo) {
     if (!window.rankingServidorCache) return;
 
@@ -754,7 +756,7 @@ async function verApuestasDeOtroJugador(nombreAmigo) {
         capaCarga.style.display = "flex";
     }
 
-    // Retardamos un milisegundo la pintura de las 3 columnas para permitir que el Spinner aparezca fluido
+    // Retardamos un milisegundo la pintura para que el Spinner aparezca de forma fluida
     setTimeout(() => {
         const registroAmigo = window.rankingServidorCache.find(p => String(p.nombre).trim().toUpperCase() === String(nombreAmigo).trim().toUpperCase());
         if (!registroAmigo) {
@@ -762,6 +764,26 @@ async function verApuestasDeOtroJugador(nombreAmigo) {
             return alert(`❌ No se encontraron datos para ${nombreAmigo}.`);
         }
 
+        // 🚨 SINCRO MAESTRA ANTES DE PINTAR: Aseguramos que partidosData tenga los goles reales de la fase
+        // Esto evita que los partidos del amigo salgan como "Pendiente"
+        let letraFase = "E"; // Por defecto Dieciseisavos
+        if (typeof obtenerLetraFaseActual === 'function') {
+            letraFase = obtenerLetraFaseActual();
+        }
+
+        // Si tenemos guardados los goles oficiales en la caché global del ranking, los re-inyectamos
+        if (window.golesOficialesGlobalCache) {
+            partidosData.forEach(p => {
+                const codigoPartidoCompleto = letraFase + p.id;
+                if (window.golesOficialesGlobalCache[codigoPartidoCompleto]) {
+                    p.golesH = window.golesOficialesGlobalCache[codigoPartidoCompleto].golesH;
+                    p.golesA = window.golesOficialesGlobalCache[codigoPartidoCompleto].golesA;
+                    p.pasaReal = window.golesOficialesGlobalCache[codigoPartidoCompleto].pasaReal;
+                }
+            });
+        }
+
+        // Cambiamos el estado de las pantallas en el HTML
         document.getElementById('ranking-section').style.display = 'none';
         document.getElementById('seccion-seguimiento-propio').style.display = 'block';
         
@@ -771,7 +793,9 @@ async function verApuestasDeOtroJugador(nombreAmigo) {
             btnVolver.onclick = () => {
                 document.getElementById('seccion-seguimiento-propio').style.display = 'none';
                 document.getElementById('ranking-section').style.display = 'block';
-                gestionarVisibilidadBotonFlotante(true, "inicio");
+                if (typeof gestionarVisibilidadBotonFlotante === 'function') {
+                    gestionarVisibilidadBotonFlotante(true, "inicio");
+                }
             };
         }
 
@@ -780,6 +804,7 @@ async function verApuestasDeOtroJugador(nombreAmigo) {
             resultados: registroAmigo.resultados || registroAmigo.pronosticos || {}
         };
 
+        // El motor visual clásico corregido dibuja las 3 columnas con los colores Verde, Naranja o Rojo
         calcularMisPuntosPasoAPaso(datosParaPintar, false);
 
         document.getElementById("meta-total-pos").innerText = `${registroAmigo.pos || '—'}º`;
@@ -787,10 +812,11 @@ async function verApuestasDeOtroJugador(nombreAmigo) {
         document.getElementById("meta-total-ex").innerText = registroAmigo.ex || 0;
         document.getElementById("meta-total-ge").innerText = registroAmigo.ge || 0;
 
+        // Escudo de privacidad si la ronda no ha empezado y el objeto está vacío
         if (!registroAmigo.resultados || Object.keys(registroAmigo.resultados).length === 0) {
             const tbody = document.getElementById("tbody-seguimiento-propio");
             tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; padding:30px; color:#666; font-style:italic;">
-                🔒 Los pronósticos detallados de este usuario se desbloquearán de forma pública en cuanto comience oficialmente el primer partido de Dieciseisavos.
+                🔒 Los pronósticos detallados de este usuario se desbloquearán de forma pública en cuanto comience oficialmente el primer partido de esta ronda.
             </td></tr>`;
         }
         
@@ -848,60 +874,70 @@ if (origenApuestas && origenApuestas[partido.id]) {
     }
 }
         
-        // 2. Extraemos el marcador real que viene del servidor (hoja Resultados_Reales)
+        // 2. Extraemos el marcador real que viene del servidor (Blindado contra textos repetidos)
         let gHReal = partido.golesH;
         let gAReal = partido.golesA;
-        
-        // Forzamos limpieza absoluta de la selección que clasificó realmente
-        let pasaReal = String(partido.pasaReal || "").trim().toUpperCase(); 
 
         let resultadoReal = "—";
         let estiloTexto = "color: #777; font-weight: normal;";
         let textoPuntos = "Pendiente";
+        let colorFila = "#ffffff"; 
 
         if (gHReal !== undefined && gHReal !== null && gHReal !== "") {
-            gHReal = parseInt(gHReal);
-            gAReal = parseInt(gAReal);
+            // 🚀 FIX CRÍTICO: Si el marcador real ya fue formateado y contiene un espacio o guion, nos quedamos solo con el número puro
+            if (String(gHReal).includes("-") || String(gHReal).includes(" ")) {
+                let partesH = String(gHReal).split("-");
+                gHReal = parseInt(partesH[0]);
+            } else {
+                gHReal = parseInt(gHReal);
+            }
+
+            if (String(gAReal).includes("-") || String(gAReal).includes(" ")) {
+                // Si viene arrastrando el desempate tipo "1 (MAR)", limpiamos las letras finales
+                gAReal = parseInt(String(gAReal).replace(/[^0-9]/g, ""));
+            } else {
+                gAReal = parseInt(gAReal);
+            }
+
+            // Construimos la cadena visual limpia de forma aislada para la columna del medio
             resultadoReal = `${gHReal}-${gAReal}`;
             if (gHReal === gAReal && partido.pasaReal) {
-                resultadoReal += ` (${partido.pasaReal.substring(0,3).toUpperCase()})`;
+                // Limpiamos banderas y nos quedamos con las 3 primeras letras del equipo que pasó
+                let txtPasaLimpio = String(partido.pasaReal).replace(/[\uE000-\uF8FF]|\uD83C[\uDDC0-\uDFFF]|\uD83D[\uDC00-\uDDFF]/g, "").trim();
+                resultadoReal += ` (${txtPasaLimpio.substring(0,3).toUpperCase()})`;
             }
 
             if (gHPred !== null && gAPred !== null) {
-                // Calculamos tendencias estándar de 90 minutos (1, X, 2)
-                var signoReal = gHReal > gAReal ? "1" : (gHReal < gAReal ? "2" : "X");
-                var signoPred = gHPred > gAPred ? "1" : (gHPred < gAPred ? "2" : "X");
+                // Obtenemos los signos puros reglamentarios sin que se alteren por los textos de arriba
+                var signoReal = gHReal > gAReal ? "L" : (gHReal < gAReal ? "V" : "E");
+                var signoPred = gHPred > gAPred ? "L" : (gHPred < gAPred ? "V" : "E");
 
-                // --- SISTEMA DE CONTROL DE TEXTO PARA ELIMINATORIAS DIRECTAS ---
-                // Limpiamos los textos eliminando banderas o espacios extra para que el cruce sea infalible
-                var txtPasaPredLimpio = pasaPred.split(" ")[0].normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^A-Z0-9]/g, "");
-                var txtPasaRealLimpio = pasaReal.split(" ")[0].normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^A-Z0-9]/g, "");
-
-                // REGLA 1: CLAVADO PERFECTO DE RESULTADO EXACTO (+5 PUNTOS)
-                if (gHPred === gHReal && gAPred === gAReal && (signoReal !== "X" || txtPasaPredLimpio === txtPasaRealLimpio)) {
+                // REGLA 1: RESULTADO EXACTO CLÁSICO (+5 PUNTOS)
+                if (gHPred === gHReal && gAPred === gAReal) {
                     contadorExactos++;
                     puntosAcumulados += 5;
                     estiloTexto = "color: #2e7d32; font-weight: bold;";
                     textoPuntos = "🎯 +5 Puntos";
+                    colorFila = "#e8f5e9"; // Fondo verde suave
                 } 
-                // REGLAS COMPARTIDAS DE TENDENCIA ACERTADA (+2 PUNTOS)
-                // ¡AQUÍ ESTÁ EL ARREGLO DE TU CAPTURA!
-                // Condición A: Coincide el signo regular 1X2 (Ej: Votó 3-1 y quedaron 2-0)
-                // Condición B: Coincide el equipo clasificado (Ej: Tu captura de RAMON. Votó que pasaba España y pasó España)
-                else if ((signoPred === signoReal) || (txtPasaPredLimpio !== "" && txtPasaPredLimpio === txtPasaRealLimpio)) {
+                // REGLA 2: TENDENCIA O EMPATE EN 90 MINUTOS (+2 PUNTOS)
+                else if (signoPred === signoReal) {
                     contadorSignos++;
                     puntosAcumulados += 2;
                     estiloTexto = "color: #f57c00; font-weight: bold;";
                     textoPuntos = "✅ +2 Puntos";
+                    colorFila = "#fff3e0"; // Fondo naranja suave
                 } 
-                // CASO 3: Fallo absoluto de pronóstico (0 puntos)
+                // REGLA 3: FALLO ABSOLUTO (0 PUNTOS)
                 else {
                     estiloTexto = "color: #c62828; font-weight: bold;";
                     textoPuntos = "❌ 0 Puntos";
+                    colorFila = "#ffebee"; // Fondo rojo suave
                 }
             } else {
                 textoPuntos = "❌ Sin apuesta";
                 estiloTexto = "color: #c62828; font-weight: bold;";
+                colorFila = "#ffebee";
             }
         }
         
