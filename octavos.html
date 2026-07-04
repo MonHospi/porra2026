@@ -407,7 +407,7 @@
 
 <script>
     const partidosData = [
-        { id: 1, t1: "Canadá 🇨🇦", t2: "Marruecos 🇲🇦", f: "4 Jul 19:00", tv: "La 1 TVE", golesH: undefined, golesA: undefined },
+        { id: 1, t1: "Canada 🇨🇦", t2: "Marruecos 🇲🇦", f: "4 Jul 19:00", tv: "La 1 TVE", golesH: undefined, golesA: undefined },
         { id: 2, t1: "Paraguay 🇵🇾", t2: "Francia 🇫🇷", f: "4 Jul 23:00", tv: "La 1 TVE", golesH: undefined, golesA: undefined },
         { id: 3, t1: "Brasil 🇧🇷", t2: "Noruega 🇳🇴", f: "5 Jul 22:00", tv: "La 1 TVE" , golesH: undefined, golesA: undefined},
         { id: 4, t1: "México 🇲🇽", t2: "Inglaterra 🏴󠁧󠁢󠁥󠁮󠁧󠁿", f: "6 Jul 02:00", tv: "La 1 TVE" , golesH: undefined, golesA: undefined},
@@ -542,7 +542,7 @@ function iniciarTableroJuego() {
         btn.innerText = "⏳ BUSCANDO EN EL SERVIDOR...";
 
         try {
-            const query = `${GOOGLE_URL_ELIMINATORIAS}?action=recuperarServidor&telefono=${tel}&t=${Date.now()}`;
+            const query = `${GOOGLE_URL_ELIMINATORIAS}?action=recuperarServidor&fase=octavos&telefono=${tel}&t=${Date.now()}`;
             const resp = await fetch(query);
             const textData = await resp.text(); 
             const data = JSON.parse(textData); 
@@ -613,11 +613,11 @@ function iniciarTableroJuego() {
     function exportarImpresionNativa() {
         const datos = JSON.parse(localStorage.getItem('mi_apuesta_8vos'));
         const win = window.open('', '_blank');
-        let html = `<html><head><title>Comprobante 16avos</title><style>body{font-family:sans-serif;padding:30px;}table{width:100%;border-collapse:collapse;}th{background:#eee;padding:10px;text-align:left;}td{padding:10px;border-bottom:1px solid #eee;}</style></head><body>`;
+        let html = `<html><head><title>Comprobante 8vos</title><style>body{font-family:sans-serif;padding:30px;}table{width:100%;border-collapse:collapse;}th{background:#eee;padding:10px;text-align:left;}td{padding:10px;border-bottom:1px solid #eee;}</style></head><body>`;
         html += `<h2>🏆 MUNDIAL 2026 - OCTAVOS</h2><p><b>Participante:</b> ${datos.nombre.toUpperCase()} | <b>Teléfono:</b> ${datos.telefono}</p><table><thead><tr><th>Fase</th><th>Partido</th><th>Pronóstico Regular</th><th>Avanza de Ronda</th></tr></thead><tbody>`;
         partidosData.forEach(p => {
             const item = datos.resultados[p.id];
-            html += `<tr><td>O${p.id}</td><td>${p.t1} vs ${p.t2}</td><td><b>${item.h} — ${item.a}</b></td><td>${item.pasa}</td></tr>`;
+            html += `<tr><td>${p.id}</td><td>${p.t1} vs ${p.t2}</td><td><b>${item.h} — ${item.a}</b></td><td>${item.pasa}</td></tr>`;
         });
         html += `</tbody></table></body></html>`;
         win.document.write(html); win.document.close();
@@ -633,8 +633,8 @@ async function consultarRankingServidor() {
     
     try {
         let archivoNombre = window.location.pathname.split("/").pop().toLowerCase();
-        let faseQuery = "dieciseisavos"; 
-        let letraFase = "E"; // Por defecto Dieciseisavos
+        let faseQuery = "octavos"; 
+        let letraFase = "O"; // Por defecto Dieciseisavos
         
         if (archivoNombre.includes("octavos"))  { faseQuery = "octavos"; letraFase = "O"; }
         else if (archivoNombre.includes("cuartos")) { faseQuery = "cuartos"; letraFase = "C"; }
