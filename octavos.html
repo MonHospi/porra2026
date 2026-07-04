@@ -583,7 +583,7 @@ function iniciarTableroJuego() {
             else pasa = document.getElementById(`pasa_${p.id}`).value;
 
             apuesta[p.id] = { h: h, a: a, pasa: pasa };
-            texto_plano += `E${p.id}:[${h}-${a}] Pasa:${pasa} / `;
+            texto_plano += `O${p.id}:[${h}-${a}] Pasa:${pasa} / `;
         }
 
         btn.disabled = true;
