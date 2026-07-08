@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ruleta de Jugadores - Cuartos</title>
+    <link href="https://googleapis.com" rel="stylesheet">
+    <style>
+        :root { --primary: #0a2240; --accent: #ff9800; --bg: #f4f7f6; }
+        body { font-family: Montserrat, sans-serif; background: var(--bg); margin: 0; padding: 20px; text-align: center; }
+        .container { max-width: 650px; margin: auto; }
+        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 15px; border-left: 6px solid var(--accent); text-align: left; }
+        .user-box { background: white; padding: 25px; border-radius: 12px; border: 2px solid var(--primary); margin-bottom: 20px; }
+        input[type="text"], input[type="tel"], select, input[type="number"] { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; margin-top: 5px; text-align: center; font-size: 1em; font-family: inherit; }
+        select { text-align-last: center; font-weight: 600; background: white; cursor: pointer; }
+        .btn-send { background: var(--primary); color: white; border: none; padding: 15px; width: 100%; border-radius: 200px; font-weight: bold; cursor: pointer; font-size: 1.1em; margin-top: 15px; transition: transform 0.2s; box-shadow: 0 4px 6px rgba(0,0,0,0.15); }
+        .btn-send:hover { transform: translateY(-2px); }
+        .match-title { font-weight: bold; color: var(--primary); margin-bottom: 12px; font-size: 1em; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+        .ruleta-block { display: flex; flex-direction: column; gap: 8px; }
+        .label-ruleta { font-size: 0.85em; color: #555; font-weight: 600; }
+    </style>
+</head>
+<body>
+    <div class="container">
+    <h2>🎯 LA RULETA DE JUGADORES - CUARTOS</h2>
+    <p style="font-size:0.88em; color:#555; margin-bottom:25px; line-height:1.4;">
+        Elige un jugador estrella de cualquiera de los dos equipos por cada partido.<br>
+        ⚽ Gol marcado: <b>+5 pts</b> | ❌ No marca: <b>-2 pts</b> | 🟥 Expulsión: <b>-5 pts</b>
+    </p>
+
+    <!-- IDENTIFICACIÓN DE PARTICIPANTE -->
+    <div id="bloque-identificacion" class="user-box">
+        <label><b>Nombre o Apodo (Idéntico a la Clasificación):</b></label>
+        <input type="text" id="r_nombre" placeholder="Ej: RAMON">
+        <br><br>
+        <label><b>Teléfono Móvil:</b></label>
+        <input type="tel" id="r_telefono" placeholder="Ej: 600123456">
+        <button class="btn-send" onclick="entrarARuleta()">CONFIGURAR MIS JUGADORES</button>
+    </div>
+
+    <!-- TABLERO PRINCIPAL DE DORSALES -->
+    <div id="bloque-juego" style="display:none;">
+        <div id="contenedor-ruleta-partidos"></div>
+        <button class="btn-send" id="btn-enviar-ruleta" onclick="enviarRuletaAlServidor()" style="background:#2e7d32;">🚀 ENVIAR MIS DORSALES OFICIALES</button>
+    </div>
+</div>
+
+<script>
+    const GOOGLE_URL_ELIMINATORIAS = "https://script.google.com/macros/s/AKfycbxXcuku-A2Srwsrfc8jPNctIdHhA1sHINXK00iMOAlusSvE-lMhSik6b1gPMRxg3kBdMQ/exec";
+        // BASE DE DATOS DE PLANTILLAS OFICIALES (PARTE A)
+    // =========================================================================
+    // BASE DE DATOS DEFINITIVA DE LAS 8 PLANTILLAS DE CUARTOS
+    // =========================================================================
+    const plantillasPaises = {
+        "España 🇪🇸": [
+            "1. David Raya","2. Marc Pubill","3. Alejandro Grimaldo","4. Iñigo Martínez","5. Eric García","6. Mikel Merino","7. Yeremy Pino","8. Fabián Ruíz","9. Gavi","10. Lamine Yamal","11. Nico Williams","12. Ferran Torres","13. Álex Remiro","14. Aymeric Laporte","15. Marc Cucurella","16. Rodri","17. Pedro Porro","18. Martín Zubimendi","19. Mikel Oyarzabal","20. Dani Olmo","21. Unai Simón","22. Dani Vivian","23. Pedri","24. Borja Iglesias","25. Víctor Muñoz","26. Jesús Areso"
+        ],
+        "Argentina 🇦🇷": [
+            "1. Emiliano Martínez","2. Nehuén Pérez","3. Nicolás Tagliafico","4. Gonzalo Montiel","5. Cristian Romero","6. Leonardo Balerdi","7. Rodrigo De Paul","8. Enzo Fernández","9. Julián Álvarez","10. Lionel Messi","11. Ángel Di María","12. Gerónimo Rulli","13. Marcelo Weigandt","14. Exequiel Palacios","15. Nicolás González","16. Nahuel Molina","17. Alejandro Garnacho","18. Guido Rodríguez","19. Nicolás Otamendi","20. Alexis Mac Allister","21. Paulo Dybala","22. Lautaro Martínez","23. Juan Musso","24. Marcos Acuña","25. Lisandro Martínez","26. Valentín Carboni"
+        ],
+        "Francia 🇫🇷": [
+            "1. Brice Samba","2. Benjamin Pavard","3. Théo Hernández","4. Dayot Upamecano","5. Ibrahima Konaté","6. Aurélien Tchouaméni","7. Antoine Griezmann","8. Eduardo Camavinga","9. Olivier Giroud","10. Kylian Mbappé","11. Ousmane Dembélé","12. Randal Kolo Muani","13. Jean-Clair Todibo","14. Adrien Rabiot","15. William Saliba","16. Mike Maignan","17. Marcus Thuram","18. Warren Zaïre-Emery","19. Jules Koundé","20. Kingsley Coman","21. Lucas Hernández","22. Youssouf Fofana","23. Alphonse Areola","24. Jonathan Clauss","25. Christopher Nkunku","26. Bradley Barcola"
+        ],
+        "Inglaterra 🏴󠁧󠁢󠁥󠁮󠁧󠁿": [
+            "1. Jordan Pickford","2. Kyle Walker","3. Luke Shaw","4. Declan Rice","5. John Stones","6. Marc Guéhi","7. Bukayo Saka","8. Trent Alexander-Arnold","9. Harry Kane","10. Jude Bellingham","11. Phil Foden","12. Kieran Trippier","13. Aaron Ramsdale","14. Jordan Henderson","15. Lewis Dunk","16. Conor Gallagher","17. Jarrod Bowen","18. Ollie Watkins","19. Marcus Rashford","20. Jack Grealish","21. James Maddison","22. Ben White","23. Sam Johnstone","24. Levi Colwill","25. Rico Lewis","26. Kobbie Mainoo"
+        ],
+        "Marruecos 🇲🇦": [
+            "1. Yassine Bounou","2. Achraf Hakimi","3. Noussair Mazraoui","4. Sofyan Amrabat","5. Nayef Aguerd","6. Romain Saïss","7. Hakim Ziyech","8. Azzedine Ounahi","9. Abderrazak Hamdallah","10. Anass Zaroury","11. Abdelhamid Sabiri","12. Munir Mohamedi","13. Ilias Chair","14. Zakaria Aboukhlal","15. Selim Amallah","16. Abde Ezzalzouli","17. Sofiane Boufal","18. Jawad El Yamiq","19. Youssef En-Nesyri","20. Achraf Dari","21. Walid Cheddira","22. Ahmed Reda Tagnaouti","23. Bilal El Khannouss","24. Badr Benoun","25. Yahia Attiyat Allah","26. Yahya Jabrane"
+        ],
+        "Bélgica 🇧🇪": [
+            "1. Koen Casteels","2. Zeno Debast","3. Arthur Theate","4. Wout Faes","5. Jan Vertonghen","6. Axel Witsel","7. Kevin De Bruyne","8. Youri Tielemans","9. Romelu Lukaku","10. Jérémy Doku","11. Yannick Carrasco","12. Thomas Kaminski","13. Matz Sels","14. Dodi Lukebakio","15. Thomas Meunier","16. Aster Vranckx","17. Charles De Ketelaere","18. Orel Mangala","19. Johan Bakayoko","20. Loïs Openda","21. Timothy Castagne","22. Jérémy Seys","23. Arthur Vermeeren","24. Amadou Onana","25. Maxim De Cuyper","26. Ameen Al-Dakhil"
+        ],
+        "Noruega 🇳🇴": [
+            "1. Ørjan Nyland","2. Julian Ryerson","3. Kristoffer Ajer","4. Leo Østigård","5. Andreas Hanche-Olsen","6. Patrick Berg","7. Alexander Sørloth","8. Martin Ødegaard","9. Erling Haaland","10. Ola Solbakken","11. Mohamed Elyounoussi","12. Mathias Dyngeland","13. Egil Selvik","14. Marcus Holmgren Pedersen","15. David Møller Wolfe","16. Hugo Vetlesen","17. Fredrik Aursnes","18. Kristian Thorstvedt","19. Jørgen Strand Larsen","20. Antonio Nusa","21. Andreas Schjelderup","22. Sander Berge","23. Aron Dønnum","24. Jesper Daland","25. Osame Sahraoui","26. Warren Kamanzi"
+        ],
+        "Suiza 🇨🇭": [
+            "1. Yann Sommer","2. Leonidas Stergiou","3. Silvan Widmer","4. Nico Elvedi","5. Manuel Akanji","6. Denis Zakaria","7. Breel Embolo","8. Remo Freuler","9. Haris Seferović","10. Granit Xhaka","11. Renato Steffen","12. Yvon Mvogo","13. Ricardo Rodríguez","14. Steven Zuber","15. Cédric Zesiger","16. Vincent Sierro","17. Ruben Vargas","18. Gregor Kobel","19. Dan Ndoye","20. Michel Aebischer","21. Zeki Amdouni","22. Fabian Schär","23. Xherdan Shaqiri","24. Kwadwo Duah","25. Filip Ugrinic","26. Johan Manzambi"
+        ]
+    };
+    // =========================================================================
+    // CRUCES REALES OFICIALES DE CUARTOS DE FINAL
+    // =========================================================================
+    const partidosCuartos = [
+        { id: 1, t1: "Francia 🇫🇷", t2: "Marruecos 🇲🇦" },
+        { id: 2, t1: "España 🇪🇸", t2: "Bélgica 🇧🇪" },
+        { id: 3, t1: "Noruega 🇳🇴", t2: "Inglaterra 🏴󠁧󠁢󠁥󠁮󠁧󠁿" },
+        { id: 4, t1: "Argentina 🇦🇷", t2: "Suiza 🇨🇭" }
+    ];
+
+    window.onload = function() {
+        if(localStorage.getItem('mi_ruleta_4tos')) {
+            alert("🎯 Tus elecciones para la Ruleta de Cuartos ya están registradas de forma oficial.");
+            document.body.innerHTML = "<div class='container' style='margin-top:80px;'><h2 style='color:#2e7d32;'>✅ ¡Ruleta Guardada!</h2><p style='color:#555;'>Tus dorsales se encuentran blindados en la base de datos del Excel.</p></div>";
+        }
+    };
+        function entrarARuleta() {
+        const nom = document.getElementById('r_nombre').value.trim();
+        const tel = document.getElementById('r_telefono').value.trim();
+        if(!nom || !tel) return alert("⚠️ Rellena tu Nombre y Teléfono.");
+
+        document.getElementById('bloque-identificacion').style.display = 'none';
+        document.getElementById('bloque-juego').style.display = 'block';
+
+        const cont = document.getElementById('contenedor-ruleta-partidos');
+        cont.innerHTML = "";
+        
+        partidosCuartos.forEach(p => {
+            let interfazSelector = "";
+            const listaT1 = plantillasPaises[p.t1];
+            const listaT2 = plantillasPaises[p.t2];
+
+            // 🚀 Si tenemos las dos plantillas, unimos los jugadores en un menú desplegable ordenado
+            if (listaT1 && listaT2) {
+                interfazSelector = `<select id="dorsal_${p.id}">
+                    <option value="">-- Toca para desplegar jugadores --</option>
+                    <optgroup label="✨ ${p.t1}">
+                        ${listaT1.map(j => `<option value="${j} (${p.t1.substring(0,3).toUpperCase()})">${j}</option>`).join('')}
+                    </optgroup>
+                    <optgroup label="✨ ${p.t2}">
+                        ${listaT2.map(j => `<option value="${j} (${p.t2.substring(0,3).toUpperCase()})">${j}</option>`).join('')}
+                    </optgroup>
+                </select>`;
+            } 
+            // Si falta alguna plantilla, muestra de forma elástica un selector manual por seguridad
+            else {
+                interfazSelector = `
+                    <div style="display:flex; gap:10px;">
+                        <input type="text" id="nombre_manual_${p.id}" placeholder="Nombre del jugador" style="width:70%; text-align:left; padding-left:10px;">
+                        <input type="number" id="dorsal_manual_${p.id}" placeholder="Dorsal" min="1" max="99" style="width:30%;">
+                    </div>
+                `;
+            }
+
+            cont.innerHTML += `
+                <div class="card">
+                    <div class="match-title">PARTIDO ${p.id}: ${p.t1} vs ${p.t2}</div>
+                    <div class="ruleta-block">
+                        <span class="label-ruleta">Selecciona tu jugador para la ruleta:</span>
+                        ${interfazSelector}
+                    </div>
+                </div>
+            `;
+        });
+    }
+    function enviarRuletaAlServidor() {
+        const nom = document.getElementById('r_nombre').value.trim();
+        const tel = document.getElementById('r_telefono').value.trim();
+        const btn = document.getElementById('btn-enviar-ruleta');
+        const elecciones = {};
+        let texto_plano = "";
+        let alMenosUnoElegido = false; // 🚀 Control para permitir opcionalidad
+
+        for(let p of partidosCuartos) {
+            let valorElegido = "";
+            
+            if (document.getElementById(`dorsal_${p.id}`)) {
+                valorElegido = document.getElementById(`dorsal_${p.id}`).value;
+            } else {
+                const nM = document.getElementById(`nombre_manual_${p.id}`).value.trim();
+                const dM = document.getElementById(`dorsal_manual_${p.id}`).value.trim();
+                if(nM && dM) valorElegido = `${dM}. ${nM}`;
+            }
+
+            // 🚀 Si el participante decide no apostar en este partido, guardamos "No Juega"
+            if(!valorElegido) {
+                elecciones[p.id] = "No Juega";
+                texto_plano += `P${p.id}:[No Juega] / `;
+            } else {
+                elecciones[p.id] = valorElegido;
+                texto_plano += `P${p.id}:[${valorElegido}] / `;
+                alMenosUnoElegido = true; // Se activa si elige al menos un jugador
+            }
+        }
+
+        // Si da clic en enviar sin haber elegido absolutamente nada en ningún partido
+        if(!alMenosUnoElegido) {
+            return alert("⚠️ Debes seleccionar al menos un jugador en algún partido para activar tu ruleta.");
+        }
+
+        btn.disabled = true;
+        btn.innerText = "⏳ ENVIANDO MIS DORSALES...";
+
+        const payload = {
+            fase: "ruleta_cuartos", 
+            nombre: nom,
+            telefono: tel,
+            resultados: elecciones,
+            resultados_texto: texto_plano
+        };
+
+        fetch(GOOGLE_URL_ELIMINATORIAS, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify(payload)
+        }).then(() => {
+            localStorage.setItem('mi_ruleta_4tos', JSON.stringify(payload));
+            alert("🎯 ¡Tus elecciones de la ruleta se han publicado con éxito!");
+            window.location.reload();
+        }).catch(err => {
+            alert("❌ Error de comunicación: " + err);
+            btn.disabled = false; btn.innerText = "🚀 ENVIAR MIS DORSALES OFICIALES";
+        });
+    }
+    // =========================================================================
+    // 🚀 NUEVO: CONTROL DE CARGA INICIAL CON TABLA DE CONSULTA DE APUESTA
+    // =========================================================================
+    window.onload = function() {
+        const apuestaGuardada = localStorage.getItem('mi_ruleta_4tos');
+        
+        if(apuestaGuardada) {
+            const datosRuleta = JSON.parse(apuestaGuardada);
+            const origenDorsales = datosRuleta.resultados || {};
+            
+            // Construimos las filas de la tabla leyendo el objeto guardado en el móvil
+            let filasTablaHtml = "";
+            partidosCuartos.forEach(p => {
+                let jugadorElegido = origenDorsales[p.id] || "No Juega";
+                
+                // Si el texto es "No Juega", le ponemos un estilo más suave
+                let estiloCelda = jugadorElegido === "No Juega" ? "color:#888; font-style:italic;" : "font-weight:bold; color:var(--primary);";
+                
+                filasTablaHtml += `
+                    <tr>
+                        <td style="padding:12px; border-bottom:1px solid #eee; text-align:left; font-size:0.9em;">
+                            <b>P${p.id}:</b> ${p.t1} vs ${p.t2}
+                        </td>
+                        <td style="padding:12px; border-bottom:1px solid #eee; text-align:center; ${estiloCelda}">
+                            ${jugadorElegido}
+                        </td>
+                    </tr>
+                `;
+            });
+
+            // Reemplazamos todo el cuerpo de la página por un panel informativo de consulta bloqueado
+            document.body.innerHTML = `
+                <div class="container" style="margin-top:30px;">
+                    <div class="card" style="border-left: 6px solid #2e7d32; text-align:center; padding:25px;">
+                        <h2 style="color:#2e7d32; margin-top:0;">✅ ¡Ruleta Registrada con Éxito!</h2>
+                        <p style="font-size:0.9em; color:#555; margin-bottom:20px;">
+                            Participante: <b>${datosRuleta.nombre.toUpperCase()}</b><br>
+                            Tus dorsales oficiales están guardados de forma inalterable en el Excel.
+                        </p>
+                        
+                        <!-- TABLA DE CONSULTA BLOQUEADA -->
+                        <table style="width:100%; border-collapse:collapse; margin:20px 0; background:#f9f9f9; border-radius:8px; overflow:hidden; box-shadow:0 2px 5px rgba(0,0,0,0.05);">
+                            <thead>
+                                <tr style="background:#0a2240; color:white;">
+                                    <th style="padding:12px; text-align:left; font-size:0.85em;">Partido</th>
+                                    <th style="padding:12px; text-align:center; font-size:0.85em;">Jugador Seleccionado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${filasTablaHtml}
+                            </tbody>
+                        </table>
+
+                        <p style="font-size:0.75em; color:#888; margin-top:10px; font-style:italic;">
+                            🔒 Esta apuesta está bloqueada para evitar modificaciones fuera de plazo.
+                        </p>
+                        
+                        <!-- 🚀 BOTÓN DIRECTO PARA IR A LA PÁGINA DE CUARTOS -->
+                        <button class="btn-send" onclick="window.location.href='cuartos.html'" style="background:#0a2240; margin-top:20px; font-size:1em;">
+                            ⬅️ REGRESAR A LA QUINIELA DE CUARTOS
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+    };
+    
+</script>
+</body>
+</html>
