@@ -517,7 +517,7 @@ function iniciarTableroJuego() {
         btn.innerText = "⏳ BUSCANDO EN EL SERVIDOR...";
 
         try {
-            const query = `${GOOGLE_URL_ELIMINATORIAS}?action=recuperarServidor&fase=octavos&telefono=${tel}&t=${Date.now()}`;
+            const query = `${GOOGLE_URL_ELIMINATORIAS}?action=recuperarServidor&fase=cuartos&telefono=${tel}&t=${Date.now()}`;
             const resp = await fetch(query);
             const textData = await resp.text(); 
             const data = JSON.parse(textData); 
