@@ -1,0 +1,1322 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiniela Mundial 2026 · Fase Eliminatoria</title>
+    <link rel="preconnect" href="https://googleapis.com">
+    <link rel="preconnect" href="https://gstatic.com" crossorigin>
+    <link href="https://googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="icono-192.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="icono-192.png">
+    <link rel="manifest" href="manifest.json">
+    <style>
+        :root {
+            --ink: #12182b;
+            --ink-soft: #5b6478;
+            --bg: #f5f6f9;
+            --surface: #ffffff;
+            --line: #e7e9f0;
+            --primary: #1d2b53;
+            --primary-soft: #eef1fa;
+            --accent: #2f6fed;
+            --good: #1e8e5a;
+            --bad: #d64545;
+            --gold: #c68a2e;
+            --radius: 16px;
+            --radius-sm: 10px;
+            --shadow: 0 8px 24px rgba(18, 24, 43, 0.06);
+        }
+        * { box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; margin: 0; padding-bottom: 120px; background: var(--bg); color: var(--ink); }
+
+        .header { background: linear-gradient(135deg, var(--primary), #101a38); color: white; text-align: center; padding: 34px 16px 30px; }
+        .header p { margin: 0; font-size: 0.75em; color: #a9b6e0; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; }
+        .header h1 { margin: 6px 0 0; font-size: 1.7em; font-weight: 800; letter-spacing: 0.3px; }
+        .header .sesion-chip { display: inline-flex; align-items: center; gap: 8px; margin-top: 14px; background: rgba(255,255,255,0.08); padding: 6px 14px; border-radius: 999px; font-size: 0.78em; color: #dbe2f5; }
+        .header .sesion-chip button { border: none; background: none; color: #ffd479; font-weight: 700; cursor: pointer; font-size: 1em; font-family: inherit; padding: 0; }
+
+        .container { max-width: 780px; margin: -18px auto 20px; padding: 0 14px; width: 100%; }
+
+        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 18px; }
+        @media (max-width: 480px) { .menu-grid { grid-template-columns: 1fr; } }
+
+        .surface { background: var(--surface); padding: 22px; border-radius: var(--radius); box-shadow: var(--shadow); margin-bottom: 16px; }
+        .surface-title { margin: 0 0 4px; font-size: 1.05em; font-weight: 700; color: var(--primary); }
+        .surface-sub { margin: 0 0 16px; font-size: 0.85em; color: var(--ink-soft); }
+
+        input[type="text"], input[type="tel"], input[type="number"], select {
+            width: 100%; padding: 13px 14px; border: 1.5px solid var(--line); border-radius: var(--radius-sm);
+            box-sizing: border-box; margin-top: 6px; font-size: 0.95em; font-family: inherit; background: #fbfbfd; color: var(--ink);
+            transition: border-color .15s;
+        }
+        input:focus, select:focus { outline: none; border-color: var(--accent); background: white; }
+        select { cursor: pointer; font-weight: 600; }
+        label { font-size: 0.85em; font-weight: 600; color: var(--ink-soft); }
+
+        .match-card { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); margin-bottom: 12px; padding: 16px; }
+        .match-info { text-align: center; font-size: 0.75em; color: var(--ink-soft); margin-bottom: 10px; font-weight: 600; letter-spacing: 0.3px; }
+        .tv-tag { color: var(--gold); }
+        .match-grid { display: grid; grid-template-columns: 1fr 116px 1fr; align-items: center; gap: 8px; }
+        .team { font-weight: 700; font-size: 0.92em; color: var(--ink); }
+        .team-left { text-align: right; }
+        .team-right { text-align: left; }
+        .tipo-tag { background: var(--primary); color: white; padding: 5px 12px; font-size: 0.7em; font-weight: 700; margin-bottom: 10px; border-radius: 999px; display: inline-block; letter-spacing: 0.4px; }
+
+        .scores { display: flex; justify-content: center; gap: 6px; align-items: center; }
+        .scores input { width: 56px; height: 52px; text-align: center; font-weight: 700; border: 1.5px solid var(--line); border-radius: 10px; font-size: 1.15em; margin-top: 0; }
+        .scores input:disabled { background-color: #f1f2f6; color: var(--ink-soft); }
+
+        .clasifica-box { grid-column: span 3; background: #fef6ea; margin-top: 10px; padding: 10px; border-radius: var(--radius-sm); border: 1px dashed #e0b866; text-align: center; font-size: 0.82em; display: none; }
+        .clasifica-box select { padding: 6px 12px; border-radius: 8px; border: 1px solid #e0b866; font-weight: 700; background: white; margin-left: 6px; margin-top: 0; width: auto; display: inline-block; }
+
+        .tabla-posiciones { width: 100%; border-collapse: collapse; font-size: 0.83em; margin-top: 12px; background: var(--surface); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); }
+        .tabla-posiciones th { background: var(--primary); padding: 11px; color: white; font-weight: 600; }
+        .tabla-posiciones td { border-bottom: 1px solid var(--line); padding: 11px; text-align: center; }
+        .tabla-posiciones tr:last-child td { border-bottom: none; }
+        .pts-col { font-weight: 700; color: var(--accent); background: var(--primary-soft); }
+
+        .btn { display: block; width: 100%; padding: 15px; font-size: 0.95em; border-radius: 12px; cursor: pointer; font-family: inherit; font-weight: 700; text-align: center; border: none; transition: transform .12s, opacity .12s; box-sizing: border-box; }
+        .btn:hover { opacity: 0.92; }
+        .btn:active { transform: scale(0.98); }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-accent { background: var(--accent); color: white; }
+        .btn-gold { background: var(--gold); color: white; }
+        .btn-ghost { background: var(--surface); color: var(--primary); border: 1.5px solid var(--line); }
+        .btn-good { background: var(--good); color: white; }
+        .btn:disabled { background: #c8ccd8 !important; color: white; cursor: not-allowed; }
+        .btn + .btn { margin-top: 10px; }
+        .menu-grid .btn { margin-top: 0; height: 100%; display: flex; align-items: center; justify-content: center; }
+        .btn-ruleta-full { grid-column: 1 / -1; }
+
+        .modal { display: none; position: fixed; z-index: 3000; inset: 0; background-color: rgba(15,20,40,0.55); overflow-y: auto; }
+        .modal-content { background-color: white; margin: 10% auto; padding: 24px; border-radius: var(--radius); width: 88%; max-width: 480px; line-height: 1.6; position: relative; box-shadow: 0 20px 50px rgba(0,0,0,0.25); }
+        .close-modal { color: #aaa; float: right; font-size: 26px; font-weight: bold; cursor: pointer; line-height: 1; }
+        .close-modal:hover { color: black; }
+        .modal-body h3 { color: var(--primary); border-bottom: 2px solid var(--line); padding-bottom: 10px; margin-top: 0; }
+        .modal-body ul { padding-left: 20px; font-size: 0.85em; color: var(--ink-soft); }
+        .modal-body li { margin-bottom: 8px; }
+
+        /* Ruleta */
+        .card-ruleta { background: var(--surface); padding: 18px; border-radius: var(--radius); box-shadow: var(--shadow); margin-bottom: 12px; text-align: left; border-top: 4px solid var(--gold); }
+        .match-title { font-weight: 700; color: var(--primary); margin-bottom: 12px; font-size: 0.95em; }
+        .ruleta-block { display: flex; flex-direction: column; gap: 8px; }
+        .label-ruleta { font-size: 0.78em; color: var(--ink-soft); font-weight: 600; }
+        .locked-msg { background: #f1f2f6; border-radius: var(--radius-sm); padding: 12px; text-align: center; font-size: 0.85em; color: var(--ink-soft); font-weight: 600; }
+        .banner-finalizado { background: #e9f7ef; border: 1.5px solid var(--good); color: #12693f; padding: 12px; border-radius: var(--radius-sm); font-weight: 700; margin-bottom: 15px; text-align: center; font-size: 0.9em; }
+
+        .avatar-box { display: flex; align-items: center; gap: 10px; min-height: 0; }
+        .avatar-jugador { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 2px solid var(--line); }
+        .avatar-fallback { width: 48px; height: 48px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.85em; position: relative; }
+        .avatar-dorsal { position: absolute; bottom: -4px; right: -4px; background: var(--gold); color: white; font-size: 0.6em; padding: 1px 5px; border-radius: 8px; font-weight: 800; }
+        .avatar-cargando { width: 48px; height: 48px; border-radius: 50%; border: 3px solid var(--line); border-top: 3px solid var(--accent); animation: girarMiniSpinner 0.8s linear infinite; }
+        .avatar-nombre { font-weight: 700; font-size: 0.85em; color: var(--ink); }
+
+        .ruleta-resumen-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 0.85em; }
+        .ruleta-resumen-row:last-child { border-bottom: none; }
+
+        @keyframes girarMiniSpinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .btn-flotante-fase2 {
+            position: fixed; bottom: 22px; right: 22px; width: 58px; height: 58px;
+            background-color: var(--primary); color: white; border-radius: 50%;
+            border: none; box-shadow: 0 8px 20px rgba(18,24,43,0.3);
+            font-size: 24px; cursor: pointer; z-index: 5000; display: none;
+            transition: transform 0.15s;
+            align-items: center; justify-content: center; line-height: 1; padding: 0;
+        }
+        .btn-flotante-fase2:active { transform: scale(0.92); }
+        @media print { .btn-flotante-fase2 { display: none !important; } }
+
+        .capa-carga-fase2 {
+            position: fixed; inset: 0; background-color: rgba(245,246,249,0.9); backdrop-filter: blur(3px);
+            display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 9999;
+        }
+        .anillo-spinner { width: 42px; height: 42px; border: 4px solid var(--line); border-top: 4px solid var(--primary); border-radius: 50%; animation: girarMiniSpinner 0.9s linear infinite; }
+        .texto-carga { margin-top: 14px; font-weight: 600; color: var(--primary); font-size: 0.95em; }
+
+        .hero-img-wrap { width: 100%; border-radius: var(--radius); overflow: hidden; margin-bottom: 16px; box-shadow: var(--shadow); }
+        .hero-img-wrap img { width: 100%; display: block; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <p>Fase eliminatoria</p>
+    <h1 id="titulo-fase-header">Cargando…</h1>
+    <div id="sesion-chip" class="sesion-chip" style="display:none;">
+        👤 <span id="sesion-chip-nombre">—</span>
+        <button onclick="cambiarUsuario()">Cambiar</button>
+    </div>
+</div>
+
+<div class="container">
+
+    <!-- PANTALLA DE ARRANQUE (solo primera visita sin caché) -->
+    <div id="deteccion-fase-section" class="surface" style="display:none; text-align:center;">
+        <div style="display: inline-block; width: 28px; height: 28px; border: 4px solid var(--line); border-top: 4px solid var(--primary); border-radius: 50%; animation: girarMiniSpinner 1s linear infinite; margin-bottom: 8px;"></div>
+        <p style="font-size: 0.9em; color: var(--primary); font-weight: 600;">Detectando la fase activa del torneo...</p>
+    </div>
+
+    <!-- MENÚ PRINCIPAL -->
+    <div id="welcome-section" class="welcome-panel" style="display:none;">
+        <div class="hero-img-wrap">
+            <img src="https://i.etsystatic.com/60577639/r/il/b0ebd3/7842682356/il_794xN.7842682356_ggns.jpg" alt="Ranking 2026">
+        </div>
+
+        <div id="banner-torneo-finalizado" class="banner-finalizado" style="display:none;">
+            🏆 El torneo ha finalizado. ¡Gracias por participar!
+        </div>
+
+        <div class="menu-grid">
+            <button class="btn btn-primary" id="btn-menu-enviar" onclick="accederQuiniela()">Enviar resultados</button>
+            <button class="btn btn-ghost" id="btn-menu-consultar" onclick="recuperarOBuscarApuesta()">Mi apuesta guardada</button>
+            <button class="btn btn-ghost" id="btn-seguimiento-propio" onclick="verMisPuntosPropios()">Mis puntos detallados</button>
+            <button class="btn btn-ghost" onclick="mostrarClasificacion()">Clasificación</button>
+            <button class="btn btn-gold btn-ruleta-full" id="btn-menu-ruleta" onclick="accederRuleta()">
+                🎯 Jugar / consultar mi jugador ruleta
+            </button>
+            <button class="btn btn-ghost btn-ruleta-full" onclick="abrirModalReglas()">Ver reglas</button>
+        </div>
+
+        <div id="ficha-resumen-inicio" style="display: none; margin-top: 16px;"></div>
+
+        <div style="padding-top: 30px;">
+            <div class="surface" style="padding: 18px;">
+                <p class="surface-title" style="margin-bottom:2px;">Máximos goleadores del momento</p>
+                <p class="surface-sub">Solo a nivel informativo</p>
+                <table class="tabla-posiciones">
+                    <thead>
+                        <tr><th style="text-align:left; padding-left:12px;">Jugador</th><th>Selección</th><th>Goles</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td style="text-align:left; padding-left:12px;">L. Messi</td><td>Argentina</td><td>8</td></tr>
+                        <tr><td style="text-align:left; padding-left:12px;">K. Mbappé</td><td>Francia</td><td>8</td></tr>
+                        <tr><td style="text-align:left; padding-left:12px;">E. Haaland</td><td>Noruega</td><td>7</td></tr>
+                        <tr><td style="text-align:left; padding-left:12px;">J. Bellingham</td><td>Inglaterra</td><td>6</td></tr>
+                        <tr><td style="text-align:left; padding-left:12px;">H. Kane</td><td>Inglaterra</td><td>6</td></tr>
+                        <tr><td style="text-align:left; padding-left:12px;">O. Demebelé</td><td>Francia</td><td>5</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- IDENTIFICACIÓN ÚNICA (sirve para quiniela y ruleta) -->
+    <div id="identificacion-section" class="surface" style="display:none;">
+        <p class="surface-title">⚽ Identifícate</p>
+        <p class="surface-sub">Solo tendrás que hacerlo una vez: se usará tanto para tus pronósticos como para la ruleta de jugadores.</p>
+        <label>Nombre o apodo</label>
+        <input type="text" id="nombre_usuario" placeholder="Ej: Juan_Goles">
+        <br><br>
+        <label>Teléfono móvil</label>
+        <input type="tel" id="telefono_usuario" placeholder="Ej: 600123456">
+        <button class="btn btn-primary" style="margin-top:20px;" onclick="confirmarIdentificacion()">Continuar</button>
+        <button class="btn btn-ghost" onclick="volverAlMenu()">Volver al inicio</button>
+    </div>
+
+    <!-- BUSCADOR MANUAL EN SERVIDOR -->
+    <div id="consulta-section" class="surface" style="display:none;">
+        <p class="surface-title">🔎 Recuperar mi apuesta</p>
+        <p class="surface-sub">No detectamos datos guardados en este dispositivo. Introduce tu teléfono para descargarlos del servidor:</p>
+        <input type="tel" id="tel_consulta" placeholder="Ej: 600123456" style="font-size: 1.1em; letter-spacing: 1px;">
+        <button class="btn btn-primary" id="btn-buscar-servidor" style="margin-top:16px;" onclick="recuperarApuestaPorTelefono()">Buscar en el servidor</button>
+        <button class="btn btn-ghost" onclick="volverAlMenu()">Volver al inicio</button>
+    </div>
+
+    <!-- CLASIFICACIÓN -->
+    <div id="ranking-section" class="surface" style="display:none;">
+        <p class="surface-title">Clasificación acumulada</p>
+        <p class="surface-sub">Suma consolidada en tiempo real de la fase activa</p>
+        <p style="font-size:0.75em; color:var(--gold); font-weight: 700; margin: -10px 0 12px;">🔄 Actualizado: <span id="txt-actualizacion">—</span></p>
+        <table class="tabla-posiciones" id="tabla-ranking-publico">
+            <thead>
+                <tr>
+                    <th style="width:44px;">Pos</th>
+                    <th style="text-align:left; padding-left:12px;">Jugador</th>
+                    <th>🎯</th>
+                    <th>✅</th>
+                    <th class="pts-col" style="background:var(--primary); color:white;">Total</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <button class="btn btn-ghost" style="margin-top:16px;" onclick="volverAlMenu()">Volver al inicio</button>
+    </div>
+
+    <!-- SEGUIMIENTO DETALLADO -->
+    <div id="seccion-seguimiento-propio" class="surface" style="display: none; text-align: left;">
+        <p class="surface-title" style="text-align:center;">🏅 Detalle de pronósticos y puntos</p>
+        <div style="background: var(--primary-soft); text-align: center; border-radius: var(--radius-sm); padding: 10px; margin-bottom: 15px;">
+            <p style="margin: 0; font-size: 1.05em; font-weight: 700; color: var(--primary);">
+                <span id="txt-nombre-seguimiento">—</span>
+            </p>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 15px;">
+            <div style="background: #fef6ea; padding: 8px; border-radius: var(--radius-sm); text-align: center;">
+                <b style="font-size: 0.62em; color: var(--gold); display: block; text-transform: uppercase;">Posición</b>
+                <span id="meta-total-pos" style="font-size: 1.05em; font-weight: 700; color: var(--gold);">—</span>
+            </div>
+            <div style="background: var(--primary-soft); padding: 8px; border-radius: var(--radius-sm); text-align: center;">
+                <b style="font-size: 0.62em; color: var(--accent); display: block; text-transform: uppercase;">Puntos</b>
+                <span id="meta-total-pts" style="font-size: 1.05em; font-weight: 700; color: var(--accent);">0 pts</span>
+            </div>
+            <div style="background: #e9f7ef; padding: 8px; border-radius: var(--radius-sm); text-align: center;">
+                <b style="font-size: 0.62em; color: var(--good); display: block; text-transform: uppercase;">🎯 Exactos</b>
+                <span id="meta-total-ex" style="font-size: 1.05em; font-weight: 700; color: var(--good);">0</span>
+            </div>
+            <div style="background: #f3eefb; padding: 8px; border-radius: var(--radius-sm); text-align: center;">
+                <b style="font-size: 0.62em; color: #7b3fb0; display: block; text-transform: uppercase;">✅ Signos</b>
+                <span id="meta-total-ge" style="font-size: 1.05em; font-weight: 700; color: #7b3fb0;">0</span>
+            </div>
+        </div>
+        <table class="tabla-posiciones" style="width: 100%; font-size: 0.83em;">
+            <thead>
+                <tr>
+                    <th style="text-align: left; padding-left: 10px; width: 45%;">Encuentro <span id="txt-fase-titulo" style="color: #ffd479; font-weight: 700;"></span></th>
+                    <th style="width: 30%;">Apuesta vs Real</th>
+                    <th style="width: 25%;">Puntos</th>
+                </tr>
+            </thead>
+            <tbody id="tbody-seguimiento-propio"></tbody>
+        </table>
+
+        <!-- BLOQUE DE PUNTOS DE LA RULETA -->
+        <div id="bloque-puntos-ruleta" style="margin-top:20px; display:none;">
+            <p class="surface-title" style="font-size:0.95em; border-top:1px solid var(--line); padding-top:16px;">🎯 Ruleta de jugadores</p>
+            <div id="ruleta-puntos-lista"></div>
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 0 0; font-weight:700; color:var(--primary);">
+                <span>Subtotal ruleta</span>
+                <span id="ruleta-puntos-subtotal">0 pts</span>
+            </div>
+        </div>
+
+        <button class="btn btn-ghost" id="btn-volver-seguimiento" style="margin-top: 20px;">Volver al inicio</button>
+    </div>
+
+    <!-- JUEGO (PARTIDOS DE LA FASE ACTIVA) -->
+    <div id="juego-section" style="display:none;">
+        <div id="contenedor-partidos"></div>
+        <button class="btn btn-accent" id="btn-enviar" onclick="procesarYEnviarApuesta()">🚀 Confirmar y enviar mi apuesta</button>
+        <button class="btn btn-accent" id="btn-comprobante" style="display:none;" onclick="exportarImpresionNativa()">🖨️ Imprimir comprobante</button>
+        <button class="btn btn-ghost" style="margin-top:10px;" onclick="volverAlMenu()">Volver al inicio</button>
+    </div>
+
+    <!-- ==================== RULETA DE JUGADORES ==================== -->
+
+    <div id="ruleta-consulta-section" class="surface" style="display:none;">
+        <p class="surface-title">🔎 Descargar mis dorsales</p>
+        <p class="surface-sub">Introduce el teléfono con el que enviaste tu ruleta para descargar los datos desde el servidor:</p>
+        <input type="tel" id="r_tel_consulta" placeholder="Ej: 600123456" style="font-size: 1.05em; letter-spacing: 1px;">
+        <button class="btn btn-primary" id="btn-buscar-ruleta-servidor" style="margin-top:16px;" onclick="recuperarRuletaPorTelefono()">Descargar del servidor</button>
+        <button class="btn btn-ghost" onclick="volverAlMenu()">Volver al inicio</button>
+    </div>
+
+    <div id="ruleta-juego-section" style="display:none;">
+        <div id="contenedor-ruleta-partidos"></div>
+        <button class="btn btn-good" id="btn-enviar-ruleta" onclick="enviarRuletaAlServidor()">🚀 Enviar mis dorsales oficiales</button>
+        <button class="btn btn-ghost" style="margin-top:10px;" onclick="volverAlMenu()">Volver al inicio</button>
+    </div>
+
+    <div id="ruleta-confirmacion-section" style="display:none;">
+        <div class="surface" style="border-top: 4px solid var(--good); text-align:center; padding:25px;">
+            <h2 style="color:var(--good); margin-top:0; font-size:1.3em;">✅ ¡Ruleta registrada!</h2>
+            <p style="font-size:0.9em; color:var(--ink-soft); margin-bottom:20px;">
+                Participante: <b id="txt-ruleta-confirmada-nombre" style="color:var(--ink);">—</b><br>
+                Tus dorsales oficiales están guardados de forma inalterable.
+            </p>
+            <table class="tabla-posiciones" style="margin:20px 0;">
+                <thead>
+                    <tr><th style="text-align:left; padding-left:12px;">Partido</th><th>Jugador elegido</th></tr>
+                </thead>
+                <tbody id="tbody-ruleta-confirmada"></tbody>
+            </table>
+            <p style="font-size:0.72em; color:var(--ink-soft); margin-top:10px; font-style:italic;">
+                🔒 Bloqueado para evitar modificaciones fuera de plazo.
+            </p>
+            <button class="btn btn-ghost" onclick="volverAlMenu()">⬅️ Volver al inicio</button>
+        </div>
+    </div>
+
+</div>
+
+<!-- MODAL DE REGLAS -->
+<div id="modalReglas" class="modal">
+    <div class="modal-content">
+        <span class="close-modal" onclick="cerrarModalReglas()">&times;</span>
+        <div class="modal-body">
+            <h3>📖 Reglas — Eliminatorias</h3>
+            <p style="font-size: 0.9em; color: var(--ink); margin-bottom:5px;"><b>1. Puntuación por encuentro</b></p>
+            <ul>
+                <li><b>5 puntos:</b> pleno absoluto al marcador regular (120 minutos).</li>
+                <li><b>2 puntos:</b> acierto de tendencia (ganador o empate).</li>
+            </ul>
+            <p style="font-size: 0.9em; color: var(--ink); margin-bottom:5px;"><b>2. Ruleta de jugadores</b></p>
+            <ul>
+                <li><b>+5 puntos:</b> tu jugador elegido marca gol.</li>
+                <li><b>-2 puntos:</b> tu jugador elegido no marca.</li>
+                <li><b>-5 puntos:</b> tu jugador elegido es expulsado.</li>
+                <li>Una vez finalizado un partido, ya no se puede elegir jugador para él.</li>
+            </ul>
+            <button class="btn btn-primary" style="margin-top:15px;" onclick="cerrarModalReglas()">Entendido</button>
+        </div>
+    </div>
+</div>
+
+<button id="boton-flotante-navegacion" class="btn-flotante-fase2" onclick="accionBotonFlotante()" title="Volver">⬅</button>
+<div id="pantalla-carga-servidor" class="capa-carga-fase2">
+    <div class="anillo-spinner"></div>
+    <div class="texto-carga">Sincronizando con el servidor...</div>
+</div>
+
+<script>
+const GOOGLE_URL_ELIMINATORIAS = "https://script.google.com/macros/s/AKfycbxXcuku-A2Srwsrfc8jPNctIdHhA1sHINXK00iMOAlusSvE-lMhSik6b1gPMRxg3kBdMQ/exec";
+
+// =========================================================================
+// ESTRUCTURA BASE DEL CUADRO (Cuartos fijo; Semis/Final se resuelven solos)
+// =========================================================================
+const CUARTOS_FIJO = [
+    { id: 1, t1: "Francia 🇫🇷", t2: "Marruecos 🇲🇦", f: "9 Jul 22:00", tv: "La 1 TVE" },
+    { id: 2, t1: "España 🇪🇸", t2: "Bélgica 🇧🇪", f: "10 Jul 21:00", tv: "La 1 TVE" },
+    { id: 3, t1: "Noruega 🇳🇴", t2: "Inglaterra 🏴󠁧󠁢󠁥󠁮󠁧󠁿", f: "11 Jul 23:00", tv: "La 1 TVE" },
+    { id: 4, t1: "Argentina 🇦🇷", t2: "Suiza 🇨🇭", f: "12 Jul 03:00", tv: "La 1 TVE" }
+];
+
+const NOMBRES_FASE = { cuartos: "CUARTOS DE FINAL", semifinales: "SEMIFINALES", final: "FASE FINAL" };
+const LETRA_FASE = { cuartos: "C", semifinales: "S", final: "F" };
+
+// Plantillas de los 8 equipos de Cuartos (cubren cualquier posible semifinalista/finalista)
+const plantillasPaises = {
+    "España 🇪🇸": [
+        "1. David Raya","2. Marc Pubill","3. Alejandro Grimaldo","4. Iñigo Martínez","5. Eric García","6. Mikel Merino","7. Yeremy Pino","8. Fabián Ruíz","9. Gavi","10. Lamine Yamal","11. Nico Williams","12. Ferran Torres","13. Álex Remiro","14. Aymeric Laporte","15. Marc Cucurella","16. Rodri","17. Pedro Porro","18. Martín Zubimendi","19. Mikel Oyarzabal","20. Dani Olmo","21. Unai Simón","22. Dani Vivian","23. Pedri","24. Borja Iglesias","25. Víctor Muñoz","26. Jesús Areso"
+    ],
+    "Argentina 🇦🇷": [
+        "1. Emiliano Martínez","2. Nehuén Pérez","3. Nicolás Tagliafico","4. Gonzalo Montiel","5. Cristian Romero","6. Leonardo Balerdi","7. Rodrigo De Paul","8. Enzo Fernández","9. Julián Álvarez","10. Lionel Messi","11. Ángel Di María","12. Gerónimo Rulli","13. Marcelo Weigandt","14. Exequiel Palacios","15. Nicolás González","16. Nahuel Molina","17. Alejandro Garnacho","18. Guido Rodríguez","19. Nicolás Otamendi","20. Alexis Mac Allister","21. Paulo Dybala","22. Lautaro Martínez","23. Juan Musso","24. Marcos Acuña","25. Lisandro Martínez","26. Valentín Carboni"
+    ],
+    "Francia 🇫🇷": [
+        "1. Brice Samba","2. Benjamin Pavard","3. Théo Hernández","4. Dayot Upamecano","5. Ibrahima Konaté","6. Aurélien Tchouaméni","7. Antoine Griezmann","8. Eduardo Camavinga","9. Olivier Giroud","10. Kylian Mbappé","11. Ousmane Dembélé","12. Randal Kolo Muani","13. Jean-Clair Todibo","14. Adrien Rabiot","15. William Saliba","16. Mike Maignan","17. Marcus Thuram","18. Warren Zaïre-Emery","19. Jules Koundé","20. Kingsley Coman","21. Lucas Hernández","22. Youssouf Fofana","23. Alphonse Areola","24. Jonathan Clauss","25. Christopher Nkunku","26. Bradley Barcola"
+    ],
+    "Inglaterra 🏴󠁧󠁢󠁥󠁮󠁧󠁿": [
+        "1. Jordan Pickford","2. Kyle Walker","3. Luke Shaw","4. Declan Rice","5. John Stones","6. Marc Guéhi","7. Bukayo Saka","8. Trent Alexander-Arnold","9. Harry Kane","10. Jude Bellingham","11. Phil Foden","12. Kieran Trippier","13. Aaron Ramsdale","14. Jordan Henderson","15. Lewis Dunk","16. Conor Gallagher","17. Jarrod Bowen","18. Ollie Watkins","19. Marcus Rashford","20. Jack Grealish","21. James Maddison","22. Ben White","23. Sam Johnstone","24. Levi Colwill","25. Rico Lewis","26. Kobbie Mainoo"
+    ],
+    "Marruecos 🇲🇦": [
+        "1. Yassine Bounou","2. Achraf Hakimi","3. Noussair Mazraoui","4. Sofyan Amrabat","5. Nayef Aguerd","6. Romain Saïss","7. Hakim Ziyech","8. Azzedine Ounahi","9. Abderrazak Hamdallah","10. Anass Zaroury","11. Abdelhamid Sabiri","12. Munir Mohamedi","13. Ilias Chair","14. Zakaria Aboukhlal","15. Selim Amallah","16. Abde Ezzalzouli","17. Sofiane Boufal","18. Jawad El Yamiq","19. Youssef En-Nesyri","20. Achraf Dari","21. Walid Cheddira","22. Ahmed Reda Tagnaouti","23. Bilal El Khannouss","24. Badr Benoun","25. Yahia Attiyat Allah","26. Yahya Jabrane"
+    ],
+    "Bélgica 🇧🇪": [
+        "1. Koen Casteels","2. Zeno Debast","3. Arthur Theate","4. Wout Faes","5. Jan Vertonghen","6. Axel Witsel","7. Kevin De Bruyne","8. Youri Tielemans","9. Romelu Lukaku","10. Jérémy Doku","11. Yannick Carrasco","12. Thomas Kaminski","13. Matz Sels","14. Dodi Lukebakio","15. Thomas Meunier","16. Aster Vranckx","17. Charles De Ketelaere","18. Orel Mangala","19. Johan Bakayoko","20. Loïs Openda","21. Timothy Castagne","22. Jérémy Seys","23. Arthur Vermeeren","24. Amadou Onana","25. Maxim De Cuyper","26. Ameen Al-Dakhil"
+    ],
+    "Noruega 🇳🇴": [
+        "1. Ørjan Nyland","2. Julian Ryerson","3. Kristoffer Ajer","4. Leo Østigård","5. Andreas Hanche-Olsen","6. Patrick Berg","7. Alexander Sørloth","8. Martin Ødegaard","9. Erling Haaland","10. Ola Solbakken","11. Mohamed Elyounoussi","12. Mathias Dyngeland","13. Egil Selvik","14. Marcus Holmgren Pedersen","15. David Møller Wolfe","16. Hugo Vetlesen","17. Fredrik Aursnes","18. Kristian Thorstvedt","19. Jørgen Strand Larsen","20. Antonio Nusa","21. Andreas Schjelderup","22. Sander Berge","23. Aron Dønnum","24. Jesper Daland","25. Osame Sahraoui","26. Warren Kamanzi"
+    ],
+    "Suiza 🇨🇭": [
+        "1. Yann Sommer","2. Leonidas Stergiou","3. Silvan Widmer","4. Nico Elvedi","5. Manuel Akanji","6. Denis Zakaria","7. Breel Embolo","8. Remo Freuler","9. Haris Seferović","10. Granit Xhaka","11. Renato Steffen","12. Yvon Mvogo","13. Ricardo Rodríguez","14. Steven Zuber","15. Cédric Zesiger","16. Vincent Sierro","17. Ruben Vargas","18. Gregor Kobel","19. Dan Ndoye","20. Michel Aebischer","21. Zeki Amdouni","22. Fabián Schär","23. Xherdan Shaqiri","24. Kwadwo Duah","25. Filip Ugrinic","26. Johan Manzambi"
+    ]
+};
+
+// =========================================================================
+// ESTADO GLOBAL
+// =========================================================================
+let faseActiva = "cuartos";
+let letraFaseActiva = "C";
+let partidosActivos = [];
+let faseTorneoFinalizado = false;
+let oficialesFaseActivaCache = {};
+let destinoIdentificacion = "quiniela"; // 'quiniela' | 'ruleta'
+
+function claveApuesta() { return `mi_apuesta_${faseActiva}`; }
+function claveRuleta() { return `mi_ruleta_${faseActiva}`; }
+
+// =========================================================================
+// SESIÓN ÚNICA (compartida entre quiniela y ruleta)
+// =========================================================================
+function obtenerSesion() {
+    try { return JSON.parse(localStorage.getItem("sesion_usuario")); } catch (e) { return null; }
+}
+function guardarSesion(nombre, telefono) {
+    localStorage.setItem("sesion_usuario", JSON.stringify({ nombre, telefono }));
+}
+function cambiarUsuario() {
+    if (!confirm("¿Quieres identificarte con otro nombre/teléfono? Esto no borra tus apuestas ya enviadas.")) return;
+    localStorage.removeItem("sesion_usuario");
+    location.reload();
+}
+function pintarChipSesion() {
+    const sesion = obtenerSesion();
+    const chip = document.getElementById("sesion-chip");
+    if (sesion && sesion.nombre) {
+        document.getElementById("sesion-chip-nombre").innerText = sesion.nombre.toUpperCase();
+        chip.style.display = "inline-flex";
+    } else {
+        chip.style.display = "none";
+    }
+}
+
+// =========================================================================
+// CACHÉ LOCAL (para que la home cargue al instante en visitas repetidas)
+// =========================================================================
+function leerCache(key) {
+    try { return JSON.parse(localStorage.getItem(key)); } catch (e) { return null; }
+}
+function guardarCache(key, data) {
+    try { localStorage.setItem(key, JSON.stringify({ ...data, ts: Date.now() })); } catch (e) {}
+}
+
+async function obtenerOficiales(fase) {
+    try {
+        const query = `${GOOGLE_URL_ELIMINATORIAS}?action=obtenerRankingAcumulado&fase=${fase}&t=${Date.now()}`;
+        const resp = await fetch(query);
+        const data = await resp.json();
+        return data.oficiales || {};
+    } catch (e) {
+        console.error(`Error consultando oficiales de ${fase}:`, e);
+        return {};
+    }
+}
+
+function partidoResuelto(oficiales, letra, id) {
+    const o = oficiales[`${letra}${id}`];
+    return !!(o && o.golesH !== undefined && o.golesH !== null && o.golesH !== "");
+}
+
+function aplicarOficiales(partidos, oficiales, letra) {
+    partidos.forEach(p => {
+        const o = oficiales[`${letra}${p.id}`];
+        if (o) { p.golesH = o.golesH; p.golesA = o.golesA; p.pasaReal = o.pasaReal; p.goleadores = o.goleadores || []; p.expulsados = o.expulsados || []; }
+    });
+}
+
+function resolverSemifinales(partidosCuartosResueltos) {
+    const porId = id => partidosCuartosResueltos.find(p => p.id === id);
+    const c1 = porId(1), c2 = porId(2), c3 = porId(3), c4 = porId(4);
+    return [
+        { id: 1, t1: c1.pasaReal || "Ganador C1", t2: c2.pasaReal || "Ganador C2", f: "15 Jul 21:00", tv: "La 1 TVE" },
+        { id: 2, t1: c3.pasaReal || "Ganador C3", t2: c4.pasaReal || "Ganador C4", f: "16 Jul 21:00", tv: "La 1 TVE" }
+    ];
+}
+
+function resolverFinal(partidosSemisResueltos) {
+    const s1 = partidosSemisResueltos.find(p => p.id === 1);
+    const s2 = partidosSemisResueltos.find(p => p.id === 2);
+    const ganadorS1 = s1.pasaReal || null;
+    const ganadorS2 = s2.pasaReal || null;
+    const perdedorS1 = ganadorS1 ? (ganadorS1 === s1.t1 ? s1.t2 : s1.t1) : "Perdedor S1";
+    const perdedorS2 = ganadorS2 ? (ganadorS2 === s2.t1 ? s2.t2 : s2.t1) : "Perdedor S2";
+    return [
+        { id: 1, tipo: "🥉 3º Y 4º PUESTO", t1: perdedorS1, t2: perdedorS2, f: "18 Jul 21:00", tv: "La 1 TVE" },
+        { id: 2, tipo: "👑 GRAN FINAL", t1: ganadorS1 || "Ganador S1", t2: ganadorS2 || "Ganador S2", f: "19 Jul 21:00", tv: "La 1 TVE" }
+    ];
+}
+
+async function inicializarFaseActiva() {
+    const partidosCuartos = CUARTOS_FIJO.map(p => ({ ...p }));
+    const oficialesCuartos = await obtenerOficiales("cuartos");
+    aplicarOficiales(partidosCuartos, oficialesCuartos, "C");
+    const cuartosCompletos = [1, 2, 3, 4].every(id => partidoResuelto(oficialesCuartos, "C", id));
+
+    if (!cuartosCompletos) {
+        faseActiva = "cuartos"; letraFaseActiva = "C"; partidosActivos = partidosCuartos;
+        oficialesFaseActivaCache = oficialesCuartos; faseTorneoFinalizado = false;
+        return;
+    }
+
+    const partidosSemis = resolverSemifinales(partidosCuartos);
+    const oficialesSemis = await obtenerOficiales("semifinales");
+    aplicarOficiales(partidosSemis, oficialesSemis, "S");
+    const semisCompletas = [1, 2].every(id => partidoResuelto(oficialesSemis, "S", id));
+
+    if (!semisCompletas) {
+        faseActiva = "semifinales"; letraFaseActiva = "S"; partidosActivos = partidosSemis;
+        oficialesFaseActivaCache = oficialesSemis; faseTorneoFinalizado = false;
+        return;
+    }
+
+    const partidosFinal = resolverFinal(partidosSemis);
+    const oficialesFinal = await obtenerOficiales("final");
+    aplicarOficiales(partidosFinal, oficialesFinal, "F");
+    const finalCompleta = [1, 2].every(id => partidoResuelto(oficialesFinal, "F", id));
+
+    faseActiva = "final"; letraFaseActiva = "F"; partidosActivos = partidosFinal;
+    oficialesFaseActivaCache = oficialesFinal; faseTorneoFinalizado = finalCompleta;
+}
+
+function renderCabeceraYMenu() {
+    document.getElementById("titulo-fase-header").innerText = NOMBRES_FASE[faseActiva];
+    document.getElementById("banner-torneo-finalizado").style.display = faseTorneoFinalizado ? "block" : "none";
+    document.getElementById("btn-menu-enviar").style.display = faseTorneoFinalizado ? "none" : "block";
+    pintarChipSesion();
+}
+
+// =========================================================================
+// ARRANQUE — carga instantánea desde caché + refresco silencioso
+// =========================================================================
+window.onload = async function() {
+    const cacheFase = leerCache("cache_fase_activa");
+
+    if (cacheFase && cacheFase.partidos) {
+        faseActiva = cacheFase.fase; letraFaseActiva = cacheFase.letra;
+        partidosActivos = cacheFase.partidos; faseTorneoFinalizado = cacheFase.finalizado;
+        oficialesFaseActivaCache = cacheFase.oficiales || {};
+
+        document.getElementById("deteccion-fase-section").style.display = "none";
+        document.getElementById("welcome-section").style.display = "block";
+        renderCabeceraYMenu();
+        pintarSesionMenu();
+        cargarRankingConCache();
+    } else {
+        document.getElementById("deteccion-fase-section").style.display = "block";
+    }
+
+    // Refresco (siempre, en segundo plano si ya había caché)
+    await inicializarFaseActiva();
+    guardarCache("cache_fase_activa", { fase: faseActiva, letra: letraFaseActiva, partidos: partidosActivos, finalizado: faseTorneoFinalizado, oficiales: oficialesFaseActivaCache });
+
+    document.getElementById("deteccion-fase-section").style.display = "none";
+    document.getElementById("welcome-section").style.display = "block";
+    renderCabeceraYMenu();
+    pintarSesionMenu();
+    cargarRankingConCache();
+};
+
+function pintarSesionMenu() {
+    const sesion = obtenerSesion();
+    const contenedorFichaInicio = document.getElementById("ficha-resumen-inicio");
+    if (sesion && localStorage.getItem(claveApuesta())) {
+        document.getElementById("btn-menu-enviar").style.display = "none";
+        contenedorFichaInicio.style.display = "block";
+    }
+}
+
+function volverAlMenu() { location.reload(); }
+
+// =========================================================================
+// NAVEGACIÓN DE VISTAS
+// =========================================================================
+function ocultarTodasLasSecciones() {
+    ["welcome-section", "identificacion-section", "consulta-section", "ranking-section",
+     "seccion-seguimiento-propio", "juego-section",
+     "ruleta-consulta-section", "ruleta-juego-section", "ruleta-confirmacion-section"
+    ].forEach(id => { const el = document.getElementById(id); if (el) el.style.display = "none"; });
+}
+
+// -------- ACCESO UNIFICADO (usa sesión si ya existe) --------
+function accederQuiniela() {
+    const sesion = obtenerSesion();
+    if (sesion) { iniciarTableroJuego(); }
+    else { destinoIdentificacion = "quiniela"; mostrarIdentificacion(); }
+}
+
+function accederRuleta() {
+    const guardado = localStorage.getItem(claveRuleta());
+    if (guardado) {
+        ocultarTodasLasSecciones();
+        mostrarConfirmacionRuletaGuardada(JSON.parse(guardado));
+        return;
+    }
+    const sesion = obtenerSesion();
+    if (sesion) { entrarARuleta(); }
+    else { destinoIdentificacion = "ruleta"; mostrarIdentificacion(); }
+}
+
+function mostrarIdentificacion() {
+    ocultarTodasLasSecciones();
+    const sesion = obtenerSesion();
+    if (sesion) {
+        document.getElementById("nombre_usuario").value = sesion.nombre;
+        document.getElementById("telefono_usuario").value = sesion.telefono;
+    }
+    document.getElementById("identificacion-section").style.display = "block";
+}
+
+function confirmarIdentificacion() {
+    const nom = document.getElementById("nombre_usuario").value.trim();
+    const tel = document.getElementById("telefono_usuario").value.trim();
+    if (!nom || !tel) return alert("⚠️ Rellena tu Nombre y Teléfono.");
+    guardarSesion(nom, tel);
+    pintarChipSesion();
+    if (destinoIdentificacion === "ruleta") entrarARuleta();
+    else iniciarTableroJuego();
+}
+
+function mostrarClasificacion() {
+    ocultarTodasLasSecciones();
+    document.getElementById("ranking-section").style.display = "block";
+    cargarRankingConCache();
+    gestionarVisibilidadBotonFlotante(true, "inicio");
+}
+
+function iniciarTableroJuego() {
+    ocultarTodasLasSecciones();
+    document.getElementById("juego-section").style.display = "block";
+    desplegarEstructuraPartidos(false);
+    gestionarVisibilidadBotonFlotante(true, "inicio");
+}
+
+function recuperarOBuscarApuesta() {
+    if (localStorage.getItem(claveApuesta())) {
+        ocultarTodasLasSecciones();
+        document.getElementById("juego-section").style.display = "block";
+        desplegarEstructuraPartidos(true);
+        inyectarValoresGuardados();
+    } else {
+        ocultarTodasLasSecciones();
+        document.getElementById("consulta-section").style.display = "block";
+    }
+}
+
+function desplegarEstructuraPartidos(bloqueado = false) {
+    const cont = document.getElementById("contenedor-partidos");
+    cont.innerHTML = "";
+    partidosActivos.forEach(p => {
+        const tagMatch = p.tipo ? `<div class="tipo-tag">${p.tipo}</div>` : "";
+        cont.innerHTML += `
+            <div class="match-card">
+                ${tagMatch}
+                <div class="match-info">${letraFaseActiva}${p.id} — 📅 ${p.f}${p.tv ? ` — <span class="tv-tag">📺 ${p.tv}</span>` : ""}</div>
+                <div class="match-grid">
+                    <div class="team team-left">${p.t1}</div>
+                    <div class="scores">
+                        <input type="number" id="h_${p.id}" min="0" oninput="evaluarCondicionEmpate(${p.id})" ${bloqueado ? "disabled" : ""}>
+                        <input type="number" id="a_${p.id}" min="0" oninput="evaluarCondicionEmpate(${p.id})" ${bloqueado ? "disabled" : ""}>
+                    </div>
+                    <div class="team team-right">${p.t2}</div>
+                    <div class="clasifica-box" id="box_desempate_${p.id}">
+                        ⚖️ Empate técnico. ¿Quién logra pasar de ronda?
+                        <select id="pasa_${p.id}" ${bloqueado ? "disabled" : ""}>
+                            <option value="${p.t1}">${p.t1}</option>
+                            <option value="${p.t2}">${p.t2}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+}
+
+function evaluarCondicionEmpate(id) {
+    const h = document.getElementById(`h_${id}`).value;
+    const a = document.getElementById(`a_${id}`).value;
+    const box = document.getElementById(`box_desempate_${id}`);
+    if (h !== "" && a !== "" && parseInt(h) === parseInt(a)) box.style.display = "block";
+    else box.style.display = "none";
+}
+
+function inyectarValoresGuardados() {
+    const datos = JSON.parse(localStorage.getItem(claveApuesta()));
+    partidosActivos.forEach(p => {
+        const prono = datos.resultados[p.id];
+        if (prono) {
+            document.getElementById(`h_${p.id}`).value = prono.h;
+            document.getElementById(`a_${p.id}`).value = prono.a;
+            if (parseInt(prono.h) === parseInt(prono.a)) {
+                document.getElementById(`box_desempate_${p.id}`).style.display = "block";
+                document.getElementById(`pasa_${p.id}`).value = prono.pasa;
+            }
+        }
+    });
+    document.getElementById("btn-enviar").style.display = "none";
+    document.getElementById("btn-comprobante").style.display = "block";
+}
+
+async function recuperarApuestaPorTelefono() {
+    const tel = document.getElementById("tel_consulta").value.trim();
+    if (!tel) return alert("⚠️ Introduce tu número de teléfono.");
+
+    const btn = document.getElementById("btn-buscar-servidor");
+    btn.disabled = true;
+    btn.innerText = "⏳ Buscando en el servidor...";
+
+    try {
+        const query = `${GOOGLE_URL_ELIMINATORIAS}?action=recuperarServidor&fase=${faseActiva}&telefono=${tel}&t=${Date.now()}`;
+        const resp = await fetch(query);
+        const textData = await resp.text();
+        const data = JSON.parse(textData);
+
+        if (data && data.exito && data.apuesta) {
+            if (typeof data.apuesta.resultados === "string") data.apuesta.resultados = JSON.parse(data.apuesta.resultados);
+            localStorage.setItem(claveApuesta(), JSON.stringify(data.apuesta));
+            guardarSesion(data.apuesta.nombre, tel);
+            alert("✅ ¡Apuesta localizada con éxito! Cargando tu quiniela...");
+            location.reload();
+        } else {
+            alert(`❌ No se encontró ninguna apuesta de ${NOMBRES_FASE[faseActiva]} registrada para ese teléfono.`);
+            btn.disabled = false; btn.innerText = "Buscar en el servidor";
+        }
+    } catch (e) {
+        alert("❌ Error de comunicación con el servidor: " + e.message);
+        btn.disabled = false; btn.innerText = "Buscar en el servidor";
+    }
+}
+
+function procesarYEnviarApuesta() {
+    const btn = document.getElementById("btn-enviar");
+    const sesion = obtenerSesion();
+    if (!sesion) return alert("⚠️ Falta identificación.");
+    const apuesta = {}; let texto_plano = "";
+
+    for (let p of partidosActivos) {
+        const hV = document.getElementById(`h_${p.id}`).value;
+        const aV = document.getElementById(`a_${p.id}`).value;
+        if (hV === "" || aV === "") return alert("⚠️ Completa todos los marcadores.");
+
+        const h = parseInt(hV); const a = parseInt(aV);
+        let pasa = "";
+        if (h > a) pasa = p.t1;
+        else if (a > h) pasa = p.t2;
+        else pasa = document.getElementById(`pasa_${p.id}`).value;
+
+        apuesta[p.id] = { h: h, a: a, pasa: pasa };
+        texto_plano += `${letraFaseActiva}${p.id}:[${h}-${a}] Pasa:${pasa} / `;
+    }
+
+    btn.disabled = true;
+    btn.innerText = "⏳ Enviando apuesta...";
+
+    const payload = { fase: faseActiva, nombre: sesion.nombre, telefono: sesion.telefono, resultados: apuesta, resultados_texto: texto_plano };
+
+    fetch(GOOGLE_URL_ELIMINATORIAS, {
+        method: "POST", mode: "no-cors",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(payload)
+    }).then(() => {
+        localStorage.setItem(claveApuesta(), JSON.stringify(payload));
+        alert("✅ ¡Pronósticos enviados con éxito!");
+        location.reload();
+    }).catch(err => {
+        alert("❌ Error: " + err);
+        btn.disabled = false; btn.innerText = "🚀 Confirmar y enviar mi apuesta";
+    });
+}
+
+function exportarImpresionNativa() {
+    const datos = JSON.parse(localStorage.getItem(claveApuesta()));
+    const win = window.open("", "_blank");
+    let html = `<html><head><title>Comprobante ${NOMBRES_FASE[faseActiva]}</title><style>body{font-family:sans-serif;padding:30px;}table{width:100%;border-collapse:collapse;}th{background:#eee;padding:10px;text-align:left;}td{padding:10px;border-bottom:1px solid #eee;}</style></head><body>`;
+    html += `<h2>🏆 MUNDIAL 2026 - ${NOMBRES_FASE[faseActiva]}</h2><p><b>Participante:</b> ${datos.nombre.toUpperCase()} | <b>Teléfono:</b> ${datos.telefono}</p><table><thead><tr><th>Fase</th><th>Partido</th><th>Pronóstico Regular</th><th>Avanza de Ronda</th></tr></thead><tbody>`;
+    partidosActivos.forEach(p => {
+        const item = datos.resultados[p.id];
+        html += `<tr><td>${p.id}</td><td>${p.t1} vs ${p.t2}</td><td><b>${item.h} — ${item.a}</b></td><td>${item.pasa}</td></tr>`;
+    });
+    html += `</tbody></table></body></html>`;
+    win.document.write(html); win.document.close();
+    setTimeout(() => { win.print(); win.close(); }, 500);
+}
+
+// =========================================================================
+// CLASIFICACIÓN / RANKING — con caché instantánea + refresco silencioso
+// =========================================================================
+function pintarRanking(listadoRanking, actualizado) {
+    document.getElementById("txt-actualizacion").innerText = actualizado || "—";
+    const tbody = document.querySelector("#tabla-ranking-publico tbody");
+
+    if (listadoRanking && listadoRanking.length > 0) {
+        tbody.innerHTML = listadoRanking.map(p => `
+            <tr>
+                <td><b>${p.pos}</b></td>
+                <td style="text-align:left; padding-left:12px; font-weight:700; color:var(--accent); cursor:pointer; text-decoration:underline;" onclick="verApuestasDeOtroJugador('${p.nombre}')">
+                    ${p.nombre}
+                </td>
+                <td>${p.ex}</td>
+                <td>${p.ge}</td>
+                <td class="pts-col">${p.pts} pts</td>
+            </tr>
+        `).join("");
+    } else {
+        tbody.innerHTML = "<tr><td colspan='5' style='padding:20px; color:var(--bad); font-weight:700;'>Aún no se ha publicado la clasificación de esta ronda.</td></tr>";
+    }
+
+    const datosRaw = localStorage.getItem(claveApuesta());
+    const contenedorFichaInicio = document.getElementById("ficha-resumen-inicio");
+    if (datosRaw && contenedorFichaInicio && listadoRanking) {
+        const datosUsuario = JSON.parse(datosRaw);
+        const miPerfil = listadoRanking.find(u => String(u.nombre).trim().toUpperCase() === String(datosUsuario.nombre).trim().toUpperCase());
+        if (miPerfil) {
+            contenedorFichaInicio.style.display = "block";
+            contenedorFichaInicio.innerHTML = `
+                <div class="surface" style="padding:16px;">
+                    <p class="surface-title" style="margin-bottom:10px; font-size:0.95em;">Mi estado actual en el torneo</p>
+                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;">
+                        <div style="background: #fef6ea; padding: 8px; border-radius: 10px; text-align: center;">
+                            <b style="font-size: 0.6em; color: var(--gold); display:block; text-transform:uppercase;">Posición</b>
+                            <span style="font-size: 1.05em; font-weight: 700; color: var(--gold);">${miPerfil.pos}º</span>
+                        </div>
+                        <div style="background: var(--primary-soft); padding: 8px; border-radius: 10px; text-align: center;">
+                            <b style="font-size: 0.6em; color: var(--accent); display:block; text-transform:uppercase;">Puntos</b>
+                            <span style="font-size: 1.05em; font-weight: 700; color: var(--accent);">${miPerfil.pts}</span>
+                        </div>
+                        <div style="background: #e9f7ef; padding: 8px; border-radius: 10px; text-align: center;">
+                            <b style="font-size: 0.6em; color: var(--good); display:block; text-transform:uppercase;">🎯 Exactos</b>
+                            <span style="font-size: 1.05em; font-weight: 700; color: var(--good);">${miPerfil.ex}</span>
+                        </div>
+                        <div style="background: #f3eefb; padding: 8px; border-radius: 10px; text-align: center;">
+                            <b style="font-size: 0.6em; color: #7b3fb0; display:block; text-transform:uppercase;">✅ Signos</b>
+                            <span style="font-size: 1.05em; font-weight: 700; color: #7b3fb0;">${miPerfil.ge}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+    }
+}
+
+async function cargarRankingConCache() {
+    const cacheKey = `cache_ranking_${faseActiva}`;
+    const cache = leerCache(cacheKey);
+
+    if (cache && cache.ranking) {
+        pintarRanking(cache.ranking, cache.actualizado);
+        window.golesOficialesGlobalCache = cache.oficiales || {};
+        window.rankingServidorCache = cache.ranking;
+        aplicarOficiales(partidosActivos, cache.oficiales || {}, letraFaseActiva);
+        oficialesFaseActivaCache = cache.oficiales || oficialesFaseActivaCache;
+    } else {
+        const tbody = document.querySelector("#tabla-ranking-publico tbody");
+        if (tbody) tbody.innerHTML = "<tr><td colspan='5' style='padding:20px; color:var(--ink-soft);'>🔍 Descargando tabla de posiciones...</td></tr>";
+    }
+
+    try {
+        const query = `${GOOGLE_URL_ELIMINATORIAS}?action=obtenerRankingAcumulado&fase=${faseActiva}&t=${Date.now()}`;
+        const resp = await fetch(query);
+        const dataJson = await resp.json();
+        const listadoRanking = dataJson.ranking || [];
+        const golesOficialesExcel = dataJson.oficiales || {};
+
+        window.golesOficialesGlobalCache = golesOficialesExcel;
+        window.rankingServidorCache = listadoRanking;
+        aplicarOficiales(partidosActivos, golesOficialesExcel, letraFaseActiva);
+        oficialesFaseActivaCache = golesOficialesExcel;
+
+        guardarCache(cacheKey, { ranking: listadoRanking, oficiales: golesOficialesExcel, actualizado: dataJson.actualizado });
+        pintarRanking(listadoRanking, dataJson.actualizado);
+    } catch (e) {
+        console.error(e);
+        if (!cache) {
+            const tbody = document.querySelector("#tabla-ranking-publico tbody");
+            if (tbody) tbody.innerHTML = "<tr><td colspan='5' style='padding:20px; color:var(--bad);'>❌ Error de red al cargar el ranking.</td></tr>";
+        }
+    }
+}
+
+function abrirModalReglas() { document.getElementById("modalReglas").style.display = "block"; }
+function cerrarModalReglas() { document.getElementById("modalReglas").style.display = "none"; }
+
+async function verMisPuntosPropios() {
+    const datosRaw = localStorage.getItem(claveApuesta());
+    if (!datosRaw) return alert("⚠️ No tienes ninguna apuesta guardada en este dispositivo para esta fase.");
+    const datosUsuario = JSON.parse(datosRaw);
+
+    ocultarTodasLasSecciones();
+    document.getElementById("seccion-seguimiento-propio").style.display = "block";
+
+    const btnVolver = document.getElementById("btn-volver-seguimiento");
+    if (btnVolver) { btnVolver.innerText = "Volver al inicio"; btnVolver.onclick = () => volverAlMenu(); }
+    gestionarVisibilidadBotonFlotante(true, "inicio");
+
+    calcularMisPuntosPasoAPaso(datosUsuario, true);
+    pintarPuntosRuleta(claveRuleta());
+
+    if (window.rankingServidorCache) {
+        const miPerfil = window.rankingServidorCache.find(u => String(u.nombre).trim().toUpperCase() === String(datosUsuario.nombre).trim().toUpperCase());
+        if (miPerfil) {
+            document.getElementById("meta-total-pos").innerText = `${miPerfil.pos}º`;
+            document.getElementById("meta-total-pts").innerText = `${miPerfil.pts} pts`;
+            document.getElementById("meta-total-ex").innerText = miPerfil.ex;
+            document.getElementById("meta-total-ge").innerText = miPerfil.ge;
+        }
+    }
+
+    // Refresco silencioso por si la caché de ranking estaba desactualizada
+    cargarRankingConCache().then(() => {
+        calcularMisPuntosPasoAPaso(datosUsuario, true);
+        pintarPuntosRuleta(claveRuleta());
+    });
+}
+
+async function verApuestasDeOtroJugador(nombreAmigo) {
+    if (!window.rankingServidorCache) return;
+
+    const registroAmigo = window.rankingServidorCache.find(p => String(p.nombre).trim().toUpperCase() === String(nombreAmigo).trim().toUpperCase());
+    if (!registroAmigo) return alert(`❌ No se encontraron datos para ${nombreAmigo}.`);
+
+    ocultarTodasLasSecciones();
+    document.getElementById("seccion-seguimiento-propio").style.display = "block";
+
+    const btnVolver = document.getElementById("btn-volver-seguimiento");
+    if (btnVolver) {
+        btnVolver.innerText = "⬅ Volver a la clasificación";
+        btnVolver.onclick = () => {
+            ocultarTodasLasSecciones();
+            document.getElementById("ranking-section").style.display = "block";
+            gestionarVisibilidadBotonFlotante(true, "inicio");
+        };
+    }
+
+    const datosParaPintar = { nombre: registroAmigo.nombre, resultados: registroAmigo.resultados || registroAmigo.pronosticos || {} };
+    calcularMisPuntosPasoAPaso(datosParaPintar, false);
+
+    document.getElementById("meta-total-pos").innerText = `${registroAmigo.pos || "—"}º`;
+    document.getElementById("meta-total-pts").innerText = `${registroAmigo.pts || 0} pts`;
+    document.getElementById("meta-total-ex").innerText = registroAmigo.ex || 0;
+    document.getElementById("meta-total-ge").innerText = registroAmigo.ge || 0;
+
+    if (!registroAmigo.resultados || Object.keys(registroAmigo.resultados).length === 0) {
+        document.getElementById("tbody-seguimiento-propio").innerHTML = `<tr><td colspan="3" style="text-align:center; padding:30px; color:var(--ink-soft); font-style:italic;">
+            🔒 Los pronósticos detallados de este usuario se desbloquearán en cuanto comience el primer partido de esta ronda.
+        </td></tr>`;
+    }
+
+    // Puntos de ruleta de otro jugador: solo si el servidor los publica en el propio registro de ranking (registroAmigo.ruleta)
+    if (registroAmigo.ruleta) {
+        pintarPuntosRuleta(null, registroAmigo.ruleta);
+    } else {
+        document.getElementById("bloque-puntos-ruleta").style.display = "none";
+    }
+
+    gestionarVisibilidadBotonFlotante(true, "clasificacion");
+}
+
+function calcularMisPuntosPasoAPaso(datosUsuario, esPropio = false) {
+    document.getElementById("txt-nombre-seguimiento").innerText = String(datosUsuario.nombre).toUpperCase();
+    document.getElementById("txt-fase-titulo").innerText = NOMBRES_FASE[faseActiva];
+
+    const tbody = document.getElementById("tbody-seguimiento-propio");
+    tbody.innerHTML = "";
+
+    let origenApuestas = datosUsuario.resultados || datosUsuario.pronosticos || datosUsuario.apuesta || {};
+    if (typeof origenApuestas === "string" && origenApuestas.trim() !== "") {
+        try { origenApuestas = JSON.parse(origenApuestas); } catch (e) { origenApuestas = {}; }
+    }
+
+    partidosActivos.forEach((partido) => {
+        const nombreEncuentro = `${partido.t1} vs ${partido.t2}`;
+        let miPrediccion = "N/P";
+        let gHPred = null, gAPred = null;
+
+        if (origenApuestas && origenApuestas[partido.id]) {
+            let hRaw = String(origenApuestas[partido.id].h).split(" ")[0];
+            let aRaw = String(origenApuestas[partido.id].a).split(" ")[0];
+            gHPred = hRaw !== undefined && hRaw !== "" ? parseInt(hRaw) : null;
+            gAPred = aRaw !== undefined && aRaw !== "" ? parseInt(aRaw) : null;
+
+            if (gHPred !== null && gAPred !== null) {
+                miPrediccion = `${gHPred}-${gAPred}`;
+                if (gHPred === gAPred && origenApuestas[partido.id].pasa) {
+                    let nombreCorto = String(origenApuestas[partido.id].pasa).replace(/[\uE000-\uF8FF]|\uD83C[\uDDC0-\uDFFF]|\uD83D[\uDC00-\uDDFF]/g, "").trim();
+                    miPrediccion += ` (${nombreCorto.substring(0, 3).toUpperCase()})`;
+                }
+            }
+        }
+
+        let gHReal = partido.golesH, gAReal = partido.golesA;
+        let resultadoReal = "—", estiloTexto = "color: var(--ink-soft); font-weight: normal;", textoPuntos = "Pendiente";
+
+        if (gHReal !== undefined && gHReal !== null && gHReal !== "") {
+            gHReal = parseInt(String(gHReal).split("-")[0]);
+            gAReal = parseInt(String(gAReal).replace(/[^0-9]/g, ""));
+
+            resultadoReal = `${gHReal}-${gAReal}`;
+            if (gHReal === gAReal && partido.pasaReal) {
+                let txtPasaLimpio = String(partido.pasaReal).replace(/[\uE000-\uF8FF]|\uD83C[\uDDC0-\uDFFF]|\uD83D[\uDC00-\uDDFF]/g, "").trim();
+                resultadoReal += ` (${txtPasaLimpio.substring(0, 3).toUpperCase()})`;
+            }
+
+            if (gHPred !== null && gAPred !== null) {
+                var signoReal = gHReal > gAReal ? "L" : (gHReal < gAReal ? "V" : "E");
+                var signoPred = gHPred > gAPred ? "L" : (gHPred < gAPred ? "V" : "E");
+
+                if (gHPred === gHReal && gAPred === gAReal) {
+                    estiloTexto = "color: var(--good); font-weight: bold;"; textoPuntos = "🎯 +5 Puntos";
+                } else if (signoPred === signoReal) {
+                    estiloTexto = "color: var(--gold); font-weight: bold;"; textoPuntos = "✅ +2 Puntos";
+                } else {
+                    estiloTexto = "color: var(--bad); font-weight: bold;"; textoPuntos = "❌ 0 Puntos";
+                }
+            } else {
+                textoPuntos = "❌ Sin apuesta"; estiloTexto = "color: var(--bad); font-weight: bold;";
+            }
+        }
+
+        const celdaComparativa = `<b>${miPrediccion}</b> <span style="color:var(--ink-soft);font-weight:normal;">vs</span> <b>${resultadoReal}</b>`;
+
+        tbody.innerHTML += `
+            <tr>
+                <td style="text-align: left; padding: 12px 5px;">${nombreEncuentro}</td>
+                <td style="text-align: center;">${celdaComparativa}</td>
+                <td style="text-align: center; ${estiloTexto}">${textoPuntos}</td>
+            </tr>
+        `;
+    });
+
+    if (!esPropio && (!origenApuestas || Object.keys(origenApuestas).length === 0)) {
+        tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; padding:30px; color:var(--ink-soft); font-style:italic;">
+            🔒 Los pronósticos detallados de este usuario se desbloquearán en cuanto comience el primer partido de esta ronda.
+        </td></tr>`;
+    }
+}
+
+// -------- PUNTOS DE LA RULETA integrados en "Mis puntos detallados" --------
+// Requiere que el backend publique, para cada partido oficial, los arrays
+// `goleadores` y `expulsados` (nombres de jugadores). Ver nota en el chat.
+function pintarPuntosRuleta(claveLocalStorage, datosRuletaServidor) {
+    const bloque = document.getElementById("bloque-puntos-ruleta");
+    let datosRuleta = datosRuletaServidor || null;
+
+    if (!datosRuleta && claveLocalStorage) {
+        const raw = localStorage.getItem(claveLocalStorage);
+        if (raw) datosRuleta = JSON.parse(raw);
+    }
+
+    if (!datosRuleta || !datosRuleta.resultados) { bloque.style.display = "none"; return; }
+
+    const elecciones = datosRuleta.resultados;
+    const lista = document.getElementById("ruleta-puntos-lista");
+    lista.innerHTML = "";
+    let subtotal = 0;
+
+    partidosActivos.forEach(p => {
+        const jugador = elecciones[p.id];
+        const o = oficialesFaseActivaCache[`${letraFaseActiva}${p.id}`] || {};
+        const goleadores = o.goleadores || [];
+        const expulsados = o.expulsados || [];
+        let pts = 0, estado = "⏳ Pendiente", color = "var(--ink-soft)";
+
+        const jugadorLimpio = jugador ? jugador.replace(/^\d+\.\s*/, "").trim().toLowerCase() : "";
+
+        if (!jugador || jugador === "No Juega" || jugador === "Fuera de plazo") {
+            estado = jugador === "Fuera de plazo" ? "🔒 Fuera de plazo" : "➖ No jugó";
+        } else if (o.golesH === undefined || o.golesH === null || o.golesH === "") {
+            estado = "⏳ Partido pendiente";
+        } else if (goleadores.some(g => g.toLowerCase().includes(jugadorLimpio))) {
+            pts = 5; estado = "⚽ +5 Marcó gol"; color = "var(--good)";
+        } else if (expulsados.some(g => g.toLowerCase().includes(jugadorLimpio))) {
+            pts = -5; estado = "🟥 -5 Expulsado"; color = "var(--bad)";
+        } else {
+            pts = -2; estado = "❌ -2 No marcó"; color = "var(--bad)";
+        }
+
+        subtotal += pts;
+        lista.innerHTML += `
+            <div class="ruleta-resumen-row">
+                <span style="color:var(--ink-soft);">P${p.id}: <b style="color:var(--ink);">${jugador || "—"}</b></span>
+                <span style="color:${color}; font-weight:700;">${estado}</span>
+            </div>
+        `;
+    });
+
+    document.getElementById("ruleta-puntos-subtotal").innerText = `${subtotal >= 0 ? "+" : ""}${subtotal} pts`;
+    bloque.style.display = "block";
+}
+
+// =========================================================================
+// BOTÓN FLOTANTE DE NAVEGACIÓN
+// =========================================================================
+let destinoFlotanteActual = "inicio";
+
+function accionBotonFlotante() {
+    if (destinoFlotanteActual === "clasificacion") {
+        document.getElementById("seccion-seguimiento-propio").style.display = "none";
+        document.getElementById("ranking-section").style.display = "block";
+        destinoFlotanteActual = "inicio";
+    } else {
+        location.reload();
+    }
+}
+
+function gestionarVisibilidadBotonFlotante(mostrar, destino = "inicio") {
+    const btn = document.getElementById("boton-flotante-navegacion");
+    if (!btn) return;
+    destinoFlotanteActual = destino;
+    btn.style.display = mostrar ? "flex" : "none";
+}
+
+// =========================================================================
+// ==================== RULETA DE JUGADORES (INTEGRADA) ==================
+// =========================================================================
+function mostrarConfirmacionRuletaGuardada(datosRuleta) {
+    const origenDorsales = datosRuleta.resultados || {};
+    let filasTablaHtml = "";
+    partidosActivos.forEach(p => {
+        let jugadorElegido = origenDorsales[p.id] || "No Juega";
+        let estiloCelda = (jugadorElegido === "No Juega" || jugadorElegido === "Fuera de plazo") ? "color:var(--ink-soft); font-style:italic;" : "font-weight:700; color:var(--primary);";
+        filasTablaHtml += `
+            <tr>
+                <td style="padding:12px; text-align:left; font-size:0.9em;"><b>P${p.id}:</b> ${p.t1} vs ${p.t2}</td>
+                <td style="padding:12px; text-align:center; ${estiloCelda}">${jugadorElegido}</td>
+            </tr>
+        `;
+    });
+
+    document.getElementById("txt-ruleta-confirmada-nombre").innerText = String(datosRuleta.nombre || "").toUpperCase();
+    document.getElementById("tbody-ruleta-confirmada").innerHTML = filasTablaHtml;
+    document.getElementById("ruleta-confirmacion-section").style.display = "block";
+}
+
+async function recuperarRuletaPorTelefono() {
+    const tel = document.getElementById("r_tel_consulta").value.trim();
+    if (!tel) return alert("⚠️ Introduce tu número de teléfono.");
+
+    const btn = document.getElementById("btn-buscar-ruleta-servidor");
+    btn.disabled = true;
+    btn.innerText = "⏳ Descargando...";
+
+    try {
+        const query = `${GOOGLE_URL_ELIMINATORIAS}?action=recuperarServidor&fase=ruleta_${faseActiva}&telefono=${tel}&t=${Date.now()}`;
+        const resp = await fetch(query);
+        const textData = await resp.text();
+        const data = JSON.parse(textData);
+
+        if (data && data.exito && data.apuesta) {
+            if (typeof data.apuesta.resultados === "string") data.apuesta.resultados = JSON.parse(data.apuesta.resultados);
+            localStorage.setItem(claveRuleta(), JSON.stringify(data.apuesta));
+            guardarSesion(data.apuesta.nombre, tel);
+            alert("✅ ¡Tus dorsales de la Ruleta han sido descargados con éxito!");
+            location.reload();
+        } else {
+            alert(`❌ No se encontró ningún registro en la Ruleta de ${NOMBRES_FASE[faseActiva]} para ese teléfono.`);
+            btn.disabled = false; btn.innerText = "Descargar del servidor";
+        }
+    } catch (e) {
+        alert("❌ Error de comunicación con el servidor: " + e.message);
+        btn.disabled = false; btn.innerText = "Descargar del servidor";
+    }
+}
+
+function partidoFinalizado(p) {
+    return p.golesH !== undefined && p.golesH !== null && p.golesH !== "";
+}
+
+function entrarARuleta() {
+    ocultarTodasLasSecciones();
+    document.getElementById("ruleta-juego-section").style.display = "block";
+
+    const cont = document.getElementById("contenedor-ruleta-partidos");
+    cont.innerHTML = "";
+
+    partidosActivos.forEach(p => {
+        const bloqueado = partidoFinalizado(p);
+        let interfazSelector = "";
+
+        if (bloqueado) {
+            interfazSelector = `<div class="locked-msg">🔒 Partido finalizado — ya no se puede elegir jugador</div>`;
+        } else {
+            const listaT1 = plantillasPaises[p.t1];
+            const listaT2 = plantillasPaises[p.t2];
+
+            if (listaT1 && listaT2) {
+                interfazSelector = `
+                    <select id="dorsal_${p.id}" onchange="actualizarFotoJugador(${p.id})">
+                        <option value="">-- Toca para desplegar jugadores (Opcional) --</option>
+                        <optgroup label="✨ ${p.t1}">${listaT1.map(j => `<option value="${j}">${j}</option>`).join("")}</optgroup>
+                        <optgroup label="✨ ${p.t2}">${listaT2.map(j => `<option value="${j}">${j}</option>`).join("")}</optgroup>
+                    </select>
+                    <div class="avatar-box" id="foto_${p.id}"></div>
+                `;
+            } else {
+                interfazSelector = `
+                    <div style="display:flex; gap:10px;">
+                        <input type="text" id="nombre_manual_${p.id}" placeholder="Nombre del jugador" style="width:70%;">
+                        <input type="number" id="dorsal_manual_${p.id}" placeholder="Dorsal" min="1" max="99" style="width:30%;">
+                    </div>
+                `;
+            }
+        }
+
+        const tagMatch = p.tipo ? `<div class="tipo-tag" style="background:var(--gold);">${p.tipo}</div>` : "";
+
+        cont.innerHTML += `
+            <div class="card-ruleta">
+                ${tagMatch}
+                <div class="match-title">Partido ${p.id}: ${p.t1} vs ${p.t2}</div>
+                <div class="ruleta-block">
+                    ${!bloqueado ? `<span class="label-ruleta">Selecciona tu jugador para la ruleta:</span>` : ""}
+                    ${interfazSelector}
+                </div>
+            </div>
+        `;
+    });
+}
+
+// Muestra foto del jugador seleccionado (Wikipedia) con avatar de respaldo si no hay foto
+async function actualizarFotoJugador(idPartido) {
+    const select = document.getElementById(`dorsal_${idPartido}`);
+    const preview = document.getElementById(`foto_${idPartido}`);
+    const valor = select.value;
+    if (!valor) { preview.innerHTML = ""; return; }
+
+    const dorsal = valor.split(".")[0].trim();
+    const nombreLimpio = valor.replace(/^\d+\.\s*/, "").trim();
+    const iniciales = nombreLimpio.split(" ").filter(Boolean).map(p => p[0]).slice(0, 2).join("").toUpperCase();
+
+    preview.innerHTML = `<div class="avatar-cargando"></div><span class="avatar-nombre">${nombreLimpio}</span>`;
+
+    try {
+        const resp = await fetch(`https://es.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(nombreLimpio)}`);
+        if (resp.ok) {
+            const data = await resp.json();
+            if (data.thumbnail && data.thumbnail.source) {
+                preview.innerHTML = `<img src="${data.thumbnail.source}" class="avatar-jugador" alt="${nombreLimpio}"><span class="avatar-nombre">${nombreLimpio}</span>`;
+                return;
+            }
+        }
+    } catch (e) { /* sin conexión a Wikipedia: usamos el avatar de respaldo */ }
+
+    preview.innerHTML = `<div class="avatar-fallback">${iniciales}<span class="avatar-dorsal">${dorsal}</span></div><span class="avatar-nombre">${nombreLimpio}</span>`;
+}
+
+function enviarRuletaAlServidor() {
+    const sesion = obtenerSesion();
+    if (!sesion) return alert("⚠️ Falta identificación.");
+    const btn = document.getElementById("btn-enviar-ruleta");
+    const elecciones = {};
+    let texto_plano = "";
+    let alMenosUnoElegido = false;
+
+    for (let p of partidosActivos) {
+        if (partidoFinalizado(p)) {
+            elecciones[p.id] = "Fuera de plazo";
+            texto_plano += `P${p.id}:[Fuera de plazo] / `;
+            continue;
+        }
+
+        let valorElegido = "";
+        if (document.getElementById(`dorsal_${p.id}`)) {
+            valorElegido = document.getElementById(`dorsal_${p.id}`).value;
+        } else if (document.getElementById(`nombre_manual_${p.id}`)) {
+            const nM = document.getElementById(`nombre_manual_${p.id}`).value.trim();
+            const dM = document.getElementById(`dorsal_manual_${p.id}`).value.trim();
+            if (nM && dM) valorElegido = `${dM}. ${nM}`;
+        }
+
+        if (!valorElegido) {
+            elecciones[p.id] = "No Juega";
+            texto_plano += `P${p.id}:[No Juega] / `;
+        } else {
+            elecciones[p.id] = valorElegido;
+            texto_plano += `P${p.id}:[${valorElegido}] / `;
+            alMenosUnoElegido = true;
+        }
+    }
+
+    if (!alMenosUnoElegido) return alert("⚠️ Debes seleccionar al menos un jugador en algún partido no finalizado.");
+
+    btn.disabled = true;
+    btn.innerText = "⏳ Enviando mis dorsales...";
+
+    const payload = { fase: `ruleta_${faseActiva}`, nombre: sesion.nombre, telefono: sesion.telefono, resultados: elecciones, resultados_texto: texto_plano };
+
+    fetch(GOOGLE_URL_ELIMINATORIAS, {
+        method: "POST", mode: "no-cors",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(payload)
+    }).then(() => {
+        localStorage.setItem(claveRuleta(), JSON.stringify(payload));
+        alert("🎯 ¡Tus elecciones de la ruleta se han publicado con éxito!");
+        ocultarTodasLasSecciones();
+        mostrarConfirmacionRuletaGuardada(payload);
+    }).catch(err => {
+        alert("❌ Error de comunicación: " + err);
+        btn.disabled = false; btn.innerText = "🚀 Enviar mis dorsales oficiales";
+    });
+}
+</script>
+</body>
+</html>
